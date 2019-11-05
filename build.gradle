@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+}
+
+group 'ist'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    // maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    // FMI Wrapper
+    compile 'org.siani.javafmi:fmu-wrapper:+'
+    // implementation 'com.github.NTNU-IHB:FMI4j:+'
+    // Google libs
+    compile group: 'com.google.guava', name: 'guava', version: '28.1-jre'
+    // Sat Solver
+    //compile group: 'org.ow2.sat4j', name: 'org.ow2.sat4j.core', version: '2.3.4'
+    // ACTS and ATMS in lib folder
+    implementation fileTree(dir: 'lib', include: ['*.jar'])
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.10'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+    // Logic formula
+    //compile 'org.logicng:logicng:1.6.1'
+}

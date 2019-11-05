@@ -4,3 +4,5 @@
 /gradle/
 /test
 /test.png
+/gradle/
+.DS_Store

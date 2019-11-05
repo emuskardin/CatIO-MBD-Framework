@@ -1,5 +1,6 @@
-.gradle/
-build/
-.idea/
-test
-test.png
+/.gradle/
+/.idea/
+/build/
+/gradle/
+/test
+/test.png

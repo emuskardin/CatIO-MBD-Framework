@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class ModelData {
     private String pathToFmi;
-    private List<CombCompData> components;
-    private List<CombCompData> inputs;
-    private List<CombCompData> param;
+    private List<ModelInputData> components;
+    private List<ModelInputData> inputs;
+    private List<ModelInputData> param;
 }

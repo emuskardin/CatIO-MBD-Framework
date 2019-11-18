@@ -13,4 +13,9 @@ public class Component {
         this.type = type;
     }
 
+    public Component(String name, Object value){
+        this.name = name;
+        this.value = value;
+    }
+
 }

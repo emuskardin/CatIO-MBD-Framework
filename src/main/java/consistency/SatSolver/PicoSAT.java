@@ -59,9 +59,8 @@ public class PicoSAT {
             String[] line = s.split(" ");
             if(line[0].equals("c") || line[1] == null)
                 continue;
-            if(line[0].equals("s") && !line[1].equals("UNSATISFIABLE")){
+            if(line[0].equals("s") && !line[1].equals("UNSATISFIABLE"))
                 return mhs;
-            }
             if (line[1].equals("UNSATISFIABLE"))
                 continue;
 

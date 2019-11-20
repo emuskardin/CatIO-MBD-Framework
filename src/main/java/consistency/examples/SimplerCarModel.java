@@ -23,7 +23,6 @@ public class SimplerCarModel implements CbModelEncoderContract {
         model.addCNFClause("-nominal(rightWheel)", "-nominal(leftWheel)", "straight");
         model.addCNFClause("-plus(rightWheel)", "-nominal(leftWheel)", "left");
         model.addCNFClause("-nominal(rightWheel)", "-plus(leftWheel)", "right");
-        // To ease the search provide all ab(X)
 
     }
 

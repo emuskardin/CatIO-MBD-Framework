@@ -71,6 +71,14 @@ public class MLCA {
         return testSuite;
     }
 
+    public List<Component> getAllOkStates(){
+        List<Component> res = new ArrayList<>();
+        for(ModelInputData mid : md.getComponents()){
+            res.add(new Component(mid.getOriginalName(), mid.getValues().indexOf("ok") + 1));
+        }
+        return res;
+    }
+
     public void addRelationToGroup(List<Parameter> comps, Integer relStrength){
         Relation relation = new Relation(relStrength);
         comps.forEach(relation::addParam);

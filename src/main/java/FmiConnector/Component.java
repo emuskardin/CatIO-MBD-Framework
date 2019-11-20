@@ -2,8 +2,10 @@ package FmiConnector;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class Component {
+public class Component implements Serializable {
     private String name;
     private TYPE type;
     private Object value;

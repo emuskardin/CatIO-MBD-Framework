@@ -1,4 +1,4 @@
-package com.github.plot;
+package util;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

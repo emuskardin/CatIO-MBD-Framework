@@ -4,10 +4,11 @@ import FmiConnector.TYPE;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class ModelInputData {
+public class ModelInputData implements Serializable {
     private String name;
     private List<Object> values;
     private TYPE type;

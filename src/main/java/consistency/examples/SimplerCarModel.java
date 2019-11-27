@@ -59,9 +59,9 @@ public class SimplerCarModel implements CbModelEncoderContract {
 
         // check if behaviour is ok
         if(!(Double.compare(rightWheelInput, rightWheelOutput) == 0))
-            encodedObservation.set(1, "-" + encodedObservation.get(1));
+            encodedObservation.set(1, "!" + encodedObservation.get(1));
         if(!(Double.compare(leftWheelInput, leftWheelOutput) == 0))
-            encodedObservation.set(2, "-" + encodedObservation.get(2));
+            encodedObservation.set(2, "!" + encodedObservation.get(2));
 
         return encodedObservation;
     }

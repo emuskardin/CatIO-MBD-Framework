@@ -34,7 +34,7 @@ public class ConsistencyDriver {
             List<String> obs = cbModelEncoderContract.encodeObservation(fmiMonitor.readMultiple(comps));
             RcTree rcTree = new RcTree(model, model.observationToInt(obs));
             for(List<Integer> mhs  : rcTree.getDiagnosis())
-                System.out.println(fmiMonitor.getSimulation().getCurrentTime() + " " + model.diagToComp(mhs, model.getNumOfDistinct()));
+                System.out.println(fmiMonitor.getSimulation().getCurrentTime() + " " + model.diagnosisToComponentNames(mhs, model.getNumOfDistinct()));
             simulation.doStep(stepSize);
         }
         cbModelEncoderContract.clearModel();
@@ -66,7 +66,7 @@ public class ConsistencyDriver {
         
         RcTree rcTree = new RcTree(model, observations);
         for(List<Integer> mhs  : rcTree.getDiagnosis())
-            System.out.println(model.diagToComp(mhs, offset));
+            System.out.println(model.diagnosisToComponentNames(mhs, offset));
 
         cbModelEncoderContract.clearModel();
         fmiMonitor.resetSimulation();

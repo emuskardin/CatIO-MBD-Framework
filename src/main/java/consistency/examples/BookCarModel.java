@@ -58,9 +58,9 @@ public class BookCarModel implements CbModelEncoderContract {
 
         // check the behaviour
         if(!(Double.compare(rightWheelInput, rightWheelOutput) == 0))
-            encodedObservation.set(1, "-" + encodedObservation.get(1));
+            encodedObservation.set(1, "!" + encodedObservation.get(1));
         if(!(Double.compare(leftWheelInput, leftWheelOutput) == 0))
-            encodedObservation.set(2, "-" +encodedObservation.get(2));
+            encodedObservation.set(2, "!" +encodedObservation.get(2));
 
         return encodedObservation;
     }

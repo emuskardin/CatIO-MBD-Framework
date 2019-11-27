@@ -32,10 +32,10 @@ public class CbModel {
         return line.stream().mapToInt(Integer::intValue).toArray();
     }
 
-    public void addCNFClause(String... params){
+    private void addCnfClause(List<String> params){
         ArrayList<Integer> paramToInt = new ArrayList<>();
         for(String param : params){
-            if(param.charAt(0) == '-')
+            if(param.charAt(0) == '~' || param.charAt(0) == '!')
                 paramToInt.add(-predicates.get(param.substring(1)));
             else
                 paramToInt.add(predicates.get(param));
@@ -43,43 +43,47 @@ public class CbModel {
         model.add(paramToInt);
     }
 
-    public void tmpAddCnf(List<String> params){
-        ArrayList<Integer> paramToInt = new ArrayList<>();
-        for(String param : params){
-            if(param.charAt(0) == '~')
-                paramToInt.add(-predicates.get(param.substring(1)));
-            else
-                paramToInt.add(predicates.get(param));
-        }
-        model.add(paramToInt);
-    }
-
-    public void modelFromFile(String path) {
+    public void modelFromFile(String filename){
         String content = null;
         try {
-            content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
+            content = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.getLocalizedMessage();
             System.exit(1);
         }
-        content = content.replace("\n", "").replace("\r", "");
-        String[] lines = content.split("\\.");
+        if(content.contains("->") || content.contains("&") || content.contains("<->") || content.contains("|"))
+            modelToCNF(content);
+        else {
+            String[] clauses = content.split("\\r?\\n");
+            List<List<String>> cl = new ArrayList<>();
+            for(String clause : clauses){
+                String tmpClause = clause.replaceAll("\\s+","");
+                List<String> literals = Arrays.asList(tmpClause.split(","));
+                cl.add(literals);
+            }
+            processAndAddClauses(cl);
+        }
+    }
+
+    public void modelToCNF(String propModel) {
+        propModel = propModel.replace("\n", "").replace("\r", "");
+        String[] lines = propModel.split("\\.");
         for (int i = 0; i < lines.length; i++)
             lines[i] = "(" + lines[i] + ")";
         String formula = String.join("&", lines);
         formula = formula.replace('-', '=');
         formula = formula.replace('!', '~');
         final FormulaFactory f = new FormulaFactory();
-        Formula cnf = null;
+        Formula cnf;
         try {
             final PropositionalParser p = new PropositionalParser(f);
             cnf = p.parse(formula).cnf();
         }catch (ParserException pe){
             System.out.println(pe.getLocalizedMessage());
-            System.exit(1);
+            return;
         }
-        String timed_cnf = cnf.toString().replaceAll("\\s+","");
-        String[] clauses= timed_cnf.split("&");
+        String trimedCnf = cnf.toString().replaceAll("\\s+","");
+        String[] clauses= trimedCnf.split("&");
         List<List<String>> clauseLiterals = new ArrayList<>();
         for(String clause : clauses) {
             String working = clause;
@@ -88,12 +92,26 @@ public class CbModel {
             clauseLiterals.add(Arrays.asList(working.split("\\|")));
         }
 
-        addToModel(clauseLiterals);
-        System.out.println(modelToString());
+        processAndAddClauses(clauseLiterals);
     }
 
-    public void addHealthStatePredicate(String ab){
-        //addCNFClause("-" + ab);
+    private void processAndAddClauses(List<List<String>> clauses){
+        List<List<String>> hsToFront = new ArrayList<>(clauses);
+        for(List<String> clause : clauses) {
+            if(clause.size() == 1) {
+                String lit = clause.get(0);
+                boolean neg = (lit.charAt(0) == '~' || lit.charAt(0) == '!');
+                if ((neg && Character.isUpperCase(lit.charAt(1))) || Character.isUpperCase(lit.charAt(0))){
+                    addHealthStatePredicate(neg ? lit.substring(1) : lit);
+                    addCnfClause(Collections.singletonList(lit));
+                    hsToFront.remove(clause);
+                }
+            }
+        }
+        hsToFront.forEach(this::addCnfClause);
+    }
+
+    private void addHealthStatePredicate(String ab){
         abPredicates.add(predicates.get(ab));
         abPredicates.add(-predicates.get(ab));
     }
@@ -101,7 +119,7 @@ public class CbModel {
     public List<Integer> observationToInt(List<String> observations){
         List<Integer> res = new ArrayList<>();
         observations.forEach(obs -> {
-            if(obs.charAt(0) == '-')
+            if(obs.charAt(0) == '!')
                 res.add(-predicates.get(obs.substring(1)));
             else
                 res.add(predicates.get(obs));
@@ -136,7 +154,6 @@ public class CbModel {
         // Increase each integer by offset
         for(List<Integer> clause: model){
             List<Integer> incCNF = new ArrayList<>();
-
             for(Integer lit : clause) {
                 if (!increaseHS && abPredicates.contains(lit)) {
                     if(clause.size() == 1 && currStep >= 1)
@@ -155,13 +172,13 @@ public class CbModel {
         }
     }
 
-    public List<String> diagToComp(List<Integer> mhs, Integer offset){
+    public List<String> diagnosisToComponentNames(List<Integer> mhs, Integer offset){
         // TODO FIX
         List<String> res = new ArrayList<>();
         mhs.forEach( it -> {
             int timeStep = it / offset; // TODO possible error due to offset for intermittent and persistent faults
             int index = it % model.size();
-            res.add(predicates.getPredicateName( model.get(index).get(0)) + "_" + timeStep + "sec");
+            res.add(predicates.getPredicateName( model.get(index).get(0))); //+ "_" + timeStep + "sec"
         });
         return res;
     }
@@ -174,30 +191,14 @@ public class CbModel {
         numOfDistinct = 0;
     }
 
-    private void addToModel(List<List<String>> cnf){
-        List<List<String>> ree = new ArrayList<>(cnf);
-        for(List<String> clause : cnf) {
-            if(clause.size() == 1) {
-                String lit = clause.get(0);
-                boolean neg = lit.charAt(0) == '~';
-                 if ((neg && Character.isUpperCase(lit.charAt(1))) || Character.isUpperCase(lit.charAt(0))){
-                     addHealthStatePredicate(neg ? lit.substring(1) : lit);
-                     tmpAddCnf(Collections.singletonList(lit));
-                     ree.remove(clause);
-                 }
-            }
-        }
-        ree.forEach(this::tmpAddCnf);
-    }
-
-    private List<List<String>> modelToString(){
+    public List<List<String>> modelToString(){
         List<List<String>> res = new ArrayList<>();
         for(List<Integer> clause : model){
             List<String> tmpClause = new ArrayList<>();
             for(Integer lit : clause) {
                 String name = predicates.getPredicateName(lit);
                 if(lit < 0)
-                    name = "-" + name;
+                    name = "!" + name;
                 tmpClause.add(name);
             }
             res.add(tmpClause);

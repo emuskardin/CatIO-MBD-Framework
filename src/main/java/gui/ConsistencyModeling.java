@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ConsistencyModeling {
     private JTextArea cnfModelArea;
-    private JTextArea observationArea;
+    private JTextField observationArea;
     private JButton diagnoseObservationButton;
     private JTextArea propLogModelArea;
     private JButton exportCNFModelButton;

@@ -1,7 +1,7 @@
 package consistency.mhsAlgs;
 
 import consistency.SatSolver.PicoSAT;
-import consistency.stepFaultDiag.CbModel;
+import consistency.CbModel;
 
 import java.io.IOException;
 import java.util.*;

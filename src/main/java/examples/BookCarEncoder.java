@@ -1,33 +1,14 @@
-package consistency.examples;
+package examples;
 
+import interfaces.Encoder;
 import lombok.Data;
-import consistency.stepFaultDiag.CbModelEncoderContract;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Data
-public class BookCarModel implements CbModelEncoderContract {
-
-    @Override
-    public void constructModel(){
-//        model.addHealthStatePredicate("ab(rightWheel)");
-//        model.addHealthStatePredicate("ab(leftWheel)");
-//        model.addCNFClause("rightWheel");
-//        model.addCNFClause("leftWheel");
-//        model.addCNFClause("-rightWheel", "ab(rightWheel)", "nominal(rightWheel)");
-//        model.addCNFClause("-rightWheel", "ab(rightWheel)", "plus(rightWheel)");
-//        model.addCNFClause("-rightWheel", "ab(rightWheel)", "minus(rightWheel)");
-//        model.addCNFClause("-leftWheel", "ab(leftWheel)", "nominal(leftWheel)");
-//        model.addCNFClause("-leftWheel", "ab(leftWheel)", "plus(leftWheel)");
-//        model.addCNFClause("-leftWheel", "ab(leftWheel)", "minus(leftWheel)");
-//        model.addCNFClause("-nominal(rightWheel)", "-nominal(leftWheel)", "straight");
-//        model.addCNFClause("-plus(rightWheel)", "-minus(leftWheel)", "left");
-//        model.addCNFClause("-minus(rightWheel)","-plus(leftWheel)", "right");
-          model.modelFromFile("bookModel.txt");
-    }
-
+public class BookCarEncoder implements Encoder {
     @Override
     public List<String> encodeObservation(Map<String, Object> obs){
 

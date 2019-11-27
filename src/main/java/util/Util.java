@@ -45,8 +45,7 @@ public class Util {
         }catch(Exception e){
             //System.out.println(e.printStackTrace());
         }
-        ExtractedData extractedData = new ExtractedData(objectsList);
-        return extractedData;
+        return new ExtractedData(objectsList);
     }
 
 }

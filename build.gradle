@@ -9,22 +9,19 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    // maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     // FMI Wrapper
     compile 'org.siani.javafmi:fmu-wrapper:+'
-    // implementation 'com.github.NTNU-IHB:FMI4j:+'
-    // Google libs
-    compile group: 'com.google.guava', name: 'guava', version: '28.1-jre'
-    // ACTS and ATMS in lib folder
+    // ACTS,ATMS and PicoMus in lib folder
     implementation fileTree(dir: 'lib', include: ['*.jar'])
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.10'
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
 
+    // Logic library
     compile 'org.logicng:logicng:1.6.1'
 }
 

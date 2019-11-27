@@ -1,7 +1,7 @@
 package gui;
 
 import consistency.mhsAlgs.RcTree;
-import consistency.stepFaultDiag.CbModel;
+import consistency.CbModel;
 
 import javax.swing.*;
 import java.io.File;

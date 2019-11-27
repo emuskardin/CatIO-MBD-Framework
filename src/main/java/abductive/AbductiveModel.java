@@ -8,28 +8,37 @@ import compiler.LSentence;
 import compiler.LogicParser;
 import consistency.mhsAlgs.GDE;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class AbductiveModel {
-    private List<String> rules = new ArrayList<>();
+    private String rules;
     private List<String> observations = new ArrayList<>();
     private ATMSystem atms = null;
 
-    public void addRule(String rule){ rules.add(rule + ". "); }
-
-    private String getRules(){
-        StringBuilder sb = new StringBuilder();
-        rules.forEach(sb::append);
-        observations.forEach(sb::append);
-        return sb.toString();
-    }
-
-    public void addObservation(String symptoms){
-        observations.add(symptoms + ". ");
+    public AbductiveModel(){ };
+    public AbductiveModel(String filePath){
+        String content = null;
+        try {
+            content = new String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.getLocalizedMessage();
+            System.exit(1);
+        }
+        rules = content;
     }
 
     public void addExplain(List<String> symptoms){
         observations.add(String.join(",", symptoms) + " -> explain.");
+    }
+
+    private String getModelAndObs(){
+        StringBuilder sb = new StringBuilder(rules);
+        observations.forEach(sb::append);
+        return sb.toString();
     }
 
     public Set<Set<String>> getExplanation(){
@@ -46,7 +55,7 @@ public class AbductiveModel {
     public String getDiagnosis() {
         LogicParser parser = new LogicParser();
         String expl;
-        if (!parser.parse(this.getRules())) {
+        if (!parser.parse(this.getModelAndObs())) {
             return "Parsing Error";
         }
         LSentence result = (LSentence)parser.result();

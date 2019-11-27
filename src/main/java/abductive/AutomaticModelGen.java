@@ -55,8 +55,8 @@ public class AutomaticModelGen {
             }
 
             List<String> diff = diff(correctBulbObs, observations);
-            if(!diff.isEmpty())
-                abductiveModel.addRule(formRule(test, diff));
+            //if(!diff.isEmpty())
+            //    abductiveModel.addRule(formRule(test, diff));
         }
         return abductiveModel;
     }
@@ -98,9 +98,5 @@ public class AutomaticModelGen {
         return res;
     }
 
-    public List<String> encodeObservations(){
-
-        return null;
-    }
 
 }

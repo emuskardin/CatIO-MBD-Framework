@@ -20,9 +20,11 @@ public class FmiDataExtractor {
     private JPanel panel;
     private JButton extractButton;
     private JTextField filePath;
-    private JButton search;
+    private JButton openFmi;
     private JTable dataTable;
-    private JButton export;
+    private JButton exportRead;
+    private JButton exportMLCAValuesButton;
+    private JPanel exportPanel;
     private String pathToFile;
     private DefaultTableModel tableModel;
 
@@ -35,7 +37,7 @@ public class FmiDataExtractor {
     }
 
     public FmiDataExtractor() {
-        search.addActionListener(e -> {
+        openFmi.addActionListener(e -> {
             JFileChooser j = new JFileChooser("newFmi");
             j.showOpenDialog(null);
             j.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -44,7 +46,6 @@ public class FmiDataExtractor {
         });
 
         extractButton.addActionListener(e -> {
-            System.out.println(pathToFile);
             Simulation simulation = new Simulation(pathToFile);
 
             for(ScalarVariable var : simulation.getModelDescription().getModelVariables()){
@@ -59,7 +60,7 @@ public class FmiDataExtractor {
         });
 
 
-        export.addActionListener(e -> {
+        exportRead.addActionListener(e -> {
             List<Component> toBeRead = new ArrayList<>();
             List<ModelInputData> modelInputData = new ArrayList<>();
             for (int i = 0; i < dataTable.getRowCount(); i++) {
@@ -91,6 +92,10 @@ public class FmiDataExtractor {
                 ex.printStackTrace();
             }
         });
+
+        exportMLCAValuesButton.addActionListener(e -> {
+
+        });
     }
 
     private TYPE getType(String x){
@@ -106,7 +111,7 @@ public class FmiDataExtractor {
 
     private void createUIComponents() {
         dataTable = new JTable();
-        String[] header = {"Variable name","Type","Read", "Parameters"};
+        String[] header = {"Variable name","Type","Read", "Parameters", "MLCA Type"};
         tableModel = new DefaultTableModel(header, 0){
             @Override
             public Class<?> getColumnClass(int column) {
@@ -115,7 +120,9 @@ public class FmiDataExtractor {
                 return String.class;
             }
         };
+        String[] mlcaTypes = {"Input", "Parameter", "Health State", ""};
+        JComboBox mlcaTypeComboBox = new JComboBox(mlcaTypes);
         dataTable.setModel(tableModel);
-
+        dataTable.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(mlcaTypeComboBox));
     }
 }

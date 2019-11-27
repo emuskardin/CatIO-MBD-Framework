@@ -1,0 +1,28 @@
+wheel(left).
+wheel(right).
+
+wheel(left), Expected(left) -> nominal(left).
+wheel(left), Reduced(left) -> slower(left).
+wheel(left), Increased(left) -> faster(left).
+wheel(right), Expected(right) -> nominal(right).
+wheel(right), Reduced(right) -> slower(right).
+wheel(right), Increased(right) -> faster(right).
+
+nominal(left), nominal(right) -> straight.
+nominal(left), faster(right) -> left_curve.
+slower(left), nominal(right) -> left_curve.
+slower(left), faster(right) -> left_curve.
+faster(left), nominal(right) -> right_curve.
+nominal(left), slower(right) -> right_curve.
+faster(left), slower(right) -> right_curve.
+
+nominal(left), faster(left) -> false.
+nominal(left), slower(left) -> false.
+faster(left), slower(left) -> false.
+nominal(right), faster(right) -> false.
+nominal(right), slower(right) -> false.
+faster(right), slower(right) -> false.
+
+right_curve, left_curve -> false.
+right_curve, straight -> false.
+straight, left_curve -> false.

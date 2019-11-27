@@ -1,6 +1,6 @@
 package consistency.SatSolver;
 
-import consistency.stepFaultDiag.CbModel;
+import consistency.CbModel;
 import lombok.Data;
 
 import java.io.*;

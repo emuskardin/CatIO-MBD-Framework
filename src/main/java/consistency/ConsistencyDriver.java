@@ -3,12 +3,10 @@ package consistency;
 import FmiConnector.Component;
 import FmiConnector.FmiMonitor;
 import consistency.mhsAlgs.RcTree;
-import consistency.stepFaultDiag.CbModel;
-import consistency.stepFaultDiag.CbModelEncoderContract;
+import interfaces.Encoder;
 import lombok.Builder;
 import lombok.Data;
 import org.javafmi.wrapper.Simulation;
-import org.logicng.io.parsers.ParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,30 +19,27 @@ public class ConsistencyDriver {
     List<Component> comps;
     double stepSize;
     double simulationRuntime;
-    CbModelEncoderContract cbModelEncoderContract;
+    CbModel model;
+    Encoder encoder;
 
-    public void stepDiag() throws IOException, ParserException {
-        cbModelEncoderContract.constructModel();
+    public void stepDiag() throws IOException {
         Simulation simulation = fmiMonitor.getSimulation();
-        CbModel model = cbModelEncoderContract.getModel();
         model.setNumOfDistinct(model.getPredicates().getSize());
 
         simulation.init(0.0);
         while (simulation.getCurrentTime() <= simulationRuntime){
-            List<String> obs = cbModelEncoderContract.encodeObservation(fmiMonitor.readMultiple(comps));
+            List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(comps));
             RcTree rcTree = new RcTree(model, model.observationToInt(obs));
             for(List<Integer> mhs  : rcTree.getDiagnosis())
                 System.out.println(fmiMonitor.getSimulation().getCurrentTime() + " " + model.diagnosisToComponentNames(mhs, model.getNumOfDistinct()));
             simulation.doStep(stepSize);
         }
-        cbModelEncoderContract.clearModel();
+        model.clearModel();
         fmiMonitor.resetSimulation();
     }
 
-    public void continuousDiag(Boolean intermittentFaults) throws IOException, ParserException {
-        cbModelEncoderContract.constructModel();
+    public void continuousDiag(Boolean intermittentFaults) throws IOException {
         Simulation simulation = fmiMonitor.getSimulation();
-        CbModel model = cbModelEncoderContract.getModel();
         int offset = intermittentFaults ? model.getPredicates().getSize() : (model.getPredicates().getSize() - (model.getAbPredicates().size()/2));
 
         List<Integer> observations = new ArrayList<>();
@@ -52,7 +47,7 @@ public class ConsistencyDriver {
 
         simulation.init(0.0);
         while(simulation.getCurrentTime() <= simulationRuntime){
-            List<Integer> encodedObs = model.observationToInt(cbModelEncoderContract.encodeObservation(fmiMonitor.readMultiple(comps)));
+            List<Integer> encodedObs = model.observationToInt(encoder.encodeObservation(fmiMonitor.readMultiple(comps)));
             observations.addAll(increaseObservation(encodedObs, currStep, offset));
             model.increaseByOffset(intermittentFaults, currStep);
             simulation.doStep(stepSize);
@@ -68,7 +63,7 @@ public class ConsistencyDriver {
         for(List<Integer> mhs  : rcTree.getDiagnosis())
             System.out.println(model.diagnosisToComponentNames(mhs, offset));
 
-        cbModelEncoderContract.clearModel();
+        model.clearModel();
         fmiMonitor.resetSimulation();
     }
 

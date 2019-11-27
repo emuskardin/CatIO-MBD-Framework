@@ -2,9 +2,7 @@ package abductive.combinatorial;
 
 import FmiConnector.Component;
 import FmiConnector.TYPE;
-import com.google.common.collect.Sets;
 import edu.uta.cse.fireeye.common.*;
-import edu.uta.cse.fireeye.service.engine.Combinatorics;
 import edu.uta.cse.fireeye.service.engine.IpoEngine;
 import lombok.Data;
 
@@ -115,7 +113,7 @@ public class MLCA {
     }
 
     public void numberOfCorrectComps(Integer num){
-        sut.addConstraint(new Constraint(correctCompConstaintBuilder(components, num), components));
+        sut.addConstraint(new Constraint(correctCompConstraintBuilder(components, num), components));
     }
 
     public void numberOfCorrectComps(List<Integer> nums){
@@ -123,24 +121,26 @@ public class MLCA {
         for (int i = 0; i < nums.size(); i++) {
             if(i > 0)
                 sb.append(" || ");
-            sb.append(correctCompConstaintBuilder(components, nums.get(i)));
+            sb.append(correctCompConstraintBuilder(components, nums.get(i)));
         }
         sut.addConstraint(new Constraint(sb.toString(), components));
     }
 
-    private String correctCompConstaintBuilder(ArrayList<Parameter> params, Integer correctNum){
+    private String correctCompConstraintBuilder(ArrayList<Parameter> params, Integer correctNum){
         StringBuilder sb = new StringBuilder();
-        Sets.combinations(new HashSet<>(params), correctNum).forEach(comb -> {
-                sb.append("(");
-                int index = 0;
-                for(Iterator<Parameter> it = comb.iterator(); it.hasNext(); index++){
-                    if (index > 0)
-                        sb.append(" && ");
-                    sb.append(it.next().getName()).append("=\"ok\"");
-                    }
-                sb.append(") ||");
+        List<int[]> combinations = generate(params.size(), correctNum);
+        for(int[] comb: combinations){
+            sb.append("(");
+            int index = 0;
+            for (int value : comb) {
+                if (index > 0)
+                    sb.append(" && ");
+                sb.append(params.get(value).getName()).append("=\"ok\"");
+                index++;
             }
-        );
+            sb.append(") ||");
+        }
+
         sb.setLength(sb.length() - 3);
         return sb.toString();
     }
@@ -200,5 +200,29 @@ public class MLCA {
         System.err.println("Type not found in provided model data");
         System.exit(1);
         return null;
+    }
+
+    private List<int[]> generate(int n, int r) {
+        List<int[]> combinations = new ArrayList<>();
+        int[] combination = new int[r];
+
+        for (int i = 0; i < r; i++) {
+            combination[i] = i;
+        }
+
+        while (combination[r - 1] < n) {
+            combinations.add(combination.clone());
+
+            int t = r - 1;
+            while (t != 0 && combination[t] == n - r + t) {
+                t--;
+            }
+            combination[t]++;
+            for (int i = t + 1; i < r; i++) {
+                combination[i] = combination[i - 1] + 1;
+            }
+        }
+
+        return combinations;
     }
 }

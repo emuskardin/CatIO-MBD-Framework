@@ -88,6 +88,7 @@
                 </constraints>
                 <properties>
                   <editable value="false"/>
+                  <rows value="3"/>
                 </properties>
               </component>
             </children>
@@ -100,7 +101,7 @@
             </constraints>
             <properties>
               <editable value="true"/>
-              <rows value="1"/>
+              <rows value="0"/>
               <text value=""/>
             </properties>
           </component>

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+
 // In PicoSAT 0 represent end of the line and it is reserved, so index + 1 is used to represent a predicate
 public class PredicateList {
     private List<String> pmU = new ArrayList<>();

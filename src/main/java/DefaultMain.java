@@ -1,17 +1,15 @@
 import FmiConnector.Component;
 import FmiConnector.FmiMonitor;
 import FmiConnector.TYPE;
-import abductive.AbModelEncoderContract;
 import abductive.AbductiveDriver;
-import abductive.examples.BookAbExample;
+import abductive.AbductiveModel;
+import examples.BookAbEncoder;
+import consistency.CbModel;
 import consistency.ConsistencyDriver;
-import consistency.examples.BookCarModel;
-import consistency.examples.SimplerCarModel;
-import consistency.stepFaultDiag.CbModelEncoderContract;
+import examples.BookCarEncoder;
 import org.logicng.io.parsers.ParserException;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,10 +31,10 @@ public class DefaultMain {
                 new Component("robot.leftWheel.o", TYPE.DOUBLE)
         );
 
-        AbModelEncoderContract abCar = new BookAbExample();
         AbductiveDriver abductiveDriver = AbductiveDriver.builder()
                 .fmiMonitor(fmiMonitor)
-                .abModelEncoderContract(abCar)
+                .abductiveModel(new AbductiveModel("examples/abductiveBookModel.txt"))
+                .encoder(new BookAbEncoder())
                 .comps(comps)
                 .stepSize(1)
                 .simulationRuntime(20)
@@ -44,10 +42,10 @@ public class DefaultMain {
 
         //abductiveDriver.runSimulation();
 
-        CbModelEncoderContract car = new BookCarModel();
         ConsistencyDriver consistencyDriver = ConsistencyDriver.builder()
                 .fmiMonitor(fmiMonitor)
-                .cbModelEncoderContract(car)
+                .model(new CbModel("examples/bookModel.txt"))
+                .encoder(new BookCarEncoder())
                 .comps(comps)
                 .simulationRuntime(20)
                 .stepSize(1)

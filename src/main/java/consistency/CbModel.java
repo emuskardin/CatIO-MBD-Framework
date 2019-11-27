@@ -1,6 +1,5 @@
-package consistency.stepFaultDiag;
+package consistency;
 
-import consistency.PredicateList;
 import lombok.Data;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
@@ -20,6 +19,11 @@ public class CbModel {
     Set<Integer> abPredicates = new HashSet<>();
     PredicateList predicates = new PredicateList();
     int numOfDistinct = 0;
+
+    public CbModel(){ }
+    public CbModel(String filepath){
+        modelFromFile(filepath);
+    }
 
     public List<int[]> modelToIntArr(){
         List<int[]> res = new ArrayList<>();

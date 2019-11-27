@@ -2,7 +2,15 @@ package consistency.stepFaultDiag;
 
 import consistency.PredicateList;
 import lombok.Data;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.io.parsers.ParserException;
+import org.logicng.io.parsers.PropositionalParser;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Data
@@ -35,8 +43,57 @@ public class CbModel {
         model.add(paramToInt);
     }
 
+    public void tmpAddCnf(List<String> params){
+        ArrayList<Integer> paramToInt = new ArrayList<>();
+        for(String param : params){
+            if(param.charAt(0) == '~')
+                paramToInt.add(-predicates.get(param.substring(1)));
+            else
+                paramToInt.add(predicates.get(param));
+        }
+        model.add(paramToInt);
+    }
+
+    public void modelFromFile(String path) {
+        String content = null;
+        try {
+            content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.getLocalizedMessage();
+            System.exit(1);
+        }
+        content = content.replace("\n", "").replace("\r", "");
+        String[] lines = content.split("\\.");
+        for (int i = 0; i < lines.length; i++)
+            lines[i] = "(" + lines[i] + ")";
+        String formula = String.join("&", lines);
+        formula = formula.replace('-', '=');
+        formula = formula.replace('!', '~');
+        final FormulaFactory f = new FormulaFactory();
+        Formula cnf = null;
+        try {
+            final PropositionalParser p = new PropositionalParser(f);
+            cnf = p.parse(formula).cnf();
+        }catch (ParserException pe){
+            System.out.println(pe.getLocalizedMessage());
+            System.exit(1);
+        }
+        String timed_cnf = cnf.toString().replaceAll("\\s+","");
+        String[] clauses= timed_cnf.split("&");
+        List<List<String>> clauseLiterals = new ArrayList<>();
+        for(String clause : clauses) {
+            String working = clause;
+            if(working.charAt(0) == '(')
+                working = working.substring(1, working.length()-1);
+            clauseLiterals.add(Arrays.asList(working.split("\\|")));
+        }
+
+        addToModel(clauseLiterals);
+        System.out.println(modelToString());
+    }
+
     public void addHealthStatePredicate(String ab){
-        addCNFClause("-" + ab);
+        //addCNFClause("-" + ab);
         abPredicates.add(predicates.get(ab));
         abPredicates.add(-predicates.get(ab));
     }
@@ -116,4 +173,36 @@ public class CbModel {
         predicates = new PredicateList();
         numOfDistinct = 0;
     }
+
+    private void addToModel(List<List<String>> cnf){
+        List<List<String>> ree = new ArrayList<>(cnf);
+        for(List<String> clause : cnf) {
+            if(clause.size() == 1) {
+                String lit = clause.get(0);
+                boolean neg = lit.charAt(0) == '~';
+                 if ((neg && Character.isUpperCase(lit.charAt(1))) || Character.isUpperCase(lit.charAt(0))){
+                     addHealthStatePredicate(neg ? lit.substring(1) : lit);
+                     tmpAddCnf(Collections.singletonList(lit));
+                     ree.remove(clause);
+                 }
+            }
+        }
+        ree.forEach(this::tmpAddCnf);
+    }
+
+    private List<List<String>> modelToString(){
+        List<List<String>> res = new ArrayList<>();
+        for(List<Integer> clause : model){
+            List<String> tmpClause = new ArrayList<>();
+            for(Integer lit : clause) {
+                String name = predicates.getPredicateName(lit);
+                if(lit < 0)
+                    name = "-" + name;
+                tmpClause.add(name);
+            }
+            res.add(tmpClause);
+        }
+        return res;
+    }
+    
 }

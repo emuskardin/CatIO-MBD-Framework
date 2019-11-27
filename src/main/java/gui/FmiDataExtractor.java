@@ -6,20 +6,13 @@ import abductive.combinatorial.ModelInputData;
 import org.javafmi.modeldescription.ScalarVariable;
 import org.javafmi.wrapper.Simulation;
 
-import javax.help.HelpSet;
 import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class FmiDataExtractor {
@@ -31,6 +24,7 @@ public class FmiDataExtractor {
     private JTable dataTable;
     private JButton export;
     private String pathToFile;
+    private DefaultTableModel tableModel;
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("FmiDataExtractor");
@@ -52,15 +46,7 @@ public class FmiDataExtractor {
         extractButton.addActionListener(e -> {
             System.out.println(pathToFile);
             Simulation simulation = new Simulation(pathToFile);
-            String[] header = {"Variable name","Type","Read", "Parameters"};
-            DefaultTableModel tableModel = new DefaultTableModel(header, 0){
-                @Override
-                public Class<?> getColumnClass(int column) {
-                    if (column == 2)
-                        return Boolean.class;
-                    return String.class;
-                }
-            };
+
             for(ScalarVariable var : simulation.getModelDescription().getModelVariables()){
                 ArrayList<Object> varData = new ArrayList<>();
                 varData.add(var.getName());
@@ -104,7 +90,6 @@ public class FmiDataExtractor {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-
         });
     }
 
@@ -119,4 +104,18 @@ public class FmiDataExtractor {
         return TYPE.ENUM;
     }
 
+    private void createUIComponents() {
+        dataTable = new JTable();
+        String[] header = {"Variable name","Type","Read", "Parameters"};
+        tableModel = new DefaultTableModel(header, 0){
+            @Override
+            public Class<?> getColumnClass(int column) {
+                if (column == 2)
+                    return Boolean.class;
+                return String.class;
+            }
+        };
+        dataTable.setModel(tableModel);
+
+    }
 }

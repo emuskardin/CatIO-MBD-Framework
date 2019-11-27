@@ -1,4 +1,3 @@
-import FmiConnector.Component;
 import FmiConnector.TYPE;
 import abductive.AbductiveModel;
 import abductive.AutomaticModelGen;
@@ -19,6 +18,7 @@ public class AbductiveGenMain {
         ExtractedData re = util.deserialize("extractedData.ser");
 
         String pathToFmi = "newFmi/SC_Example1.fmu";
+
 
         List<Object> bateryFaultTypes = Arrays.asList("ok", "empty");
         List<Object> componentFaultTypes = Arrays.asList("ok", "short", "broken");

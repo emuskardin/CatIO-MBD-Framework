@@ -12,22 +12,20 @@ public class BookCarModel implements CbModelEncoderContract {
 
     @Override
     public void constructModel(){
-        model.addHealthStatePredicate("ab(rightWheel)");
-        model.addHealthStatePredicate("ab(leftWheel)");
-        model.addCNFClause("rightWheel");
-        model.addCNFClause("leftWheel");
-        model.addCNFClause("-rightWheel", "ab(rightWheel)", "nominal(rightWheel)");
-        model.addCNFClause("-rightWheel", "ab(rightWheel)", "plus(rightWheel)");
-        model.addCNFClause("-rightWheel", "ab(rightWheel)", "minus(rightWheel)");
-        model.addCNFClause("-leftWheel", "ab(leftWheel)", "nominal(leftWheel)");
-        model.addCNFClause("-leftWheel", "ab(leftWheel)", "plus(leftWheel)");
-        model.addCNFClause("-leftWheel", "ab(leftWheel)", "minus(leftWheel)");
-        model.addCNFClause("-nominal(rightWheel)", "-nominal(leftWheel)", "straight");
-        model.addCNFClause("-plus(rightWheel)", "-minus(leftWheel)", "left");
-        model.addCNFClause("-minus(rightWheel)","-plus(leftWheel)", "right");
-
-
-
+//        model.addHealthStatePredicate("ab(rightWheel)");
+//        model.addHealthStatePredicate("ab(leftWheel)");
+//        model.addCNFClause("rightWheel");
+//        model.addCNFClause("leftWheel");
+//        model.addCNFClause("-rightWheel", "ab(rightWheel)", "nominal(rightWheel)");
+//        model.addCNFClause("-rightWheel", "ab(rightWheel)", "plus(rightWheel)");
+//        model.addCNFClause("-rightWheel", "ab(rightWheel)", "minus(rightWheel)");
+//        model.addCNFClause("-leftWheel", "ab(leftWheel)", "nominal(leftWheel)");
+//        model.addCNFClause("-leftWheel", "ab(leftWheel)", "plus(leftWheel)");
+//        model.addCNFClause("-leftWheel", "ab(leftWheel)", "minus(leftWheel)");
+//        model.addCNFClause("-nominal(rightWheel)", "-nominal(leftWheel)", "straight");
+//        model.addCNFClause("-plus(rightWheel)", "-minus(leftWheel)", "left");
+//        model.addCNFClause("-minus(rightWheel)","-plus(leftWheel)", "right");
+          model.modelFromFile("bookModel.txt");
     }
 
     @Override
@@ -46,16 +44,16 @@ public class BookCarModel implements CbModelEncoderContract {
 
         int compOutputs = Double.compare(rightWheelOutput, leftWheelOutput);
         if (compOutputs == 0){
-            encodedObservation.add("nominal(rightWheel)");
-            encodedObservation.add("nominal(leftWheel)");
+            encodedObservation.add("rightNominal");
+            encodedObservation.add("leftNominal");
         }
         else if (compOutputs == 1){
-            encodedObservation.add("plus(rightWheel)");
-            encodedObservation.add("minus(leftWheel)");
+            encodedObservation.add("rightFaster");
+            encodedObservation.add("leftSlower");
         }
         else {
-            encodedObservation.add("minus(rightWheel)");
-            encodedObservation.add("plus(leftWheel)");
+            encodedObservation.add("rightSlower");
+            encodedObservation.add("leftFaster");
         }
 
         // check the behaviour

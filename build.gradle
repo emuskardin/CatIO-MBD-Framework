@@ -19,12 +19,12 @@ dependencies {
     // implementation 'com.github.NTNU-IHB:FMI4j:+'
     // Google libs
     compile group: 'com.google.guava', name: 'guava', version: '28.1-jre'
-    // Sat Solver
-    //compile group: 'org.ow2.sat4j', name: 'org.ow2.sat4j.core', version: '2.3.4'
     // ACTS and ATMS in lib folder
     implementation fileTree(dir: 'lib', include: ['*.jar'])
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.10'
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
 
+    compile 'org.logicng:logicng:1.6.1'
 }
+

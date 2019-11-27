@@ -8,6 +8,7 @@ import consistency.stepFaultDiag.CbModelEncoderContract;
 import lombok.Builder;
 import lombok.Data;
 import org.javafmi.wrapper.Simulation;
+import org.logicng.io.parsers.ParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class ConsistencyDriver {
     double simulationRuntime;
     CbModelEncoderContract cbModelEncoderContract;
 
-    public void stepDiag() throws IOException {
+    public void stepDiag() throws IOException, ParserException {
         cbModelEncoderContract.constructModel();
         Simulation simulation = fmiMonitor.getSimulation();
         CbModel model = cbModelEncoderContract.getModel();
@@ -40,7 +41,7 @@ public class ConsistencyDriver {
         fmiMonitor.resetSimulation();
     }
 
-    public void continuousDiag(Boolean intermittentFaults) throws IOException {
+    public void continuousDiag(Boolean intermittentFaults) throws IOException, ParserException {
         cbModelEncoderContract.constructModel();
         Simulation simulation = fmiMonitor.getSimulation();
         CbModel model = cbModelEncoderContract.getModel();

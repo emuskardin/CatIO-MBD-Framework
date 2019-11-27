@@ -2,7 +2,9 @@ package consistency.examples;
 
 import lombok.Data;
 import consistency.stepFaultDiag.CbModelEncoderContract;
+import org.logicng.io.parsers.ParserException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,19 +12,20 @@ import java.util.Map;
 @Data
 public class SimplerCarModel implements CbModelEncoderContract {
 
-    public void constructModel() {
-        model.addHealthStatePredicate("ab(rightWheel)");
-        model.addHealthStatePredicate("ab(leftWheel)");
-        model.addCNFClause("rightWheel");
-        model.addCNFClause("leftWheel");
-        model.addCNFClause("-rightWheel", "ab(rightWheel)", "nominal(rightWheel)");
-        model.addCNFClause("-rightWheel", "ab(rightWheel)", "plus(rightWheel)");
-        model.addCNFClause("-leftWheel", "ab(leftWheel)", "nominal(leftWheel)");
-        model.addCNFClause("-leftWheel", "ab(leftWheel)", "plus(leftWheel)");
-
-        model.addCNFClause("-nominal(rightWheel)", "-nominal(leftWheel)", "straight");
-        model.addCNFClause("-plus(rightWheel)", "-nominal(leftWheel)", "left");
-        model.addCNFClause("-nominal(rightWheel)", "-plus(leftWheel)", "right");
+    public void constructModel() throws IOException, ParserException {
+//        model.addHealthStatePredicate("ab(rightWheel)");
+//        model.addHealthStatePredicate("ab(leftWheel)");
+//        model.addCNFClause("rightWheel");
+//        model.addCNFClause("leftWheel");
+//        model.addCNFClause("-rightWheel", "ab(rightWheel)", "nominal(rightWheel)");
+//        model.addCNFClause("-rightWheel", "ab(rightWheel)", "plus(rightWheel)");
+//        model.addCNFClause("-leftWheel", "ab(leftWheel)", "nominal(leftWheel)");
+//        model.addCNFClause("-leftWheel", "ab(leftWheel)", "plus(leftWheel)");
+//
+//        model.addCNFClause("-nominal(rightWheel)", "-nominal(leftWheel)", "straight");
+//        model.addCNFClause("-plus(rightWheel)", "-nominal(leftWheel)", "left");
+//        model.addCNFClause("-nominal(rightWheel)", "-plus(leftWheel)", "right");
+        model.modelFromFile("model.txt");
 
     }
 
@@ -36,7 +39,37 @@ public class SimplerCarModel implements CbModelEncoderContract {
 
         // get movement direction from inputs
         int compInputs = Double.compare(rightWheelInput, leftWheelInput);
-        if(compInputs == 0) encodedObservation.add(("straight"));
+        if(compInputs == 0) encodedObservation.add(("s"));
+        else if(compInputs == 1) encodedObservation.add(("l"));
+        else encodedObservation.add(("r"));
+
+        int compOutputs = Double.compare(rightWheelOutput, leftWheelOutput);
+        if (compOutputs == 0){
+            encodedObservation.add("rn");
+            encodedObservation.add("ln");
+        }
+        else if (compOutputs == 1){
+            encodedObservation.add("rf");
+            encodedObservation.add("ln");
+        }
+        else {
+            encodedObservation.add("rn");
+            encodedObservation.add("lf");
+        }
+
+        // check if behaviour is ok
+        if(!(Double.compare(rightWheelInput, rightWheelOutput) == 0))
+            encodedObservation.set(1, "-" + encodedObservation.get(1));
+        if(!(Double.compare(leftWheelInput, leftWheelOutput) == 0))
+            encodedObservation.set(2, "-" + encodedObservation.get(2));
+
+        return encodedObservation;
+    }
+}
+
+
+/*
+   if(compInputs == 0) encodedObservation.add(("straight"));
         else if(compInputs == 1) encodedObservation.add(("left"));
         else encodedObservation.add(("right"));
 
@@ -59,7 +92,4 @@ public class SimplerCarModel implements CbModelEncoderContract {
             encodedObservation.set(1, "-" + encodedObservation.get(1));
         if(!(Double.compare(leftWheelInput, leftWheelOutput) == 0))
             encodedObservation.set(2, "-" + encodedObservation.get(2));
-
-        return encodedObservation;
-    }
-}
+ */

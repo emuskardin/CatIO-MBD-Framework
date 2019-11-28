@@ -42,7 +42,7 @@ public class ConsistencyModeling {
             RcTree rcTree = new RcTree(cbModel, cbModel.observationToInt(obs));
             try {
                 for(List<Integer> mhs  : rcTree.getDiagnosis()) {
-                    List<String> diag = cbModel.diagnosisToComponentNames(mhs, cbModel.getNumOfDistinct());
+                    List<String> diag = cbModel.diagnosisToComponentNames(mhs);
                     diagnosisArea.append(String.join(", ", diag) + "\n");
                 }
             } catch (IOException ex) {

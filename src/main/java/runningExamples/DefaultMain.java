@@ -1,3 +1,5 @@
+package runningExamples;
+
 import FmiConnector.Component;
 import FmiConnector.FmiMonitor;
 import FmiConnector.TYPE;
@@ -14,9 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DefaultMain {
-    public static void main(String [] args) throws IOException, ParserException{
-//        CbModel cbModel = new CbModel();
-//        cbModel.modelFromFile("model.txt");
+    public static void main(String [] args) throws IOException {
 
         String[] fmiPath = {"newFmi/ERobot.Experiments.RampInput.fmu", "newFmi/ERobot.Experiments.RampWFault.fmu",
                 "newFmi/ERobot.Experiments.constWFault.fmu", "newFmi/ERobot.Experiments.RampIntermittent.fmu",
@@ -33,7 +33,7 @@ public class DefaultMain {
 
         AbductiveDriver abductiveDriver = AbductiveDriver.builder()
                 .fmiMonitor(fmiMonitor)
-                .abductiveModel(new AbductiveModel("examples/abductiveBookModel.txt"))
+                .abductiveModel(new AbductiveModel("src/main/java/examples/abductiveBookModel.txt"))
                 .encoder(new BookAbEncoder())
                 .comps(comps)
                 .stepSize(1)
@@ -44,7 +44,7 @@ public class DefaultMain {
 
         ConsistencyDriver consistencyDriver = ConsistencyDriver.builder()
                 .fmiMonitor(fmiMonitor)
-                .model(new CbModel("examples/bookModel.txt"))
+                .model(new CbModel("src/main/java/examples/bookModel.txt"))
                 .encoder(new BookCarEncoder())
                 .comps(comps)
                 .simulationRuntime(20)

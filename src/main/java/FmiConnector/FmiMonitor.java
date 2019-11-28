@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class for reading modelica component values
+ */
 @Data
 public class FmiMonitor {
     private Simulation simulation;

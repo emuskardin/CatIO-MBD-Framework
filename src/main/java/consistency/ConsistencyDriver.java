@@ -22,6 +22,10 @@ public class ConsistencyDriver {
     CbModel model;
     Encoder encoder;
 
+    /**
+     * Diagnosis algorithm will be executed after every time step, and diagnosis printed to standard output.
+     * @throws IOException
+     */
     public void stepDiag() throws IOException {
         Simulation simulation = fmiMonitor.getSimulation();
         model.setNumOfDistinct(model.getPredicates().getSize());
@@ -31,13 +35,19 @@ public class ConsistencyDriver {
             List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(comps));
             RcTree rcTree = new RcTree(model, model.observationToInt(obs));
             for(List<Integer> mhs  : rcTree.getDiagnosis())
-                System.out.println(fmiMonitor.getSimulation().getCurrentTime() + " " + model.diagnosisToComponentNames(mhs, model.getNumOfDistinct()));
+                System.out.println(fmiMonitor.getSimulation().getCurrentTime() + " " + model.diagnosisToComponentNames(mhs));
             simulation.doStep(stepSize);
         }
         model.clearModel();
         fmiMonitor.resetSimulation();
     }
 
+    /**
+     * Diagnosis will be printed after simulation has ended. If faults are intermittent, and param is true
+     * corresponding time steps in which faults have been diagnosed will be printed to standard output.
+     * @param intermittentFaults it true, health states will be increased alongside other param
+     * @throws IOException
+     */
     public void continuousDiag(Boolean intermittentFaults) throws IOException {
         Simulation simulation = fmiMonitor.getSimulation();
         int offset = intermittentFaults ? model.getPredicates().getSize() : (model.getPredicates().getSize() - (model.getAbPredicates().size()/2));
@@ -61,7 +71,7 @@ public class ConsistencyDriver {
         
         RcTree rcTree = new RcTree(model, observations);
         for(List<Integer> mhs  : rcTree.getDiagnosis())
-            System.out.println(model.diagnosisToComponentNames(mhs, offset));
+            System.out.println(model.getComponentNamesTimed(mhs, intermittentFaults));
 
         model.clearModel();
         fmiMonitor.resetSimulation();

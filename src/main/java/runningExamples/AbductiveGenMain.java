@@ -1,3 +1,5 @@
+package runningExamples;
+
 import FmiConnector.Component;
 import FmiConnector.FmiMonitor;
 import FmiConnector.TYPE;

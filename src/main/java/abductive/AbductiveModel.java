@@ -25,7 +25,7 @@ public class AbductiveModel {
         try {
             content = new String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            e.getLocalizedMessage();
+            e.printStackTrace();
             System.exit(1);
         }
         rules = content;

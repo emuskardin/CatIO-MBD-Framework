@@ -176,13 +176,25 @@ public class CbModel {
         }
     }
 
-    public List<String> diagnosisToComponentNames(List<Integer> mhs, Integer offset){
-        // TODO FIX
+    public List<String> diagnosisToComponentNames(List<Integer> mhs){
         List<String> res = new ArrayList<>();
         mhs.forEach( it -> {
-            int timeStep = it / offset; // TODO possible error due to offset for intermittent and persistent faults
             int index = it % model.size();
-            res.add(predicates.getPredicateName( model.get(index).get(0))); //+ "_" + timeStep + "sec"
+            res.add(predicates.getPredicateName(model.get(index).get(0)));
+        });
+        return res;
+    }
+
+    public List<String> getComponentNamesTimed(List<Integer> mhs ,boolean increaseHS){
+        List<String> res = new ArrayList<>();
+        int offset = increaseHS ? predicates.getSize() : (predicates.getSize() - (abPredicates.size()/2));
+        mhs.forEach( it -> {
+            int timeStep = it / model.size();
+            int index = it % model.size();
+            if(increaseHS)
+                res.add(predicates.getPredicateName(model.get(index).get(0)) + "_" + timeStep);
+            else
+                res.add(predicates.getPredicateName(model.get(index).get(0)));
         });
         return res;
     }

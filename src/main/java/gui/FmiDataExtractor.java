@@ -2,30 +2,34 @@ package gui;
 
 import FmiConnector.Component;
 import FmiConnector.TYPE;
-import abductive.combinatorial.ModelInputData;
 import org.javafmi.modeldescription.ScalarVariable;
 import org.javafmi.wrapper.Simulation;
+import util.Util;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class FmiDataExtractor {
 
-    private JPanel panel;
+    public JPanel panel;
     private JTextField filePath;
     private JButton openFmi;
     private JTable dataTable;
     private JButton exportRead;
-    private JButton exportMLCAValuesButton;
+    private JButton generateMLCAButton;
     private JPanel exportPanel;
+    private JTable simScenariosTable;
+    private JButton addScenarioButton;
+    private JButton importScenariosButton;
     private String pathToFile;
     private DefaultTableModel tableModel;
+    private MlcaCreator mlcaCreator;
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("FmiDataExtractor");
@@ -37,7 +41,7 @@ public class FmiDataExtractor {
 
     public FmiDataExtractor() {
         openFmi.addActionListener(e -> {
-            JFileChooser j = new JFileChooser("newFmi");
+            JFileChooser j = new JFileChooser(Util.getCurrentDir());
             j.showOpenDialog(null);
             j.setFileSelectionMode(JFileChooser.FILES_ONLY);
             pathToFile = j.getSelectedFile().getPath();
@@ -59,49 +63,57 @@ public class FmiDataExtractor {
 
 
         exportRead.addActionListener(e -> {
-            List<Component> toBeRead = new ArrayList<>();
+            List<String> data = new ArrayList<>();
             for (int i = 0; i < dataTable.getRowCount(); i++) {
                 if((Boolean) dataTable.getValueAt(i, 2)){
-                    toBeRead.add(new Component((String) dataTable.getValueAt(i,0),
-                            getType((String) dataTable.getValueAt(i,1))));
+                    data.add(dataTable.getValueAt(i,0) + "," +
+                            getType((String) dataTable.getValueAt(i,1)));
                 }
             }
-
-            FileOutputStream fout;
-            try {
-                fout = new FileOutputStream("extractedRead.ser");
-                ObjectOutputStream oos = new ObjectOutputStream(fout);
-                oos.writeObject(toBeRead);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            writeToCSVFile(data);
         });
 
-        // TODO
-        exportMLCAValuesButton.addActionListener(e -> {
-            List<ModelInputData> modelInputData = new ArrayList<>();
+        generateMLCAButton.addActionListener(e -> {
+            List<String> exportData = new ArrayList<>();
             for (int i = 0; i < dataTable.getRowCount(); i++) {
-                String inputs = (String) dataTable.getValueAt(i,3);
-                // TODO add type
-                if(!inputs.isEmpty()){
-                    List<Object> values = Arrays.asList(inputs.split(","));
+                String valuesStr = (String) dataTable.getValueAt(i, 3);
+                if (!valuesStr.isEmpty()) {
+                    List<Object> values = Arrays.asList(valuesStr.split(","));
                     for (int j = 0; j < values.size(); j++)
                         values.set(j, values.get(j).toString().trim());
 
-                    ModelInputData mid = new ModelInputData((String) dataTable.getValueAt(i,0),
-                            values, getType((String) dataTable.getValueAt(i,1)));
-                    modelInputData.add(mid);
+                    String type = (String) dataTable.getValueAt(i, 4);
+                    if (type != null && !type.equals(""))
+                        exportData.add(type + "," + dataTable.getValueAt(i, 0)  + "," + getType((String) dataTable.getValueAt(i,1))
+                                + "," + valuesStr);
                 }
             }
 
-            FileOutputStream fout;
-            try {
-                fout = new FileOutputStream("extractedData.ser");
-                ObjectOutputStream oos = new ObjectOutputStream(fout);
-                oos.writeObject(modelInputData);
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            if(exportData.isEmpty())
+                Util.errorMsg("No data to create MLCA is provided");
+            else{
+                mlcaCreator = new MlcaCreator(Util.modelDataFromSting(String.join("\n", exportData)));
+                mlcaCreator.createPopup();
             }
+
+        });
+
+        importScenariosButton.addActionListener(e -> {
+            List<List<Component>> scenarios = mlcaCreator.scenarios;
+            List<String> tableHeader = new ArrayList<>();
+            tableHeader.add("Fault Injection Time");
+            for(Component comp : scenarios.get(0))
+                tableHeader.add(comp.getName());
+
+            tableModel = new DefaultTableModel(tableHeader.toArray(), 0);
+            for(List<Component> scenario : scenarios){
+                List<Object> rowData = new ArrayList<>();
+                rowData.add("");
+                scenario.forEach(it -> rowData.add(it.getValue()));
+                tableModel.addRow(rowData.toArray());
+            }
+
+            simScenariosTable.setModel(tableModel);
         });
     }
 
@@ -112,13 +124,14 @@ public class FmiDataExtractor {
             return TYPE.BOOLEAN;
         if(x.equals("Integer"))
             return TYPE.INTEGER;
-        // TODO STRING or not
-        return TYPE.ENUM;
+        if(x.equals("Enumeration"))
+            return TYPE.ENUM;
+        return TYPE.STRING;
     }
 
     private void createUIComponents() {
         dataTable = new JTable();
-        String[] header = {"Variable name","Type","Read", "Parameters", "MLCA Type"};
+        String[] header = {"Variable name","Type","Read", "Values", "MLCA Type"};
         tableModel = new DefaultTableModel(header, 0){
             @Override
             public Class<?> getColumnClass(int column) {
@@ -128,8 +141,27 @@ public class FmiDataExtractor {
             }
         };
         String[] mlcaTypes = {"Input", "Parameter", "Health State", ""};
-        JComboBox mlcaTypeComboBox = new JComboBox(mlcaTypes);
+        JComboBox mlcaTypeComboBox = new JComboBox<>(mlcaTypes);
         dataTable.setModel(tableModel);
         dataTable.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(mlcaTypeComboBox));
+    }
+
+    private String writeToCSVFile(List<String> data) {
+        JFileChooser fileChooser = new JFileChooser(Util.getCurrentDir());
+
+        if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            try {
+                FileWriter fw = new FileWriter(file);
+                for (String datum : data) {
+                    fw.append(datum).append("\n");
+                }
+                fw.close();
+                return file.getName();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return null;
     }
 }

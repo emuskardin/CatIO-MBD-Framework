@@ -2,6 +2,7 @@ package gui;
 
 import consistency.mhsAlgs.RcTree;
 import consistency.CbModel;
+import util.Util;
 
 import javax.swing.*;
 import java.io.File;
@@ -11,13 +12,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ConsistencyModeling {
+    public JPanel panel;
     private JTextArea cnfModelArea;
     private JTextField observationArea;
     private JButton diagnoseObservationButton;
     private JTextArea propLogModelArea;
     private JButton exportCNFModelButton;
     private JButton convertToCNFButton;
-    private JPanel panel;
     private JTextArea diagnosisArea;
     private JButton exportModelButton;
     private CbModel cbModel;
@@ -63,7 +64,7 @@ public class ConsistencyModeling {
         });
 
         exportCNFModelButton.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
+            JFileChooser fileChooser = new JFileChooser(Util.getCurrentDir());
             if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
                 try {
@@ -77,7 +78,7 @@ public class ConsistencyModeling {
         });
 
         exportModelButton.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
+            JFileChooser fileChooser = new JFileChooser(Util.getCurrentDir());
             if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
                 try {
@@ -89,6 +90,7 @@ public class ConsistencyModeling {
                 }
             }
         });
+
     }
 
 }

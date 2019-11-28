@@ -21,7 +21,7 @@ public class MLCA {
     ModelData md;
 
     public MLCA(ModelData modelData){
-        sut = new SUT(modelData.getPathToFmi());
+        sut = new SUT();
         engine = new IpoEngine(sut);
         components = addParam(modelData.getComponents());
         inputs = addParam(modelData.getInputs());
@@ -124,6 +124,10 @@ public class MLCA {
             sb.append(correctCompConstraintBuilder(components, nums.get(i)));
         }
         sut.addConstraint(new Constraint(sb.toString(), components));
+    }
+
+    public void addConstraint(String constraint){
+        sut.addConstraint(new Constraint(constraint, sut.getParameters()));
     }
 
     private String correctCompConstraintBuilder(ArrayList<Parameter> params, Integer correctNum){

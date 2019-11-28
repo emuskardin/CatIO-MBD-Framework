@@ -2,12 +2,12 @@ package abductive.combinatorial;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 public class ModelData {
-    private String pathToFmi;
-    private List<ModelInputData> components;
-    private List<ModelInputData> inputs;
-    private List<ModelInputData> param;
+    private List<ModelInputData> components = new ArrayList<>();
+    private List<ModelInputData> inputs = new ArrayList<>();
+    private List<ModelInputData> param = new ArrayList<>();
 }

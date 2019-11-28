@@ -54,7 +54,6 @@ public class AbductiveGenMain {
         List<Object> voltageRegFaultTypes = Arrays.asList("ok", "increased", "decreased");
 
         ModelData modelData = new ModelData();
-        modelData.setPathToFmi("test");
         modelData.setComponents(
                 Arrays.asList(
                         new ModelInputData("dleftPowerModuleInput", powerModuleFaultTypes, TYPE.ENUM),

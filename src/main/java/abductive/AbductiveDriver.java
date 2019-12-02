@@ -1,6 +1,6 @@
 package abductive;
 
-import FmiConnector.Component;
+import model.Component;
 import FmiConnector.FmiMonitor;
 import interfaces.Encoder;
 import lombok.Builder;

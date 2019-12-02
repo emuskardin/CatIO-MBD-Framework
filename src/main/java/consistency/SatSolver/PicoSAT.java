@@ -53,16 +53,22 @@ public class PicoSAT {
         BufferedReader stdInput = new BufferedReader(new
                 InputStreamReader(proc.getInputStream()));
 
-        // Read the output from the command
         String s;
         while ((s = stdInput.readLine()) != null) {
             String[] line = s.split(" ");
             if(line[0].equals("c") || line[1] == null)
                 continue;
-            if(line[0].equals("s") && !line[1].equals("UNSATISFIABLE"))
+            if(line[0].equals("s") && !line[1].equals("UNSATISFIABLE")) {
+                file.deleteOnExit();
                 return mhs;
+            }
             if (line[1].equals("UNSATISFIABLE"))
                 continue;
+            if(line[1].equals("maximum")){
+                System.err.println("Model contains more variables than declared, check if model and encoder use same " +
+                        "propositional variables!");
+                System.exit(1);
+            }
 
             int var = Integer.parseInt(line[1]);
             if(var > cbModel.getWorkingModel().size() || var == 0)

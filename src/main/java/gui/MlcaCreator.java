@@ -1,9 +1,8 @@
 package gui;
 
-import FmiConnector.Component;
-import abductive.combinatorial.MLCA;
-import abductive.combinatorial.ModelData;
-import aima.core.agent.Model;
+import model.Component;
+import abductive.MLCA;
+import model.ModelData;
 import util.Util;
 
 import javax.swing.*;

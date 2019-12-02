@@ -189,7 +189,7 @@ public class CbModel {
         List<String> res = new ArrayList<>();
         int offset = increaseHS ? predicates.getSize() : (predicates.getSize() - (abPredicates.size()/2));
         mhs.forEach( it -> {
-            int timeStep = it / model.size();
+            int timeStep = it / offset;
             int index = it % model.size();
             if(increaseHS)
                 res.add(predicates.getPredicateName(model.get(index).get(0)) + "_" + timeStep);
@@ -200,10 +200,8 @@ public class CbModel {
     }
 
     void clearModel(){
-        model = new ArrayList<>();
         workingModel = new ArrayList<>();
-        abPredicates = new HashSet<>();
-        predicates = new PredicateList();
+        abPredicates = new HashSet<>(abPredicates);
         numOfDistinct = 0;
     }
 

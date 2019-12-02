@@ -1,10 +1,9 @@
 package abductive;
 
-import FmiConnector.Component;
+import model.Component;
 import FmiConnector.FmiMonitor;
-import FmiConnector.Type;
-import abductive.combinatorial.MLCA;
-import abductive.combinatorial.ModelData;
+import model.Type;
+import model.ModelData;
 import lombok.Data;
 import org.javafmi.wrapper.Simulation;
 
@@ -30,7 +29,7 @@ public class AutomaticModelGen {
         Component bulb = new Component("b1.on", Type.BOOLEAN);
         Simulation sim = fmiMonitor.getSimulation();
         List<Boolean> correctBulbObs = new ArrayList<>();
-        fmiMonitor.getFmiWriter().writeMultipleComp(mlca.getAllOkStates());
+        fmiMonitor.getFmiWriter().writeMultipleComp(mlca.getMd().getAllOkStates());
         sim.init(0.0);
 
         while(sim.getCurrentTime() < 10){

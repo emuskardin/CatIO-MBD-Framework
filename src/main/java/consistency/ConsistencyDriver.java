@@ -1,21 +1,23 @@
 package consistency;
 
-import FmiConnector.Component;
 import FmiConnector.FmiMonitor;
+import model.Component;
+import model.ModelData;
 import consistency.mhsAlgs.RcTree;
 import interfaces.Encoder;
 import lombok.Builder;
 import lombok.Data;
+import model.Scenario;
+import model.Type;
 import org.javafmi.wrapper.Simulation;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Data
 @Builder
 public class ConsistencyDriver {
     FmiMonitor fmiMonitor;
-    List<Component> comps;
+    ModelData modelData;
     double stepSize;
     double simulationRuntime;
     CbModel model;
@@ -24,51 +26,53 @@ public class ConsistencyDriver {
     /**
      * Diagnosis algorithm will be executed after every time step, and diagnosis printed to standard output.
      */
-    public void stepDiag() {
+    public void runDiagnosis(ConsistencyType type, Scenario scenario){
         Simulation simulation = fmiMonitor.getSimulation();
-        model.setNumOfDistinct(model.getPredicates().getSize());
+        List<Component> db = new ArrayList<>();
+        db.add(new Component("leftFaultType", Type.INTEGER));
+        db.add(new Component("rightFaultType", Type.INTEGER));
 
         simulation.init(0.0);
-        while (simulation.getCurrentTime() <= simulationRuntime){
-            List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(comps));
-            RcTree rcTree = new RcTree(model, model.observationToInt(obs));
+        if(type == ConsistencyType.STEP){
+            model.setNumOfDistinct(model.getPredicates().getSize());
+            while (simulation.getCurrentTime() <= simulationRuntime){
+                scenario.injectFault(simulation.getCurrentTime(), fmiMonitor.getFmiWriter(), modelData);
+                //System.out.println(fmiMonitor.readMultiple(db));
+
+                List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
+                RcTree rcTree = new RcTree(model, model.observationToInt(obs));
+                for(List<Integer> mhs  : rcTree.getDiagnosis())
+                    System.out.println(fmiMonitor.getSimulation().getCurrentTime() + " " + model.diagnosisToComponentNames(mhs));
+                simulation.doStep(stepSize);
+            }
+        }else if(type == ConsistencyType.PERSISTENT || type == ConsistencyType.INTERMITTENT){
+            Set<Integer> abPredTmp = new HashSet<>(model.getAbPredicates());
+            boolean increaseHs = (type == ConsistencyType.INTERMITTENT);
+            int offset = increaseHs ? model.getPredicates().getSize() : (model.getPredicates().getSize() - (model.getAbPredicates().size()/2));
+            List<Integer> observations = new ArrayList<>();
+            int currStep = 0;
+
+            while(simulation.getCurrentTime() <= simulationRuntime){
+                scenario.injectFault(simulation.getCurrentTime(), fmiMonitor.getFmiWriter(), modelData);
+
+                List<Integer> encodedObs = model.observationToInt(encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead())));
+                observations.addAll(increaseObservation(encodedObs, currStep, offset));
+                model.increaseByOffset(increaseHs, currStep);
+                simulation.doStep(stepSize);
+                currStep++;
+            }
+
+            if(increaseHs)
+                model.setNumOfDistinct(offset * currStep);
+            else
+                model.setNumOfDistinct(model.getAbPredicates().size() / 2 + ((offset ) * currStep));
+
+            RcTree rcTree = new RcTree(model, observations);
             for(List<Integer> mhs  : rcTree.getDiagnosis())
-                System.out.println(fmiMonitor.getSimulation().getCurrentTime() + " " + model.diagnosisToComponentNames(mhs));
-            simulation.doStep(stepSize);
+                System.out.println(model.getComponentNamesTimed(mhs, increaseHs));
+
+            model.setAbPredicates(abPredTmp);
         }
-        model.clearModel();
-        fmiMonitor.resetSimulation();
-    }
-
-    /**
-     * Diagnosis will be printed after simulation has ended. If faults are intermittent, and param is true
-     * corresponding time steps in which faults have been diagnosed will be printed to standard output.
-     * @param intermittentFaults it true, health states will be increased alongside other param
-     */
-    public void continuousDiag(Boolean intermittentFaults) {
-        Simulation simulation = fmiMonitor.getSimulation();
-        int offset = intermittentFaults ? model.getPredicates().getSize() : (model.getPredicates().getSize() - (model.getAbPredicates().size()/2));
-
-        List<Integer> observations = new ArrayList<>();
-        int currStep = 0;
-
-        simulation.init(0.0);
-        while(simulation.getCurrentTime() <= simulationRuntime){
-            List<Integer> encodedObs = model.observationToInt(encoder.encodeObservation(fmiMonitor.readMultiple(comps)));
-            observations.addAll(increaseObservation(encodedObs, currStep, offset));
-            model.increaseByOffset(intermittentFaults, currStep);
-            simulation.doStep(stepSize);
-            currStep++;
-        }
-
-        if(intermittentFaults)
-            model.setNumOfDistinct(offset * currStep);
-        else
-            model.setNumOfDistinct(model.getAbPredicates().size() / 2 + ((offset ) * currStep));
-        
-        RcTree rcTree = new RcTree(model, observations);
-        for(List<Integer> mhs  : rcTree.getDiagnosis())
-            System.out.println(model.getComponentNamesTimed(mhs, intermittentFaults));
 
         model.clearModel();
         fmiMonitor.resetSimulation();
@@ -81,5 +85,4 @@ public class ConsistencyDriver {
         }
         return obs;
     }
-
 }

@@ -1,6 +1,5 @@
-package abductive.combinatorial;
+package model;
 
-import FmiConnector.Type;
 import lombok.Data;
 
 import java.io.Serializable;

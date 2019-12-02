@@ -1,4 +1,4 @@
-package FmiConnector;
+package model;
 
 /**
  * enum containing all variable types which are possible in modelica simualtions

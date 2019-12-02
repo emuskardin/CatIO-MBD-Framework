@@ -1,7 +1,7 @@
 package util;
 
-import FmiConnector.Component;
-import abductive.combinatorial.ModelInput;
+import model.Component;
+import model.ModelInput;
 import lombok.Data;
 
 import java.util.ArrayList;

@@ -1,9 +1,6 @@
 package util;
 
-import FmiConnector.Component;
-import FmiConnector.Type;
-import abductive.combinatorial.ModelData;
-import abductive.combinatorial.ModelInput;
+import model.*;
 
 import javax.swing.*;
 import java.io.*;
@@ -33,25 +30,6 @@ public class Util {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public ExtractedData deserialize(String filePath) throws FileNotFoundException {
-        FileInputStream fis = new FileInputStream(filePath);
-        List<Object> objectsList = new ArrayList<>();
-        boolean cont = true;
-        try{
-            ObjectInputStream input = new ObjectInputStream(fis);
-            while(cont){
-                Object obj = input.readObject();
-                if(obj != null)
-                    objectsList.add(obj);
-                else
-                    cont = false;
-            }
-        }catch(Exception e){
-            //System.out.println(e.printStackTrace());
-        }
-        return new ExtractedData(objectsList);
     }
 
     public static List<Component> componentsFromCsv(String filename){
@@ -86,14 +64,70 @@ public class Util {
                 JOptionPane.ERROR_MESSAGE);
     }
 
+    public static String writeToCSVFile(List<String> data) {
+        JFileChooser fileChooser = new JFileChooser(Util.getCurrentDir());
+
+        if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            try {
+                FileWriter fw = new FileWriter(file);
+                for (String line : data)
+                    fw.append(line);
+                fw.close();
+                return file.getName();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static List<Scenario> simulationScenariosFromCSV(String filename){
+        List<Scenario> scenarios = new ArrayList<>();
+        try {
+            String content = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
+            List<String> lines = Arrays.asList(content.split("\n"));
+            List<String> header = Arrays.asList(lines.get(0).split(",", -1));
+            List<String> types = Arrays.asList(lines.get(1).split(","));
+            for(String line : lines.subList(2, lines.size())){
+               ArrayList<String> values = new ArrayList<>(Arrays.asList(line.split(",")));
+               while(values.size() < header.size())
+                   values.add("");
+               if(!values.get(0).isEmpty())
+                   scenarios.add(new Scenario(values.get(0)));
+               if(!values.get(1).isEmpty()){
+                   Double time = Double.parseDouble(values.get(1));
+                   List<Component> comps = new ArrayList<>();
+                   for (int i = 2; i < header.size(); i++) {
+                       if(!values.get(i).isEmpty()){
+                           Component v = new Component(header.get(i), values.get(i));
+                           v.setType(getType(types.get(i)));
+                           comps.add(v);
+                       }
+                   }
+                   scenarios.get(scenarios.size()-1).addToMap(time, comps);
+               }
+
+            }
+        } catch (IOException e) {
+            e.getLocalizedMessage();
+        }
+        return scenarios;
+    }
+
     public static ModelData modelDataFromSting(String content) {
         ModelData res = new ModelData();
         String[] lines = content.split("\n");
         for (String line : lines) {
             String[] values = line.split(",");
-            List<Object> passedVal = new ArrayList<>(Arrays.asList(values).subList(3, values.length));
+            List<Object> passedVal = Collections.emptyList();
+            if(values.length > 2)
+                passedVal = new ArrayList<>(Arrays.asList(values).subList(3, values.length));
 
             switch (values[0]) {
+                case "Read":
+                    res.getComponentsToRead().add(new Component(values[1], getType(values[2])));
+                    break;
                 case "Input":
                     res.getInputs().add(new ModelInput(values[1], passedVal, getType(values[2])));
                     break;
@@ -101,7 +135,7 @@ public class Util {
                     res.getParam().add(new ModelInput(values[1], passedVal, getType(values[2])));
                     break;
                 case "Health State":
-                    res.getComponents().add(new ModelInput(values[1], passedVal, getType(values[2])));
+                    res.getHealthStates().add(new ModelInput(values[1], passedVal, getType(values[2])));
                     break;
             }
         }

@@ -1,17 +1,19 @@
 package gui;
 
-import FmiConnector.Component;
-import FmiConnector.Type;
+import model.Component;
+import model.ModelData;
+import model.ModelInput;
+import model.Type;
 import org.javafmi.modeldescription.ScalarVariable;
 import org.javafmi.wrapper.Simulation;
 import util.Util;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 public class FmiDataExtractor {
 
@@ -19,15 +21,19 @@ public class FmiDataExtractor {
     private JTextField filePath;
     private JButton openFmi;
     private JTable dataTable;
-    private JButton exportRead;
+    private JButton exportModelData;
     private JButton generateMLCAButton;
     private JPanel exportPanel;
     private JTable simScenariosTable;
     private JButton addScenarioButton;
     private JButton importScenariosButton;
+    private JButton exportScenariosButton;
     private String pathToFile;
     private DefaultTableModel tableModel;
     private MlcaCreator mlcaCreator;
+    private DefaultTableModel scenarioTableModel;
+    private List<String> simulationTableHeader;
+    private List<String> simulationFieldsTypes;
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("FmiDataExtractor");
@@ -60,58 +66,73 @@ public class FmiDataExtractor {
         });
 
 
-        exportRead.addActionListener(e -> {
-            List<String> data = new ArrayList<>();
-            for (int i = 0; i < dataTable.getRowCount(); i++) {
-                if((Boolean) dataTable.getValueAt(i, 2)){
-                    data.add(dataTable.getValueAt(i,0) + "," +
-                            getType((String) dataTable.getValueAt(i,1)));
-                }
-            }
-            writeToCSVFile(data);
+        exportModelData.addActionListener(e -> {
+            List<String> data = getTableData();
+            Util.writeToCSVFile(data);
         });
 
         generateMLCAButton.addActionListener(e -> {
-            List<String> exportData = new ArrayList<>();
-            for (int i = 0; i < dataTable.getRowCount(); i++) {
-                String valuesStr = (String) dataTable.getValueAt(i, 3);
-                if (!valuesStr.isEmpty()) {
-                    List<Object> values = Arrays.asList(valuesStr.split(","));
-                    for (int j = 0; j < values.size(); j++)
-                        values.set(j, values.get(j).toString().trim());
+            List<String> data = getTableData();
 
-                    String type = (String) dataTable.getValueAt(i, 4);
-                    if (type != null && !type.equals(""))
-                        exportData.add(type + "," + dataTable.getValueAt(i, 0)  + "," + getType((String) dataTable.getValueAt(i,1))
-                                + "," + valuesStr);
-                }
-            }
-
-            if(exportData.isEmpty())
+            if(data.isEmpty())
                 Util.errorMsg("No data to create MLCA is provided");
             else{
-                mlcaCreator = new MlcaCreator(Util.modelDataFromSting(String.join("\n", exportData)));
+                mlcaCreator = new MlcaCreator(Util.modelDataFromSting(String.join("\n", data)));
                 mlcaCreator.createPopup();
             }
-
         });
 
         importScenariosButton.addActionListener(e -> {
-            List<List<Component>> scenarios = mlcaCreator.scenarios;
-            List<String> tableHeader = new ArrayList<>();
-            tableHeader.add("Fault Injection Time");
-            for(Component comp : scenarios.get(0))
-                tableHeader.add(comp.getName());
-
-            tableModel = new DefaultTableModel(tableHeader.toArray(), 0);
-            for(List<Component> scenario : scenarios){
-                List<Object> rowData = new ArrayList<>();
-                rowData.add("");
-                scenario.forEach(it -> rowData.add(it.getValue()));
-                tableModel.addRow(rowData.toArray());
+            ((DefaultCellEditor) simScenariosTable.getDefaultEditor(Object.class)).setClickCountToStart(1);
+            ModelData md = Util.modelDataFromSting(String.join("\n", getTableData()));
+            simulationTableHeader = new ArrayList<>();
+            simulationFieldsTypes = new ArrayList<>();
+            simulationTableHeader.add("Scenario ID");
+            simulationFieldsTypes.add("STRING");
+            simulationTableHeader.add("Time");
+            simulationFieldsTypes.add("DOUBLE");
+            for(ModelInput hs : md.getHealthStates()) {
+                simulationTableHeader.add(hs.getName());
+                simulationFieldsTypes.add(hs.getType().name());
+            }
+            for(ModelInput in : md.getInputs()) {
+                simulationTableHeader.add(in.getName());
+                simulationFieldsTypes.add(in.getType().name());
+            }
+            for(ModelInput par : md.getParam()) {
+                simulationTableHeader.add(par.getName());
+                simulationFieldsTypes.add(par.getType().name());
             }
 
-            simScenariosTable.setModel(tableModel);
+            scenarioTableModel = new DefaultTableModel(simulationTableHeader.toArray(), 0);
+            simScenariosTable.setModel(scenarioTableModel);
+        });
+
+        addScenarioButton.addActionListener(e -> {
+            Vector row = new Vector();
+            for (int i = 0; i < simScenariosTable.getColumnCount(); i++)
+                row.add("");
+            scenarioTableModel.addRow(row);
+        });
+
+        exportScenariosButton.addActionListener(e -> {
+            List<String> data = new ArrayList<>();
+            data.add(String.join(",", simulationTableHeader) + "\n");
+            data.add(String.join(",", simulationFieldsTypes) + "\n");
+            for (int row = 0; row < simScenariosTable.getRowCount(); row++) {
+                StringBuilder rowData = new StringBuilder();
+                rowData.append(scenarioTableModel.getValueAt(row,0)).append(",");
+                rowData.append(simScenariosTable.getValueAt(row, 1)).append(",");
+                List<String> values = new ArrayList<>();
+                for (int val = 2; val < simulationTableHeader.size(); val++)
+                    values.add((String) simScenariosTable.getValueAt(row, val));
+
+                rowData.append(String.join(",", values));
+                //remove all whitespace .replaceAll("\\s+","")
+                data.add(rowData.toString().replaceAll("\\s+","") + "\n");
+            }
+
+            Util.writeToCSVFile(data);
         });
     }
 
@@ -142,24 +163,29 @@ public class FmiDataExtractor {
         JComboBox mlcaTypeComboBox = new JComboBox<>(mlcaTypes);
         dataTable.setModel(tableModel);
         dataTable.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(mlcaTypeComboBox));
+        ((DefaultCellEditor) dataTable.getDefaultEditor(Object.class)).setClickCountToStart(1);
     }
 
-    private String writeToCSVFile(List<String> data) {
-        JFileChooser fileChooser = new JFileChooser(Util.getCurrentDir());
+    private List<String> getTableData(){
+        List<String> data = new ArrayList<>();
+        for (int i = 0; i < dataTable.getRowCount(); i++) {
+            if((Boolean) dataTable.getValueAt(i, 2)){
+                data.add("Read," + dataTable.getValueAt(i,0) + "," +
+                        getType((String) dataTable.getValueAt(i,1)) + "\n");
+            }
+            String valuesStr = (String) dataTable.getValueAt(i, 3);
+            if (!valuesStr.isEmpty()) {
+                valuesStr  = valuesStr.replaceAll("\\s+","");
+                List<Object> values = Arrays.asList(valuesStr.split(","));
+                for (int j = 0; j < values.size(); j++)
+                    values.set(j, values.get(j).toString());
 
-        if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            try {
-                FileWriter fw = new FileWriter(file);
-                for (String datum : data) {
-                    fw.append(datum).append("\n");
-                }
-                fw.close();
-                return file.getName();
-            } catch (IOException ex) {
-                ex.printStackTrace();
+                String type = (String) dataTable.getValueAt(i, 4);
+                if (type != null && !type.equals(""))
+                    data.add(type + "," + dataTable.getValueAt(i, 0)  + "," + getType((String) dataTable.getValueAt(i,1))
+                            + "," + valuesStr + '\n');
             }
         }
-        return null;
+        return data;
     }
 }

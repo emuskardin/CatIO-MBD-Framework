@@ -20,22 +20,22 @@ public class SimplerCarEncoder implements Encoder {
 
         // get movement direction from inputs
         int compInputs = Double.compare(rightWheelInput, leftWheelInput);
-        if(compInputs == 0) encodedObservation.add(("s"));
-        else if(compInputs == 1) encodedObservation.add(("l"));
-        else encodedObservation.add(("r"));
+        if(compInputs == 0) encodedObservation.add(("straight"));
+        else if(compInputs == 1) encodedObservation.add(("left"));
+        else encodedObservation.add(("right"));
 
         int compOutputs = Double.compare(rightWheelOutput, leftWheelOutput);
         if (compOutputs == 0){
-            encodedObservation.add("rn");
-            encodedObservation.add("ln");
+            encodedObservation.add("rightNominal");
+            encodedObservation.add("leftNominal");
         }
         else if (compOutputs == 1){
-            encodedObservation.add("rf");
-            encodedObservation.add("ln");
+            encodedObservation.add("rightFaster");
+            encodedObservation.add("leftNominal");
         }
         else {
-            encodedObservation.add("rn");
-            encodedObservation.add("lf");
+            encodedObservation.add("rightNominal");
+            encodedObservation.add("leftFaster");
         }
 
         // check if behaviour is ok

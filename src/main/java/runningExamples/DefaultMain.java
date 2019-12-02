@@ -1,14 +1,19 @@
 package runningExamples;
 
-import FmiConnector.Component;
+import examples.SimplerCarEncoder;
+import model.Component;
 import FmiConnector.FmiMonitor;
-import FmiConnector.Type;
+import model.Scenario;
+import model.Type;
 import abductive.AbductiveDriver;
 import abductive.AbductiveModel;
+import model.ModelData;
+import consistency.ConsistencyType;
 import examples.BookAbEncoder;
 import consistency.CbModel;
 import consistency.ConsistencyDriver;
 import examples.BookCarEncoder;
+import util.Util;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,10 +21,12 @@ import java.util.List;
 public class DefaultMain {
     public static void main(String [] args) {
 
-        String[] fmiPath = {"newFmi/ERobot.Experiments.RampInput.fmu", "newFmi/ERobot.Experiments.RampWFault.fmu",
-                "newFmi/ERobot.Experiments.constWFault.fmu", "newFmi/ERobot.Experiments.RampIntermittent.fmu",
-                "newFmi/ERobot.Experiments.ConstBothBreak.fmu"};
-        FmiMonitor fmiMonitor = new FmiMonitor(fmiPath[4]);
+
+
+        String[] fmiPath = {"FMIs/ERobot.Experiments.RampInput.fmu", "FMIs/ERobot.Experiments.RampWFault.fmu",
+                "FMIs/ERobot.Experiments.constWFault.fmu", "FMIs/ERobot.Experiments.RampIntermittent.fmu",
+                "FMIs/ERobot.Experiments.ConstBothBreak.fmu", "FMIs/ERobot.SubModel.InputSimpleRobot.fmu"};
+        FmiMonitor fmiMonitor = new FmiMonitor(fmiPath[5]);
 
 
         List<Component> comps = Arrays.asList(
@@ -28,6 +35,7 @@ public class DefaultMain {
                 new Component("robot.leftWheel.i", Type.DOUBLE),
                 new Component("robot.leftWheel.o", Type.DOUBLE)
         );
+
 
         AbductiveDriver abductiveDriver = AbductiveDriver.builder()
                 .fmiMonitor(fmiMonitor)
@@ -40,17 +48,22 @@ public class DefaultMain {
 
         //abductiveDriver.runSimulation();
 
+        ModelData md = Util.modelDataFromCsv("inputRobot.csv");
         ConsistencyDriver consistencyDriver = ConsistencyDriver.builder()
                 .fmiMonitor(fmiMonitor)
                 .model(new CbModel("src/main/java/examples/bookModel.txt"))
                 .encoder(new BookCarEncoder())
-                .comps(comps)
+                .modelData(md)
                 .simulationRuntime(20)
                 .stepSize(1)
                 .build();
 
-        consistencyDriver.stepDiag();
-        //consistencyDriver.continuousDiag(true);
+        List<Scenario> scenarios = Util.simulationScenariosFromCSV("scenariosSimple.csv");
+
+        consistencyDriver.runDiagnosis(ConsistencyType.STEP, scenarios.get(2));
+        //consistencyDriver.runDiagnosis(ConsistencyType.PERSISTENT);
+        //consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT);
+
     }
 
 }

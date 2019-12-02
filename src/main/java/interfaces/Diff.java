@@ -1,6 +1,6 @@
 package interfaces;
 
-import FmiConnector.Component;
+import model.Component;
 
 import java.util.List;
 

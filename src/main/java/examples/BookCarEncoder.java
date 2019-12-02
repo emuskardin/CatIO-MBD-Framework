@@ -13,10 +13,10 @@ public class BookCarEncoder implements Encoder {
     public List<String> encodeObservation(Map<String, Object> obs){
 
         List<String> encodedObservation = new ArrayList<>();
-        Double rightWheelInput = (Double) obs.get("robot.rightWheel.i");
-        Double rightWheelOutput = (Double) obs.get("robot.rightWheel.o");
-        Double leftWheelInput = (Double) obs.get("robot.leftWheel.i");
-        Double leftWheelOutput = (Double) obs.get("robot.leftWheel.o");
+        Double rightWheelInput = (Double) obs.get("rightWheel.i");
+        Double rightWheelOutput = (Double) obs.get("rightWheel.o");
+        Double leftWheelInput = (Double) obs.get("leftWheel.i");
+        Double leftWheelOutput = (Double) obs.get("leftWheel.o");
 
         int compInputs = Double.compare(rightWheelInput, leftWheelInput);
         if(compInputs == 0) encodedObservation.add("straight");

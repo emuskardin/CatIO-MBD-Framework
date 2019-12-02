@@ -1,6 +1,8 @@
 package FmiConnector;
 
 import lombok.Data;
+import model.Component;
+import model.Type;
 import org.javafmi.wrapper.Simulation;
 
 import java.util.List;
@@ -20,26 +22,33 @@ public class FmiWriter {
 
     public void writeComponent(Component comp){
         Object value = comp.getValue();
-        if(value instanceof String){
-            if(comp.getType() == Type.STRING)
-                simulation.write(comp.getName()).with((String) value);
-            else{
-                if(comp.getType() == Type.BOOLEAN)
+        // TODO REFACTOR
+        if(comp.getType() != null){
+            switch (comp.getType()) {
+                case STRING:
+                    simulation.write(comp.getName()).with((String) value);
+                    break;
+                case BOOLEAN:
                     simulation.write(comp.getName()).with(Boolean.parseBoolean((String) value));
-                else if(comp.getType() == Type.INTEGER)
-                    simulation.write(comp.getName()).with(Integer.parseInt((String) value));
-                else if(comp.getType() == Type.DOUBLE)
+                    break;
+                case DOUBLE:
                     simulation.write(comp.getName()).with(Double.parseDouble((String) value));
+                    break;
+                case INTEGER:
+                case ENUM:
+                    simulation.write(comp.getName()).with((Integer) value);
+                    break;
+                }
             }
-        }else
+        else
             writeVar(comp.getName(), value);
     }
 
     public void writeVar(String name, Object value){
-        if(value instanceof Integer)
-            simulation.write(name).with((Integer) value);
-        else if(value instanceof Double)
+        if(value instanceof Double)
             simulation.write(name).with((Double) value);
+        else if(value instanceof Integer)
+            simulation.write(name).with((Integer) value);
         else if(value instanceof Boolean)
             simulation.write(name).with((Boolean) value);
         else

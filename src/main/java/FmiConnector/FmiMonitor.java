@@ -1,6 +1,7 @@
 package FmiConnector;
 
 import lombok.Data;
+import model.Component;
 import org.javafmi.wrapper.Simulation;
 
 import java.util.HashMap;
@@ -24,6 +25,7 @@ public class FmiMonitor {
     }
 
     public void resetSimulation(){
+        simulation.reset();
         simulation = new Simulation(pathToFmi);
         fmiWriter.setSimulation(simulation);
     }

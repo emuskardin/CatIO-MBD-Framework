@@ -20,7 +20,6 @@ dependencies {
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.10'
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
-
     // Logic library
     compile 'org.logicng:logicng:1.6.1'
 }

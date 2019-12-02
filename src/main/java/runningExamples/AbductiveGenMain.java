@@ -1,10 +1,10 @@
 package runningExamples;
 
-import FmiConnector.Component;
-import FmiConnector.Type;
-import abductive.combinatorial.MLCA;
-import abductive.combinatorial.ModelData;
-import abductive.combinatorial.ModelInput;
+import model.Component;
+import model.Type;
+import abductive.MLCA;
+import model.ModelData;
+import model.ModelInput;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -48,7 +48,7 @@ public class AbductiveGenMain {
         List<Object> voltageRegFaultTypes = Arrays.asList("ok", "increased", "decreased");
 
         ModelData modelData = new ModelData();
-        modelData.setComponents(
+        modelData.setHealthStates(
                 Arrays.asList(
                         new ModelInput("dleftPowerModuleInput", powerModuleFaultTypes, Type.ENUM),
                         new ModelInput("drightPowerModuleInput", powerModuleFaultTypes, Type.ENUM),

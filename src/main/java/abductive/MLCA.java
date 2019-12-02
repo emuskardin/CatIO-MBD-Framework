@@ -1,10 +1,12 @@
-package abductive.combinatorial;
+package abductive;
 
-import FmiConnector.Component;
-import FmiConnector.Type;
+import model.Component;
+import model.Type;
 import edu.uta.cse.fireeye.common.*;
 import edu.uta.cse.fireeye.service.engine.IpoEngine;
 import lombok.Data;
+import model.ModelData;
+import model.ModelInput;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -23,7 +25,7 @@ public class MLCA {
     public MLCA(ModelData modelData){
         sut = new SUT();
         engine = new IpoEngine(sut);
-        components = addParam(modelData.getComponents());
+        components = addParam(modelData.getHealthStates());
         inputs = addParam(modelData.getInputs());
         params = addParam(modelData.getParam());
         md = modelData;
@@ -54,7 +56,7 @@ public class MLCA {
                 List<String> test = Arrays.asList(line.split(","));
                 List<Component> rowInput = new ArrayList<>();
                 for(int i = 0; i < test.size(); i++) {
-                    Type type = getType(nameList.get(i));
+                    Type type = md.getType(nameList.get(i));
                     Component comp = new Component(nameList.get(i), type);
                     Integer compValue = componentIndexNum(test.get(i));
                     if(compValue != null)
@@ -68,14 +70,6 @@ public class MLCA {
             line = fileReader.readLine();
         }
         return testSuite;
-    }
-
-    public List<Component> getAllOkStates(){
-        List<Component> res = new ArrayList<>();
-        for(ModelInput mid : md.getComponents()){
-            res.add(new Component(mid.getOriginalName(), mid.getValues().indexOf("ok") + 1));
-        }
-        return res;
     }
 
     public void addRelationToGroup(List<Parameter> comps, Integer relStrength){
@@ -151,8 +145,8 @@ public class MLCA {
 
     // Boilerplate
     private Integer componentIndexNum(String valueName){
-        if(md.getComponents() != null) {
-            for (ModelInput mid : md.getComponents()) {
+        if(md.getHealthStates() != null) {
+            for (ModelInput mid : md.getHealthStates()) {
                 if (mid.getValues().contains(valueName))
                     return mid.getValues().indexOf(valueName) + 1;
             }
@@ -160,8 +154,8 @@ public class MLCA {
         return null;
     }
     private String getOriginalName(String name){
-        if(md.getComponents() != null) {
-            for (ModelInput mid : md.getComponents()) {
+        if(md.getHealthStates() != null) {
+            for (ModelInput mid : md.getHealthStates()) {
                 if (mid.getName().equals(name))
                     return mid.getOriginalName();
             }
@@ -182,29 +176,7 @@ public class MLCA {
         System.exit(1);
         return null;
     }
-    private Type getType(String name){
-        if(md.getComponents() != null) {
-            for (ModelInput mid : md.getComponents()) {
-                if (mid.getOriginalName().equals(name))
-                    return mid.getType();
-            }
-        }
-        if(md.getParam() != null) {
-            for (ModelInput mid : md.getParam()) {
-                if (mid.getOriginalName().equals(name))
-                    return mid.getType();
-            }
-        }
-        if(md.getInputs() != null) {
-            for (ModelInput mid : md.getInputs()) {
-                if (mid.getOriginalName().equals(name))
-                    return mid.getType();
-            }
-        }
-        System.err.println("Type not found in provided model data");
-        System.exit(1);
-        return null;
-    }
+
 
     private List<int[]> generate(int n, int r) {
         List<int[]> combinations = new ArrayList<>();

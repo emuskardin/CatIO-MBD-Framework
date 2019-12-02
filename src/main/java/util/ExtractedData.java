@@ -1,7 +1,7 @@
 package util;
 
 import FmiConnector.Component;
-import abductive.combinatorial.ModelInputData;
+import abductive.combinatorial.ModelInput;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 public class ExtractedData {
     List<Component> componentsToRead = new ArrayList<>();
-    List<ModelInputData> modelInputDataList = new ArrayList<>();
+    List<ModelInput> modelInputList = new ArrayList<>();
 
     public ExtractedData(List<Object> deserializedData){
         for(Object data : deserializedData){
@@ -22,7 +22,7 @@ public class ExtractedData {
                 }
                 else
                     for(Object ob : listOb)
-                        modelInputDataList.add((ModelInputData) ob);
+                        modelInputList.add((ModelInput) ob);
             }
         }
     }

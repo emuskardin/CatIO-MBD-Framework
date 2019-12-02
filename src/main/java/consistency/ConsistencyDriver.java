@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import org.javafmi.wrapper.Simulation;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,9 +23,8 @@ public class ConsistencyDriver {
 
     /**
      * Diagnosis algorithm will be executed after every time step, and diagnosis printed to standard output.
-     * @throws IOException
      */
-    public void stepDiag() throws IOException {
+    public void stepDiag() {
         Simulation simulation = fmiMonitor.getSimulation();
         model.setNumOfDistinct(model.getPredicates().getSize());
 
@@ -46,9 +44,8 @@ public class ConsistencyDriver {
      * Diagnosis will be printed after simulation has ended. If faults are intermittent, and param is true
      * corresponding time steps in which faults have been diagnosed will be printed to standard output.
      * @param intermittentFaults it true, health states will be increased alongside other param
-     * @throws IOException
      */
-    public void continuousDiag(Boolean intermittentFaults) throws IOException {
+    public void continuousDiag(Boolean intermittentFaults) {
         Simulation simulation = fmiMonitor.getSimulation();
         int offset = intermittentFaults ? model.getPredicates().getSize() : (model.getPredicates().getSize() - (model.getAbPredicates().size()/2));
 

@@ -1,20 +1,19 @@
 package abductive.combinatorial;
 
-import FmiConnector.TYPE;
-import lombok.AllArgsConstructor;
+import FmiConnector.Type;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class ModelInputData implements Serializable {
+public class ModelInput implements Serializable {
     private String name;
     private List<Object> values;
-    private TYPE type;
+    private Type type;
     private String originalName;
 
-    public ModelInputData(String name, List<Object> values, TYPE type){
+    public ModelInput(String name, List<Object> values, Type type){
         this.name = name.replace(".", "_");
         this.originalName = name;
         this.values = values;

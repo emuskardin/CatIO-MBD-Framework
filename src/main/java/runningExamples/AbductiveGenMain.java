@@ -1,21 +1,13 @@
 package runningExamples;
 
 import FmiConnector.Component;
-import FmiConnector.FmiMonitor;
-import FmiConnector.TYPE;
-import abductive.AbductiveModel;
-import abductive.AutomaticModelGen;
+import FmiConnector.Type;
 import abductive.combinatorial.MLCA;
 import abductive.combinatorial.ModelData;
-import abductive.combinatorial.ModelInputData;
-import org.javafmi.wrapper.Simulation;
-import util.ExtractedData;
-import util.Util;
+import abductive.combinatorial.ModelInput;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class AbductiveGenMain {
@@ -58,13 +50,13 @@ public class AbductiveGenMain {
         ModelData modelData = new ModelData();
         modelData.setComponents(
                 Arrays.asList(
-                        new ModelInputData("dleftPowerModuleInput", powerModuleFaultTypes, TYPE.ENUM),
-                        new ModelInputData("drightPowerModuleInput", powerModuleFaultTypes, TYPE.ENUM),
-                        new ModelInputData("drightWheelInput", wheelFaultTypes, TYPE.ENUM),
-                        new ModelInputData("dleftWheelInput", wheelFaultTypes, TYPE.ENUM),
-                        new ModelInputData("dbatteryInput", batterylFaultTypes, TYPE.ENUM),
-                        new ModelInputData("drightVoltageRegInput", voltageRegFaultTypes, TYPE.ENUM),
-                        new ModelInputData("dleftVoltageRegInput", voltageRegFaultTypes, TYPE.ENUM)
+                        new ModelInput("dleftPowerModuleInput", powerModuleFaultTypes, Type.ENUM),
+                        new ModelInput("drightPowerModuleInput", powerModuleFaultTypes, Type.ENUM),
+                        new ModelInput("drightWheelInput", wheelFaultTypes, Type.ENUM),
+                        new ModelInput("dleftWheelInput", wheelFaultTypes, Type.ENUM),
+                        new ModelInput("dbatteryInput", batterylFaultTypes, Type.ENUM),
+                        new ModelInput("drightVoltageRegInput", voltageRegFaultTypes, Type.ENUM),
+                        new ModelInput("dleftVoltageRegInput", voltageRegFaultTypes, Type.ENUM)
                 ));
 
         MLCA mlca = new MLCA(modelData);

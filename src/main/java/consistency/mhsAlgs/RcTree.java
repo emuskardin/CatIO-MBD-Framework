@@ -44,7 +44,7 @@ public class RcTree {
         this.observation = obs;
     }
 
-    public List<List<Integer>> getDiagnosis() throws IOException {
+    public List<List<Integer>> getDiagnosis() {
         processingQueqe.addToQueue(rootNode);
         RcNode nextToProcess = processingQueqe.getNextToProcess();
         do{
@@ -55,7 +55,7 @@ public class RcTree {
         return getMHS();
     }
 
-    private void processNode(RcNode node) throws IOException {
+    private void processNode(RcNode node) {
         if(closingCheck(node))
             return;
 
@@ -86,10 +86,15 @@ public class RcTree {
     }
 
 
-    private List<Integer> getLabel(RcNode node) throws IOException {
-        PicoSAT picoSAT = new PicoSAT("formula.txt");
-        picoSAT.writeModelAndObsToFile(model.modelWithAb(node.pathFromRoot), observation);
-        return picoSAT.getMUS();
+    private List<Integer> getLabel(RcNode node) {
+        try {
+            PicoSAT picoSAT = new PicoSAT("formula.txt");
+            picoSAT.writeModelAndObsToFile(model.modelWithAb(node.pathFromRoot), observation);
+            return picoSAT.getMUS();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
     }
 
     private boolean closingCheck(RcNode node){

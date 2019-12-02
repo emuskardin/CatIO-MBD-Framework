@@ -1,15 +1,13 @@
 package gui;
 
 import FmiConnector.Component;
-import FmiConnector.TYPE;
+import FmiConnector.Type;
 import org.javafmi.modeldescription.ScalarVariable;
 import org.javafmi.wrapper.Simulation;
 import util.Util;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,16 +115,16 @@ public class FmiDataExtractor {
         });
     }
 
-    private TYPE getType(String x){
+    private Type getType(String x){
         if(x.equals("Real"))
-            return TYPE.DOUBLE;
+            return Type.DOUBLE;
         if(x.equals("Boolean"))
-            return TYPE.BOOLEAN;
+            return Type.BOOLEAN;
         if(x.equals("Integer"))
-            return TYPE.INTEGER;
+            return Type.INTEGER;
         if(x.equals("Enumeration"))
-            return TYPE.ENUM;
-        return TYPE.STRING;
+            return Type.ENUM;
+        return Type.STRING;
     }
 
     private void createUIComponents() {

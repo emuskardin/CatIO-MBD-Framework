@@ -1,7 +1,7 @@
 package abductive.combinatorial;
 
 import FmiConnector.Component;
-import FmiConnector.TYPE;
+import FmiConnector.Type;
 import edu.uta.cse.fireeye.common.*;
 import edu.uta.cse.fireeye.service.engine.IpoEngine;
 import lombok.Data;
@@ -54,7 +54,7 @@ public class MLCA {
                 List<String> test = Arrays.asList(line.split(","));
                 List<Component> rowInput = new ArrayList<>();
                 for(int i = 0; i < test.size(); i++) {
-                    TYPE type = getType(nameList.get(i));
+                    Type type = getType(nameList.get(i));
                     Component comp = new Component(nameList.get(i), type);
                     Integer compValue = componentIndexNum(test.get(i));
                     if(compValue != null)
@@ -72,7 +72,7 @@ public class MLCA {
 
     public List<Component> getAllOkStates(){
         List<Component> res = new ArrayList<>();
-        for(ModelInputData mid : md.getComponents()){
+        for(ModelInput mid : md.getComponents()){
             res.add(new Component(mid.getOriginalName(), mid.getValues().indexOf("ok") + 1));
         }
         return res;
@@ -84,11 +84,11 @@ public class MLCA {
         sut.addRelation(relation);
     }
 
-    private ArrayList<Parameter> addParam(List<ModelInputData> components){
+    private ArrayList<Parameter> addParam(List<ModelInput> components){
         if(components == null)
             return null;
         ArrayList<Parameter> params = new ArrayList<>();
-        for(ModelInputData compIter : components){
+        for(ModelInput compIter : components){
             Parameter comp = sut.addParam(compIter.getName());
             compIter.getValues().forEach( val -> comp.addValue(val.toString()));
             switch (compIter.getType()){
@@ -152,7 +152,7 @@ public class MLCA {
     // Boilerplate
     private Integer componentIndexNum(String valueName){
         if(md.getComponents() != null) {
-            for (ModelInputData mid : md.getComponents()) {
+            for (ModelInput mid : md.getComponents()) {
                 if (mid.getValues().contains(valueName))
                     return mid.getValues().indexOf(valueName) + 1;
             }
@@ -161,19 +161,19 @@ public class MLCA {
     }
     private String getOriginalName(String name){
         if(md.getComponents() != null) {
-            for (ModelInputData mid : md.getComponents()) {
+            for (ModelInput mid : md.getComponents()) {
                 if (mid.getName().equals(name))
                     return mid.getOriginalName();
             }
         }
         if(md.getParam() != null) {
-            for (ModelInputData mid : md.getParam()) {
+            for (ModelInput mid : md.getParam()) {
                 if (mid.getName().equals(name))
                     return mid.getOriginalName();
             }
         }
         if(md.getInputs() != null) {
-            for (ModelInputData mid : md.getInputs()) {
+            for (ModelInput mid : md.getInputs()) {
                 if (mid.getName().equals(name))
                     return mid.getOriginalName();
             }
@@ -182,21 +182,21 @@ public class MLCA {
         System.exit(1);
         return null;
     }
-    private TYPE getType(String name){
+    private Type getType(String name){
         if(md.getComponents() != null) {
-            for (ModelInputData mid : md.getComponents()) {
+            for (ModelInput mid : md.getComponents()) {
                 if (mid.getOriginalName().equals(name))
                     return mid.getType();
             }
         }
         if(md.getParam() != null) {
-            for (ModelInputData mid : md.getParam()) {
+            for (ModelInput mid : md.getParam()) {
                 if (mid.getOriginalName().equals(name))
                     return mid.getType();
             }
         }
         if(md.getInputs() != null) {
-            for (ModelInputData mid : md.getInputs()) {
+            for (ModelInput mid : md.getInputs()) {
                 if (mid.getOriginalName().equals(name))
                     return mid.getType();
             }

@@ -21,14 +21,14 @@ public class FmiWriter {
     public void writeComponent(Component comp){
         Object value = comp.getValue();
         if(value instanceof String){
-            if(comp.getType() == TYPE.STRING)
+            if(comp.getType() == Type.STRING)
                 simulation.write(comp.getName()).with((String) value);
             else{
-                if(comp.getType() == TYPE.BOOLEAN)
+                if(comp.getType() == Type.BOOLEAN)
                     simulation.write(comp.getName()).with(Boolean.parseBoolean((String) value));
-                else if(comp.getType() == TYPE.INTEGER)
+                else if(comp.getType() == Type.INTEGER)
                     simulation.write(comp.getName()).with(Integer.parseInt((String) value));
-                else if(comp.getType() == TYPE.DOUBLE)
+                else if(comp.getType() == Type.DOUBLE)
                     simulation.write(comp.getName()).with(Double.parseDouble((String) value));
             }
         }else

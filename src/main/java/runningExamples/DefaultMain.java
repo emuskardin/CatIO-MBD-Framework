@@ -2,21 +2,19 @@ package runningExamples;
 
 import FmiConnector.Component;
 import FmiConnector.FmiMonitor;
-import FmiConnector.TYPE;
+import FmiConnector.Type;
 import abductive.AbductiveDriver;
 import abductive.AbductiveModel;
 import examples.BookAbEncoder;
 import consistency.CbModel;
 import consistency.ConsistencyDriver;
 import examples.BookCarEncoder;
-import org.logicng.io.parsers.ParserException;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 public class DefaultMain {
-    public static void main(String [] args) throws IOException {
+    public static void main(String [] args) {
 
         String[] fmiPath = {"newFmi/ERobot.Experiments.RampInput.fmu", "newFmi/ERobot.Experiments.RampWFault.fmu",
                 "newFmi/ERobot.Experiments.constWFault.fmu", "newFmi/ERobot.Experiments.RampIntermittent.fmu",
@@ -25,10 +23,10 @@ public class DefaultMain {
 
 
         List<Component> comps = Arrays.asList(
-                new Component("robot.rightWheel.i", TYPE.DOUBLE),
-                new Component("robot.rightWheel.o", TYPE.DOUBLE),
-                new Component("robot.leftWheel.i", TYPE.DOUBLE),
-                new Component("robot.leftWheel.o", TYPE.DOUBLE)
+                new Component("robot.rightWheel.i", Type.DOUBLE),
+                new Component("robot.rightWheel.o", Type.DOUBLE),
+                new Component("robot.leftWheel.i", Type.DOUBLE),
+                new Component("robot.leftWheel.o", Type.DOUBLE)
         );
 
         AbductiveDriver abductiveDriver = AbductiveDriver.builder()

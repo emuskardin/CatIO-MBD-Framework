@@ -2,7 +2,7 @@ package abductive;
 
 import FmiConnector.Component;
 import FmiConnector.FmiMonitor;
-import FmiConnector.TYPE;
+import FmiConnector.Type;
 import abductive.combinatorial.MLCA;
 import abductive.combinatorial.ModelData;
 import lombok.Data;
@@ -27,7 +27,7 @@ public class AutomaticModelGen {
 
     public AbductiveModel generateModel() throws IOException {
         AbductiveModel abductiveModel = new AbductiveModel();
-        Component bulb = new Component("b1.on", TYPE.BOOLEAN);
+        Component bulb = new Component("b1.on", Type.BOOLEAN);
         Simulation sim = fmiMonitor.getSimulation();
         List<Boolean> correctBulbObs = new ArrayList<>();
         fmiMonitor.getFmiWriter().writeMultipleComp(mlca.getAllOkStates());

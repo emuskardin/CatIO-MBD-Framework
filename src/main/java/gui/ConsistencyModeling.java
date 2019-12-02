@@ -5,9 +5,7 @@ import consistency.CbModel;
 import util.Util;
 
 import javax.swing.*;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,10 +19,12 @@ public class ConsistencyModeling {
     private JButton convertToCNFButton;
     private JTextArea diagnosisArea;
     private JButton exportModelButton;
+    private JButton checkSatisfiabilityButton;
+    private JTextArea picosatOutput;
     private CbModel cbModel;
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("FmiDataExtractor");
+        JFrame frame = new JFrame("CBD Modeling");
         frame.setContentPane(new ConsistencyModeling().panel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -40,13 +40,9 @@ public class ConsistencyModeling {
             obsStr = obsStr.replaceAll("\\s+","");
             List<String> obs = Arrays.asList(obsStr.split(","));
             RcTree rcTree = new RcTree(cbModel, cbModel.observationToInt(obs));
-            try {
-                for(List<Integer> mhs  : rcTree.getDiagnosis()) {
-                    List<String> diag = cbModel.diagnosisToComponentNames(mhs);
-                    diagnosisArea.append(String.join(", ", diag) + "\n");
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            for(List<Integer> mhs  : rcTree.getDiagnosis()) {
+                List<String> diag = cbModel.diagnosisToComponentNames(mhs);
+                diagnosisArea.append(String.join(", ", diag) + "\n");
             }
         });
 
@@ -58,8 +54,13 @@ public class ConsistencyModeling {
             cbModel = new CbModel();
             cbModel.modelToCNF(model);
             cbModel.setNumOfDistinct(cbModel.getPredicates().getSize());
+            cnfModelArea.append("c DIMACS CNF representation\n");
+            cnfModelArea.append("p cnf " + cbModel.getPredicates().getSize() + " " + cbModel.getModel().size()+ "\n");
+            for(List<Integer> cnfLIne : cbModel.getModel())
+                cnfModelArea.append(cnfLIne.toString().substring(1, cnfLIne.toString().length() - 1) + " 0\n");
+
             for(List<String> line : cbModel.modelToString())
-                cnfModelArea.append(String.join(", ", line) + "\n");
+                cnfModelArea.append("c " + String.join(", ", line) + "\n");
 
         });
 
@@ -91,6 +92,30 @@ public class ConsistencyModeling {
             }
         });
 
+        checkSatisfiabilityButton.addActionListener(e -> {
+            Runtime rt = Runtime.getRuntime();
+            try {
+                File tmpFile = new File("cnfModel.tmp");
+                FileWriter writer = new FileWriter(tmpFile);
+                writer.write(cnfModelArea.getText());
+                writer.close();
+                String[] commands = {"lib/picomus", "cnfModel.tmp"};
+                Process proc = rt.exec(commands);
+
+                BufferedReader stdInput = new BufferedReader(new
+                        InputStreamReader(proc.getInputStream()));
+
+                String s;
+                while ((s = stdInput.readLine()) != null) {
+                    if(s.charAt(0) == 'c')
+                        continue;
+                    picosatOutput.append(s + "\n");
+                }
+                tmpFile.deleteOnExit();
+            }catch (IOException ex){
+                ex.printStackTrace();
+            }
+        });
     }
 
 }

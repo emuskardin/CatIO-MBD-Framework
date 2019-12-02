@@ -11,10 +11,10 @@ import java.io.Serializable;
 @Data
 public class Component implements Serializable {
     private String name;
-    private TYPE type;
+    private Type type;
     private Object value;
 
-    public Component(String name, TYPE type){
+    public Component(String name, Type type){
         this.name = name;
         this.type = type;
     }

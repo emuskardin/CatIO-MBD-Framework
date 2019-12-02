@@ -1,9 +1,9 @@
 package util;
 
 import FmiConnector.Component;
-import FmiConnector.TYPE;
+import FmiConnector.Type;
 import abductive.combinatorial.ModelData;
-import abductive.combinatorial.ModelInputData;
+import abductive.combinatorial.ModelInput;
 
 import javax.swing.*;
 import java.io.*;
@@ -95,31 +95,31 @@ public class Util {
 
             switch (values[0]) {
                 case "Input":
-                    res.getInputs().add(new ModelInputData(values[1], passedVal, getType(values[2])));
+                    res.getInputs().add(new ModelInput(values[1], passedVal, getType(values[2])));
                     break;
                 case "Parameter":
-                    res.getParam().add(new ModelInputData(values[1], passedVal, getType(values[2])));
+                    res.getParam().add(new ModelInput(values[1], passedVal, getType(values[2])));
                     break;
                 case "Health State":
-                    res.getComponents().add(new ModelInputData(values[1], passedVal, getType(values[2])));
+                    res.getComponents().add(new ModelInput(values[1], passedVal, getType(values[2])));
                     break;
             }
         }
         return res;
     }
 
-    private static TYPE getType(String x){
+    private static Type getType(String x){
         switch (x){
             case "ENUM":
-                return TYPE.ENUM;
+                return Type.ENUM;
             case "STRING":
-                return TYPE.STRING;
+                return Type.STRING;
             case "INTEGER":
-                return TYPE.INTEGER;
+                return Type.INTEGER;
             case "BOOLEAN":
-                return TYPE.BOOLEAN;
+                return Type.BOOLEAN;
             case "DOUBLE":
-                return TYPE.DOUBLE;
+                return Type.DOUBLE;
         }
         return null;
     }

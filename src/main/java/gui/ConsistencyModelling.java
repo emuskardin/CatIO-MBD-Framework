@@ -9,7 +9,7 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 
-public class ConsistencyModeling {
+public class ConsistencyModelling {
     public JPanel panel;
     private JTextArea cnfModelArea;
     private JTextField observationArea;
@@ -26,13 +26,13 @@ public class ConsistencyModeling {
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("CBD Modeling");
-        frame.setContentPane(new ConsistencyModeling().panel);
+        frame.setContentPane(new ConsistencyModelling().panel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
     }
 
-    public ConsistencyModeling() {
+    public ConsistencyModelling() {
         diagnoseObservationButton.addActionListener(e -> {
             if(cnfModelArea.getText().isEmpty())
                 convertToCnf();

@@ -8,6 +8,7 @@ import compiler.LSentence;
 import compiler.LogicParser;
 import consistency.mhsAlgs.GDE;
 import lombok.Data;
+import util.Util;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +18,7 @@ import java.util.*;
 
 @Data
 public class AbductiveModel {
-    private String rules;
+    private String rules = "";
     private List<String> observations = new ArrayList<>();
     private ATMSystem atms = null;
 
@@ -26,11 +27,16 @@ public class AbductiveModel {
         String content = null;
         try {
             content = new String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8);
+            content = Util.removeComments(content);
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
         }
         rules = content;
+    }
+
+    public void addRule(String rule){
+        rules += rule;
     }
 
     public void addExplain(List<String> symptoms){

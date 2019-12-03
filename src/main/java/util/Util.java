@@ -68,4 +68,10 @@ public class Util {
         return null;
     }
 
+    public static String removeComments(String content){
+        content = content.replaceAll("(?s)/\\*.*?\\*/","");
+        content = content.replaceAll("//.*", "");
+        return content;
+    }
+
 }

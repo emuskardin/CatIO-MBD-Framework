@@ -32,7 +32,7 @@ public class AbductiveModelling {
             if(abductiveModelArea.getText().isEmpty())
                 return;
             AbductiveModel abductiveModel = new AbductiveModel();
-            abductiveModel.setRules(abductiveModelArea.getText());
+            abductiveModel.setRules(Util.removeComments(abductiveModelArea.getText()));
             String obs = observationField.getText().replaceAll("\\s+","");
             abductiveModel.addExplain(Arrays.asList(obs.split(",")));
             diagnosisArea.setText(abductiveModel.getDiagnosis());

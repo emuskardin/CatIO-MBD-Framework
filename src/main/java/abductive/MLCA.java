@@ -38,40 +38,6 @@ public class MLCA {
         wrapper.outputInCSVFormat(filename);
     }
 
-    public List<List<Component>> suitToSimulationInput(String filepath) throws IOException {
-        BufferedReader fileReader = new BufferedReader(new FileReader(filepath));
-        List<List<Component>> testSuite = new ArrayList<>();
-        ArrayList<String> nameList = new ArrayList<>();
-
-        String line = fileReader.readLine();
-        while (line != null){
-            if(line.charAt(0) == '#'){
-                line = fileReader.readLine();
-                continue;
-            } else if(nameList.isEmpty()){
-                nameList.addAll(Arrays.asList(line.split(",")));
-                for (int i = 0; i < nameList.size(); i++)
-                    nameList.set(i, getOriginalName(nameList.get(i)));
-            }else {
-                List<String> test = Arrays.asList(line.split(","));
-                List<Component> rowInput = new ArrayList<>();
-                for(int i = 0; i < test.size(); i++) {
-                    Type type = md.getType(nameList.get(i));
-                    Component comp = new Component(nameList.get(i), type);
-                    Integer compValue = componentIndexNum(test.get(i));
-                    if(compValue != null)
-                        comp.setValue(compValue);
-                    else
-                        comp.setValue(test.get(i));
-                    rowInput.add(comp);
-                }
-                testSuite.add(rowInput);
-            }
-            line = fileReader.readLine();
-        }
-        return testSuite;
-    }
-
     public void addRelationToGroup(List<Parameter> comps, Integer relStrength){
         Relation relation = new Relation(relStrength);
         comps.forEach(relation::addParam);
@@ -126,7 +92,7 @@ public class MLCA {
 
     private String correctCompConstraintBuilder(ArrayList<Parameter> params, Integer correctNum){
         StringBuilder sb = new StringBuilder();
-        List<int[]> combinations = generate(params.size(), correctNum);
+        List<int[]> combinations = generateCombinations(params.size(), correctNum);
         for(int[] comb: combinations){
             sb.append("(");
             int index = 0;
@@ -141,6 +107,40 @@ public class MLCA {
 
         sb.setLength(sb.length() - 3);
         return sb.toString();
+    }
+
+    public List<List<Component>> suitToSimulationInput(String filepath) throws IOException {
+        BufferedReader fileReader = new BufferedReader(new FileReader(filepath));
+        List<List<Component>> testSuite = new ArrayList<>();
+        ArrayList<String> nameList = new ArrayList<>();
+
+        String line = fileReader.readLine();
+        while (line != null){
+            if(line.charAt(0) == '#'){
+                line = fileReader.readLine();
+                continue;
+            } else if(nameList.isEmpty()){
+                nameList.addAll(Arrays.asList(line.split(",")));
+                for (int i = 0; i < nameList.size(); i++)
+                    nameList.set(i, getOriginalName(nameList.get(i)));
+            }else {
+                List<String> test = Arrays.asList(line.split(","));
+                List<Component> rowInput = new ArrayList<>();
+                for(int i = 0; i < test.size(); i++) {
+                    Type type = md.getType(nameList.get(i));
+                    Component comp = new Component(nameList.get(i), type);
+                    Integer compValue = componentIndexNum(test.get(i));
+                    if(compValue != null)
+                        comp.setValue(compValue);
+                    else
+                        comp.setValue(test.get(i));
+                    rowInput.add(comp);
+                }
+                testSuite.add(rowInput);
+            }
+            line = fileReader.readLine();
+        }
+        return testSuite;
     }
 
     // Boilerplate
@@ -177,8 +177,7 @@ public class MLCA {
         return null;
     }
 
-
-    private List<int[]> generate(int n, int r) {
+    private List<int[]> generateCombinations(int n, int r) {
         List<int[]> combinations = new ArrayList<>();
         int[] combination = new int[r];
 

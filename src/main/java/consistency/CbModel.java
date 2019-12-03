@@ -5,6 +5,7 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
+import util.Util;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -58,6 +59,7 @@ public class CbModel {
         if(content.contains("->") || content.contains("&") || content.contains("<->") || content.contains("|"))
             modelToCNF(content);
         else {
+            content = Util.removeComments(content);
             String[] clauses = content.split("\\r?\\n");
             List<List<String>> cl = new ArrayList<>();
             for(String clause : clauses){
@@ -70,6 +72,7 @@ public class CbModel {
     }
 
     public void modelToCNF(String propModel) {
+        propModel = Util.removeComments(propModel);
         propModel = propModel.replace("\n", "").replace("\r", "");
         String[] lines = propModel.split("\\.");
         for (int i = 0; i < lines.length; i++)
@@ -219,5 +222,5 @@ public class CbModel {
         }
         return res;
     }
-    
+
 }

@@ -1,8 +1,8 @@
 package abductive;
 
+import interfaces.Diff;
 import model.Component;
 import FmiConnector.FmiMonitor;
-import model.Type;
 import model.ModelData;
 import lombok.Data;
 import org.javafmi.wrapper.Simulation;
@@ -10,67 +10,70 @@ import org.javafmi.wrapper.Simulation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class AutomaticModelGen {
-    private AbductiveModel abductiveModel;
-    private MLCA mlca;
+    private ModelData modelData;
     private FmiMonitor fmiMonitor;
-    private List<Component> toRead;
+    private MLCA mlca;
+    private AbductiveModel abductiveModel;
+    private Diff diff;
 
-    public AutomaticModelGen(String pathToFmi ,ModelData modelData){
+    public AutomaticModelGen(String pathToFmi ,ModelData modelData, Diff diff){
         abductiveModel = new AbductiveModel();
+        this.modelData = modelData;
         mlca = new MLCA(modelData);
         fmiMonitor = new FmiMonitor(pathToFmi);
+        this.diff = diff;
     }
 
-    public AbductiveModel generateModel() throws IOException {
+    public AbductiveModel generateModel(Double runtime, Double stepSize) throws IOException {
         AbductiveModel abductiveModel = new AbductiveModel();
-        Component bulb = new Component("b1.on", Type.BOOLEAN);
         Simulation sim = fmiMonitor.getSimulation();
-        List<Boolean> correctBulbObs = new ArrayList<>();
+        List<Map<String, Object>> corrObs = new ArrayList<>();
         fmiMonitor.getFmiWriter().writeMultipleComp(mlca.getMd().getAllOkStates());
         sim.init(0.0);
 
-        while(sim.getCurrentTime() < 10){
-            correctBulbObs.add((Boolean) fmiMonitor.read(bulb).getValue());
-            sim.doStep(0.25);
+        // Get observations from simulations without faults
+        while(sim.getCurrentTime() <= runtime){
+            corrObs.add(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
+            sim.doStep(stepSize);
         }
 
         mlca.numberOfCorrectComps(4);
         mlca.addRelationToGroup(mlca.getComponents(), 3);
-        mlca.createTestSuite("test");
-        List<List<Component>> simulationInputs = mlca.suitToSimulationInput("test");
+        mlca.createTestSuite("automaticModelGen.csv");
+        List<List<Component>> simulationInputs = mlca.suitToSimulationInput("automaticModelGen.csv");
 
         for(List<Component> test : simulationInputs){
             fmiMonitor.resetSimulation();
             sim = fmiMonitor.getSimulation();
             fmiMonitor.getFmiWriter().writeMultipleComp(test);
             sim.init(0.0);
-            List<Boolean> observations = new ArrayList<>();
-            while (sim.getCurrentTime() < 10){
-                observations.add((Boolean) fmiMonitor.read(bulb).getValue());
-                sim.doStep(0.25);
+            List<Map<String, Object>> observations = new ArrayList<>();
+            while (sim.getCurrentTime() < runtime){
+                observations.add(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
+                sim.doStep(stepSize);
             }
 
-            List<String> diff = diff(correctBulbObs, observations);
-            //if(!diff.isEmpty())
-            //    abductiveModel.addRule(formRule(test, diff));
+            String differance = diff.encodeDiff(corrObs, observations);
+            if(!differance.isEmpty())
+                abductiveModel.addRule(formRule(test, differance));
         }
         return abductiveModel;
     }
 
-    private String formRule(List<Component> test, List<String> diff){
+    private String formRule(List<Component> test, String diff){
         StringBuilder sb = new StringBuilder();
         List<String> faultModes = new ArrayList<>();
-        for (int i = 0; i < test.size(); i++) {
-            String name = test.get(i).getName();
-            test.get(i).setName(name.substring(0, 1).toUpperCase() + name.substring(1));
+        for (Component component : test) {
+            String name = component.getName();
+            component.setName(name.substring(0, 1).toUpperCase() + name.substring(1));
         }
         test.forEach(it -> faultModes.add(getFaultMode(it)));
         sb.append(String.join(",", faultModes));
-        sb.append(" -> ");
-        sb.append(String.join("", diff));
+        sb.append(" -> ").append(diff).append(".");
 
         System.out.println(sb.toString());
         return sb.toString();
@@ -82,20 +85,5 @@ public class AutomaticModelGen {
         res += component.getValue().toString();
         return res;
     }
-
-    public List<String> diff(List<Boolean> corr, List<Boolean> faulty){
-        List<String> res = new ArrayList<>();
-        for (int i = 0; i < corr.size(); i++) {
-            if(corr.get(i) != faulty.get(i)){
-                if(faulty.get(i))
-                    res.add("bulbOn");
-                else
-                    res.add("bulbOFF");
-            }
-        }
-
-        return res;
-    }
-
 
 }

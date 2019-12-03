@@ -21,7 +21,7 @@ public class MainGui {
 
     private void createUIComponents() {
        fmiExtPane = new FmiDataExtractor().panel;
-       constModPane = new ConsistencyModeling().panel;
+       constModPane = new ConsistencyModelling().panel;
        abModPane = new AbductiveModelling().panel;
     }
 

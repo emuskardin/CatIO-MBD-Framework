@@ -26,14 +26,12 @@ public class DefaultMain {
                 "FMIs/ERobot.Experiments.ConstBothBreak.fmu", "FMIs/ERobot.SubModel.InputSimpleRobot.fmu"};
         FmiMonitor fmiMonitor = new FmiMonitor(fmiPath[5]);
 
-
         List<Component> comps = Arrays.asList(
                 new Component("robot.rightWheel.i", Type.DOUBLE),
                 new Component("robot.rightWheel.o", Type.DOUBLE),
                 new Component("robot.leftWheel.i", Type.DOUBLE),
                 new Component("robot.leftWheel.o", Type.DOUBLE)
         );
-
 
         AbductiveDriver abductiveDriver = AbductiveDriver.builder()
                 .fmiMonitor(fmiMonitor)
@@ -60,8 +58,8 @@ public class DefaultMain {
 
         consistencyDriver.runDiagnosis(ConsistencyType.STEP, scenarios.get(0));
 
-//        consistencyDriver.runDiagnosis(ConsistencyType.PERSISTENT);
-//        consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT);
+        //consistencyDriver.runDiagnosis(ConsistencyType.PERSISTENT);
+        //consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT);
 
     }
 

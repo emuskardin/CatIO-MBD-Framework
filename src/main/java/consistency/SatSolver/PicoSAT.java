@@ -64,11 +64,9 @@ public class PicoSAT {
             }
             if (line[1].equals("UNSATISFIABLE"))
                 continue;
-            if(line[1].equals("maximum")){
+            if(line[1].equals("maximum"))
                 System.err.println("Model contains more variables than declared, check if model and encoder use same " +
                         "propositional variables!");
-                System.exit(1);
-            }
 
             int var = Integer.parseInt(line[1]);
             if(var > cbModel.getWorkingModel().size() || var == 0)

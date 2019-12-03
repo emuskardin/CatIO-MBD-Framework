@@ -1,6 +1,5 @@
 package gui;
 
-import aima.core.agent.Model;
 import model.*;
 import org.javafmi.modeldescription.ScalarVariable;
 import org.javafmi.wrapper.Simulation;

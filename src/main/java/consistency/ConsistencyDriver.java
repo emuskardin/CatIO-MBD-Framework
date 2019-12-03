@@ -26,6 +26,7 @@ public class ConsistencyDriver {
     /**
      * Diagnosis algorithm will be executed after every time step, and diagnosis printed to standard output.
      */
+
     public void runDiagnosis(ConsistencyType type, Scenario scenario){
         Simulation simulation = fmiMonitor.getSimulation();
         List<Component> db = new ArrayList<>();
@@ -36,7 +37,8 @@ public class ConsistencyDriver {
         if(type == ConsistencyType.STEP){
             model.setNumOfDistinct(model.getPredicates().getSize());
             while (simulation.getCurrentTime() <= simulationRuntime){
-                scenario.injectFault(simulation.getCurrentTime(), fmiMonitor.getFmiWriter(), modelData);
+                if(scenario != null)
+                    scenario.injectFault(simulation.getCurrentTime(), fmiMonitor.getFmiWriter(), modelData);
                 //System.out.println(fmiMonitor.readMultiple(db));
 
                 List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
@@ -53,7 +55,8 @@ public class ConsistencyDriver {
             int currStep = 0;
 
             while(simulation.getCurrentTime() <= simulationRuntime){
-                scenario.injectFault(simulation.getCurrentTime(), fmiMonitor.getFmiWriter(), modelData);
+                if(scenario != null)
+                    scenario.injectFault(simulation.getCurrentTime(), fmiMonitor.getFmiWriter(), modelData);
 
                 List<Integer> encodedObs = model.observationToInt(encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead())));
                 observations.addAll(increaseObservation(encodedObs, currStep, offset));
@@ -76,6 +79,10 @@ public class ConsistencyDriver {
 
         model.clearModel();
         fmiMonitor.resetSimulation();
+    }
+
+    public void runDiagnosis(ConsistencyType type){
+        runDiagnosis(type, null);
     }
 
     private List<Integer> increaseObservation(List<Integer> obs, int currStep, int offset){

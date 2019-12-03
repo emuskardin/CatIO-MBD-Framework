@@ -7,6 +7,7 @@ import atms_gui.Converter4ATMS;
 import compiler.LSentence;
 import compiler.LogicParser;
 import consistency.mhsAlgs.GDE;
+import lombok.Data;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+@Data
 public class AbductiveModel {
     private String rules;
     private List<String> observations = new ArrayList<>();

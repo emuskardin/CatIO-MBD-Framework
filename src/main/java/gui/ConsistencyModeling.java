@@ -15,12 +15,13 @@ public class ConsistencyModeling {
     private JTextField observationArea;
     private JButton diagnoseObservationButton;
     private JTextArea propLogModelArea;
-    private JButton exportCNFModelButton;
     private JButton convertToCNFButton;
     private JTextArea diagnosisArea;
     private JButton exportModelButton;
     private JButton checkSatisfiabilityButton;
     private JTextArea picosatOutput;
+    private JTabbedPane cnf_dimnc;
+    private JTextArea dimacsTextArea;
     private CbModel cbModel;
 
     public static void main(String[] args) {
@@ -33,6 +34,8 @@ public class ConsistencyModeling {
 
     public ConsistencyModeling() {
         diagnoseObservationButton.addActionListener(e -> {
+            if(cnfModelArea.getText().isEmpty())
+                convertToCnf();
             diagnosisArea.setText(null);
             String obsStr = observationArea.getText();
             if(obsStr.isEmpty() || cbModel == null)
@@ -47,35 +50,7 @@ public class ConsistencyModeling {
         });
 
         convertToCNFButton.addActionListener(e -> {
-            cnfModelArea.setText(null);
-            String model = propLogModelArea.getText();
-            if(model.isEmpty())
-                return;
-            cbModel = new CbModel();
-            cbModel.modelToCNF(model);
-            cbModel.setNumOfDistinct(cbModel.getPredicates().getSize());
-            cnfModelArea.append("c DIMACS CNF representation\n");
-            cnfModelArea.append("p cnf " + cbModel.getPredicates().getSize() + " " + cbModel.getModel().size()+ "\n");
-            for(List<Integer> cnfLIne : cbModel.getModel())
-                cnfModelArea.append(cnfLIne.toString().substring(1, cnfLIne.toString().length() - 1) + " 0\n");
-
-            for(List<String> line : cbModel.modelToString())
-                cnfModelArea.append("c " + String.join(", ", line) + "\n");
-
-        });
-
-        exportCNFModelButton.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser(Util.getCurrentDir());
-            if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-                try {
-                    FileWriter fw = new FileWriter(file);
-                    fw.write(cnfModelArea.getText());
-                    fw.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
+            convertToCnf();
         });
 
         exportModelButton.addActionListener(e -> {
@@ -93,11 +68,14 @@ public class ConsistencyModeling {
         });
 
         checkSatisfiabilityButton.addActionListener(e -> {
+            if(dimacsTextArea.getText().isEmpty())
+                convertToCnf();
+            picosatOutput.setText(null);
             Runtime rt = Runtime.getRuntime();
             try {
                 File tmpFile = new File("cnfModel.tmp");
                 FileWriter writer = new FileWriter(tmpFile);
-                writer.write(cnfModelArea.getText());
+                writer.write(dimacsTextArea.getText());
                 writer.close();
                 String[] commands = {"lib/picomus", "cnfModel.tmp"};
                 Process proc = rt.exec(commands);
@@ -116,6 +94,24 @@ public class ConsistencyModeling {
                 ex.printStackTrace();
             }
         });
+    }
+
+    private void convertToCnf(){
+        cnfModelArea.setText(null);
+        dimacsTextArea.setText(null);
+        String model = propLogModelArea.getText();
+        if(model.isEmpty())
+            return;
+        cbModel = new CbModel();
+        cbModel.modelToCNF(model);
+        cbModel.setNumOfDistinct(cbModel.getPredicates().getSize());
+        for(List<String> line : cbModel.modelToString())
+            cnfModelArea.append(String.join(", ", line) + "\n");
+
+        dimacsTextArea.append("c DIMACS CNF representation\n");
+        dimacsTextArea.append("p cnf " + cbModel.getPredicates().getSize() + " " + cbModel.getModel().size()+ "\n");
+        for(List<Integer> cnfLIne : cbModel.getModel())
+            dimacsTextArea.append(cnfLIne.toString().substring(1, cnfLIne.toString().length() - 1) + " 0\n");
     }
 
 }

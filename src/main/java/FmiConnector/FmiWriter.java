@@ -22,7 +22,7 @@ public class FmiWriter {
 
     public void writeComponent(Component comp){
         Object value = comp.getValue();
-        // TODO REFACTOR
+        // TODO REFACTOR IF STRING IT INSANCE
         if(comp.getType() != null){
             switch (comp.getType()) {
                 case STRING:

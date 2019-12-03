@@ -1,6 +1,5 @@
 package runningExamples;
 
-import examples.SimplerCarEncoder;
 import model.Component;
 import FmiConnector.FmiMonitor;
 import model.Scenario;
@@ -20,7 +19,6 @@ import java.util.List;
 
 public class DefaultMain {
     public static void main(String [] args) {
-
 
 
         String[] fmiPath = {"FMIs/ERobot.Experiments.RampInput.fmu", "FMIs/ERobot.Experiments.RampWFault.fmu",
@@ -48,7 +46,7 @@ public class DefaultMain {
 
         //abductiveDriver.runSimulation();
 
-        ModelData md = Util.modelDataFromCsv("inputRobot.csv");
+        ModelData md = Util.modelDataFromJson("simpleRobot.json");
         ConsistencyDriver consistencyDriver = ConsistencyDriver.builder()
                 .fmiMonitor(fmiMonitor)
                 .model(new CbModel("src/main/java/examples/bookModel.txt"))
@@ -58,11 +56,12 @@ public class DefaultMain {
                 .stepSize(1)
                 .build();
 
-        List<Scenario> scenarios = Util.simulationScenariosFromCSV("scenariosSimple.csv");
+        List<Scenario> scenarios = Util.scenariosFromJson("simpleScen.json");
 
-        consistencyDriver.runDiagnosis(ConsistencyType.STEP, scenarios.get(2));
-        //consistencyDriver.runDiagnosis(ConsistencyType.PERSISTENT);
-        //consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT);
+        consistencyDriver.runDiagnosis(ConsistencyType.STEP, scenarios.get(0));
+
+//        consistencyDriver.runDiagnosis(ConsistencyType.PERSISTENT);
+//        consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT);
 
     }
 

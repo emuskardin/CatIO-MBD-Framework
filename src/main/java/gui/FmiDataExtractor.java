@@ -1,9 +1,7 @@
 package gui;
 
-import model.Component;
-import model.ModelData;
-import model.ModelInput;
-import model.Type;
+import aima.core.agent.Model;
+import model.*;
 import org.javafmi.modeldescription.ScalarVariable;
 import org.javafmi.wrapper.Simulation;
 import util.Util;
@@ -67,24 +65,24 @@ public class FmiDataExtractor {
 
 
         exportModelData.addActionListener(e -> {
-            List<String> data = getTableData();
-            Util.writeToCSVFile(data);
+            ModelData data = getTableData();
+            Util.writeToJson(data);
         });
 
         generateMLCAButton.addActionListener(e -> {
-            List<String> data = getTableData();
+            ModelData data = getTableData();
 
-            if(data.isEmpty())
-                Util.errorMsg("No data to create MLCA is provided");
+            if(data.getInputs().isEmpty() && data.getHealthStates().isEmpty() && data.getParam().isEmpty())
+                Util.errorMsg("No data to create MLCA is provided", JOptionPane.ERROR_MESSAGE);
             else{
-                mlcaCreator = new MlcaCreator(Util.modelDataFromSting(String.join("\n", data)));
+                mlcaCreator = new MlcaCreator(data);
                 mlcaCreator.createPopup();
             }
         });
 
         importScenariosButton.addActionListener(e -> {
             ((DefaultCellEditor) simScenariosTable.getDefaultEditor(Object.class)).setClickCountToStart(1);
-            ModelData md = Util.modelDataFromSting(String.join("\n", getTableData()));
+            ModelData md = getTableData();
             simulationTableHeader = new ArrayList<>();
             simulationFieldsTypes = new ArrayList<>();
             simulationTableHeader.add("Scenario ID");
@@ -116,23 +114,26 @@ public class FmiDataExtractor {
         });
 
         exportScenariosButton.addActionListener(e -> {
-            List<String> data = new ArrayList<>();
-            data.add(String.join(",", simulationTableHeader) + "\n");
-            data.add(String.join(",", simulationFieldsTypes) + "\n");
+            List<Scenario> scenarios = new ArrayList<>();
             for (int row = 0; row < simScenariosTable.getRowCount(); row++) {
-                StringBuilder rowData = new StringBuilder();
-                rowData.append(scenarioTableModel.getValueAt(row,0)).append(",");
-                rowData.append(simScenariosTable.getValueAt(row, 1)).append(",");
-                List<String> values = new ArrayList<>();
-                for (int val = 2; val < simulationTableHeader.size(); val++)
-                    values.add((String) simScenariosTable.getValueAt(row, val));
-
-                rowData.append(String.join(",", values));
-                //remove all whitespace .replaceAll("\\s+","")
-                data.add(rowData.toString().replaceAll("\\s+","") + "\n");
+                String scenarioId = (String) scenarioTableModel.getValueAt(row,0);
+                if(!scenarioId.equals(""))
+                    scenarios.add(new Scenario(scenarioId));
+                String timeStr = (String) scenarioTableModel.getValueAt(row,1);
+                if(!timeStr.isEmpty()){
+                    Double time = Double.parseDouble(timeStr);
+                    List<Component> components = new ArrayList<>();
+                    for (int i = 2; i < simulationTableHeader.size(); i++) {
+                        if(!((String) scenarioTableModel.getValueAt(row,i)).isEmpty()) {
+                            Component comp = new Component(simulationTableHeader.get(i), scenarioTableModel.getValueAt(row, i));
+                            comp.setType(getInverseType(simulationFieldsTypes.get(i)));
+                            components.add(comp);
+                        }
+                    }
+                    scenarios.get(scenarios.size()-1).addToMap(time, components);
+                }
             }
-
-            Util.writeToCSVFile(data);
+            Util.writeToJson(scenarios);
         });
     }
 
@@ -166,26 +167,52 @@ public class FmiDataExtractor {
         ((DefaultCellEditor) dataTable.getDefaultEditor(Object.class)).setClickCountToStart(1);
     }
 
-    private List<String> getTableData(){
-        List<String> data = new ArrayList<>();
+    private ModelData getTableData(){
+        List<Component> toRead = new ArrayList<>();
+        ModelData modelData = new ModelData();
         for (int i = 0; i < dataTable.getRowCount(); i++) {
-            if((Boolean) dataTable.getValueAt(i, 2)){
-                data.add("Read," + dataTable.getValueAt(i,0) + "," +
-                        getType((String) dataTable.getValueAt(i,1)) + "\n");
-            }
-            String valuesStr = (String) dataTable.getValueAt(i, 3);
-            if (!valuesStr.isEmpty()) {
-                valuesStr  = valuesStr.replaceAll("\\s+","");
-                List<Object> values = Arrays.asList(valuesStr.split(","));
-                for (int j = 0; j < values.size(); j++)
-                    values.set(j, values.get(j).toString());
+            if((Boolean) dataTable.getValueAt(i, 2))
+                toRead.add(new Component((String) dataTable.getValueAt(i,0), getType((String) dataTable.getValueAt(i,1))));
 
-                String type = (String) dataTable.getValueAt(i, 4);
-                if (type != null && !type.equals(""))
-                    data.add(type + "," + dataTable.getValueAt(i, 0)  + "," + getType((String) dataTable.getValueAt(i,1))
-                            + "," + valuesStr + '\n');
+            String type = (String) dataTable.getValueAt(i, 4);
+            if (type != null && !type.equals("")){
+                String valuesStr = (String) dataTable.getValueAt(i, 3);
+                if (!valuesStr.isEmpty()) {
+                    List<Object> passedVal = new ArrayList<>(Arrays.asList(valuesStr.replaceAll("\\s+","").split(",")));
+                    ModelInput mi = new ModelInput((String) dataTable.getValueAt(i,0),
+                            passedVal, getType((String)dataTable.getValueAt(i,1)));
+                    switch (type) {
+                        case "Input":
+                            modelData.getInputs().add(mi);
+                            break;
+                        case "Parameter":
+                            modelData.getParam().add(mi);
+                            break;
+                        case "Health State":
+                            modelData.getHealthStates().add(mi);
+                            break;
+                    }
+                }
             }
+
         }
-        return data;
+        modelData.setComponentsToRead(toRead);
+        return modelData;
+    }
+
+    private Type getInverseType(String x){
+        switch (x){
+            case "ENUM":
+                return Type.ENUM;
+            case "STRING":
+                return Type.STRING;
+            case "INTEGER":
+                return Type.INTEGER;
+            case "BOOLEAN":
+                return Type.BOOLEAN;
+            case "DOUBLE":
+                return Type.DOUBLE;
+        }
+        return null;
     }
 }

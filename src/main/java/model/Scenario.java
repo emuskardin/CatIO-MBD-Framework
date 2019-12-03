@@ -9,13 +9,12 @@ import java.util.Map;
 
 @Data
 public class Scenario {
-    private Object scenarioId;
+    private String scenarioId;
     private Map<Double, List<Component>> timeCompMap = new LinkedHashMap<>();
 
-    public Scenario(Object scenarioId){
+    public Scenario(String scenarioId){
         this.scenarioId = scenarioId;
     }
-
     public void addToMap(Double time, List<Component> comps){
         timeCompMap.put(time, comps);
     }

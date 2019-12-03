@@ -10,7 +10,7 @@ public class ModelData {
     private List<ModelInput> healthStates = new ArrayList<>();
     private List<ModelInput> inputs = new ArrayList<>();
     private List<ModelInput> param = new ArrayList<>();
-    private Map<Integer, List<Fault>> scenarios = new HashMap<>();
+    private List<Scenario> scenarios;
 
     public Integer getFault(String compName, String faultName){
         for(ModelInput comp : healthStates){

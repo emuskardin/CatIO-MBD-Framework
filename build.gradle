@@ -22,5 +22,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
     // Logic library
     compile 'org.logicng:logicng:1.6.1'
+
+    compile 'com.google.code.gson:gson:2.8.5'
+
 }
 

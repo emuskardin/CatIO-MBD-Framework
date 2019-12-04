@@ -23,8 +23,8 @@ public class Scenario {
         for(Double key : timeCompMap.keySet()){
             if(key.equals(currentTime)) {
                 for(Component comp: timeCompMap.get(key)){
-                    if(comp.getValue() instanceof String && modelData.isHS(comp.getName()))
-                        comp.setValue(modelData.getFault(comp.getName(), (String) comp.getValue()));
+                    if(comp.getValue() instanceof String && comp.getType() == Type.ENUM)
+                        comp.setValue(modelData.getEnumValue(comp.getName(), (String) comp.getValue()));
                 }
                 fmiWriter.writeMultipleComp(timeCompMap.get(key));
             }

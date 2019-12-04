@@ -26,6 +26,6 @@ leftWheel -> (!AbLeftWheel -> (eqLeftInAndOut -> (leftNominal & leftFaster & lef
 leftWheel -> (!AbLeftWheel -> (eqResInOut -> (leftNominal & leftFaster & leftSlower))).
 
 // Direction
-(rightNominal & leftNominal) -> straight.
-(rightFaster & leftSlower) -> left.
-(rightSlower & leftFaster) -> right.
+(rightNominal & leftNominal) -> straight & !left & !right.
+(rightFaster & leftSlower) -> left & !straight & !right.
+(rightSlower & leftFaster) -> right & !straight & !left.

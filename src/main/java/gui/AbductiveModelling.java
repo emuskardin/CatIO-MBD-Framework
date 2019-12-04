@@ -27,7 +27,7 @@ public class AbductiveModelling {
         frame.setVisible(true);
     }
 
-    public AbductiveModelling() {
+    AbductiveModelling() {
         runDiagnosisButton.addActionListener(e -> {
             if(abductiveModelArea.getText().isEmpty())
                 return;

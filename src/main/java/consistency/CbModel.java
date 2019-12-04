@@ -119,8 +119,11 @@ public class CbModel {
     }
 
     private void addHealthStatePredicate(String ab){
-        abPredicates.add(predicates.get(ab));
-        abPredicates.add(-predicates.get(ab));
+        abPredicates.add(Math.abs(predicates.get(ab)));
+    }
+
+    public boolean isHealthStatePredicate(Integer ab){
+        return abPredicates.contains(Math.abs(ab));
     }
 
     public List<Integer> observationToInt(List<String> observations){
@@ -157,19 +160,19 @@ public class CbModel {
 
     public void increaseByOffset(Boolean increaseHS, Integer currStep){
         // abPredicates size / 2 as we initially save both ab and -ab values
-        int offset = increaseHS ? predicates.getSize() * currStep : (predicates.getSize() - (abPredicates.size()/2)) * currStep;
+        int offset = increaseHS ? predicates.getSize() * currStep : (predicates.getSize() - abPredicates.size()) * currStep;
         // Increase each integer by offset
         for(List<Integer> clause: model){
             List<Integer> incCNF = new ArrayList<>();
             for(Integer lit : clause) {
-                if (!increaseHS && abPredicates.contains(lit)) {
+                if (!increaseHS && isHealthStatePredicate(lit)) {
                     if(clause.size() == 1 && currStep >= 1)
                         continue;
                     incCNF.add(lit);
                 }
                 else {
                     Integer updatedLit = lit > 0 ? lit + offset : lit - offset;
-                    if(abPredicates.contains(lit))
+                    if(isHealthStatePredicate(lit))
                         abPredicates.add(updatedLit);
                     incCNF.add(updatedLit);
                 }
@@ -190,7 +193,7 @@ public class CbModel {
 
     public List<String> getComponentNamesTimed(List<Integer> mhs ,boolean increaseHS){
         List<String> res = new ArrayList<>();
-        int offset = increaseHS ? predicates.getSize() : (predicates.getSize() - (abPredicates.size()/2));
+        int offset = increaseHS ? predicates.getSize() : (predicates.getSize() - abPredicates.size());
         mhs.forEach( it -> {
             int timeStep = it / offset;
             int index = it % model.size();

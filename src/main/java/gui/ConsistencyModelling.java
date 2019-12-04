@@ -32,10 +32,9 @@ public class ConsistencyModelling {
         frame.setVisible(true);
     }
 
-    public ConsistencyModelling() {
+    ConsistencyModelling() {
         diagnoseObservationButton.addActionListener(e -> {
-            if(cnfModelArea.getText().isEmpty())
-                convertToCnf();
+            convertToCnf();
             diagnosisArea.setText(null);
             String obsStr = observationArea.getText();
             if(obsStr.isEmpty() || cbModel == null)
@@ -68,8 +67,7 @@ public class ConsistencyModelling {
         });
 
         checkSatisfiabilityButton.addActionListener(e -> {
-            if(dimacsTextArea.getText().isEmpty())
-                convertToCnf();
+            convertToCnf();
             picosatOutput.setText(null);
             Runtime rt = Runtime.getRuntime();
             try {

@@ -71,8 +71,8 @@ public class PicoSAT {
             int var = Integer.parseInt(line[1]);
             if(var > cbModel.getWorkingModel().size() || var == 0)
                 continue;
-            if(cbModel.getAbPredicates().contains(cbModel.getWorkingModel().get(var - 1).get(0)))
-                mhs.add(var - 1);
+            if(cbModel.isHealthStatePredicate(cbModel.getWorkingModel().get(var-1).get(0)))
+                mhs.add(var-1);
         }
         file.deleteOnExit();
         return mhs;

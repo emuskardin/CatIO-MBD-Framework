@@ -30,7 +30,7 @@ public class FmiDataExtractor {
     private MlcaCreator mlcaCreator;
     private DefaultTableModel scenarioTableModel;
     private List<String> simulationTableHeader;
-    private List<String> simulationFieldsTypes;
+    private List<Type> simulationFieldsTypes;
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("FmiDataExtractor");
@@ -40,7 +40,7 @@ public class FmiDataExtractor {
         frame.setVisible(true);
     }
 
-    public FmiDataExtractor() {
+    FmiDataExtractor() {
         openFmi.addActionListener(e -> {
             JFileChooser j = new JFileChooser(Util.getCurrentDir());
             j.showOpenDialog(null);
@@ -49,6 +49,10 @@ public class FmiDataExtractor {
             filePath.setText(pathToFile);
 
             Simulation simulation = new Simulation(pathToFile);
+
+            int rowCount = tableModel.getRowCount();
+            for (int i = rowCount - 1; i >= 0; i--)
+                tableModel.removeRow(i);
 
             for(ScalarVariable var : simulation.getModelDescription().getModelVariables()){
                 ArrayList<Object> varData = new ArrayList<>();
@@ -71,7 +75,7 @@ public class FmiDataExtractor {
         generateMLCAButton.addActionListener(e -> {
             ModelData data = getTableData();
 
-            if(data.getInputs().isEmpty() && data.getHealthStates().isEmpty() && data.getParam().isEmpty())
+            if(data.eachTypeHasValue())
                 Util.errorMsg("No data to create MLCA is provided", JOptionPane.ERROR_MESSAGE);
             else{
                 mlcaCreator = new MlcaCreator(data);
@@ -85,20 +89,20 @@ public class FmiDataExtractor {
             simulationTableHeader = new ArrayList<>();
             simulationFieldsTypes = new ArrayList<>();
             simulationTableHeader.add("Scenario ID");
-            simulationFieldsTypes.add("STRING");
+            simulationFieldsTypes.add(Type.STRING);
             simulationTableHeader.add("Time");
-            simulationFieldsTypes.add("DOUBLE");
+            simulationFieldsTypes.add(Type.DOUBLE);
             for(ModelInput hs : md.getHealthStates()) {
                 simulationTableHeader.add(hs.getName());
-                simulationFieldsTypes.add(hs.getType().name());
+                simulationFieldsTypes.add(hs.getType());
             }
             for(ModelInput in : md.getInputs()) {
                 simulationTableHeader.add(in.getName());
-                simulationFieldsTypes.add(in.getType().name());
+                simulationFieldsTypes.add(in.getType());
             }
             for(ModelInput par : md.getParam()) {
                 simulationTableHeader.add(par.getName());
-                simulationFieldsTypes.add(par.getType().name());
+                simulationFieldsTypes.add(par.getType());
             }
 
             scenarioTableModel = new DefaultTableModel(simulationTableHeader.toArray(), 0);
@@ -106,7 +110,7 @@ public class FmiDataExtractor {
         });
 
         addScenarioButton.addActionListener(e -> {
-            Vector row = new Vector();
+            Vector<String> row = new Vector<>();
             for (int i = 0; i < simScenariosTable.getColumnCount(); i++)
                 row.add("");
             scenarioTableModel.addRow(row);
@@ -124,8 +128,8 @@ public class FmiDataExtractor {
                     List<Component> components = new ArrayList<>();
                     for (int i = 2; i < simulationTableHeader.size(); i++) {
                         if(!((String) scenarioTableModel.getValueAt(row,i)).isEmpty()) {
-                            Component comp = new Component(simulationTableHeader.get(i), scenarioTableModel.getValueAt(row, i));
-                            comp.setType(getInverseType(simulationFieldsTypes.get(i)));
+                            Component comp = new Component(simulationTableHeader.get(i),
+                                    simulationFieldsTypes.get(i), scenarioTableModel.getValueAt(row, i));
                             components.add(comp);
                         }
                     }
@@ -176,42 +180,25 @@ public class FmiDataExtractor {
             String type = (String) dataTable.getValueAt(i, 4);
             if (type != null && !type.equals("")){
                 String valuesStr = (String) dataTable.getValueAt(i, 3);
-                if (!valuesStr.isEmpty()) {
-                    List<Object> passedVal = new ArrayList<>(Arrays.asList(valuesStr.replaceAll("\\s+","").split(",")));
-                    ModelInput mi = new ModelInput((String) dataTable.getValueAt(i,0),
-                            passedVal, getType((String)dataTable.getValueAt(i,1)));
-                    switch (type) {
-                        case "Input":
-                            modelData.getInputs().add(mi);
-                            break;
-                        case "Parameter":
-                            modelData.getParam().add(mi);
-                            break;
-                        case "Health State":
-                            modelData.getHealthStates().add(mi);
-                            break;
-                    }
+                List<Object> passedVal = new ArrayList<>();
+                if(!valuesStr.isEmpty())
+                    passedVal = Arrays.asList(valuesStr.replaceAll("\\s+","").split(","));
+                ModelInput mi = new ModelInput((String) dataTable.getValueAt(i,0),
+                        getType((String)dataTable.getValueAt(i,1)), passedVal);
+                switch (type) {
+                    case "Input":
+                        modelData.getInputs().add(mi);
+                        break;
+                    case "Parameter":
+                        modelData.getParam().add(mi);
+                        break;
+                    case "Health State":
+                        modelData.getHealthStates().add(mi);
+                        break;
                 }
             }
-
         }
         modelData.setComponentsToRead(toRead);
         return modelData;
-    }
-
-    private Type getInverseType(String x){
-        switch (x){
-            case "ENUM":
-                return Type.ENUM;
-            case "STRING":
-                return Type.STRING;
-            case "INTEGER":
-                return Type.INTEGER;
-            case "BOOLEAN":
-                return Type.BOOLEAN;
-            case "DOUBLE":
-                return Type.DOUBLE;
-        }
-        return null;
     }
 }

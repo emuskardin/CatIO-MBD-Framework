@@ -8,9 +8,7 @@ import lombok.Data;
 import model.ModelData;
 import model.ModelInput;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 @Data
@@ -21,6 +19,7 @@ public class MLCA {
     ArrayList<Parameter> params;
     ArrayList<Parameter> components;
     ModelData md;
+    Map<String, String> tmpNames = new HashMap<>();
 
     public MLCA(ModelData modelData){
         sut = new SUT();
@@ -36,6 +35,7 @@ public class MLCA {
         TestSet ts = engine.getTestSet();
         TestSetWrapper wrapper = new TestSetWrapper(ts, sut);
         wrapper.outputInCSVFormat(filename);
+        fixNames(filename);
     }
 
     public void addRelationToGroup(List<Parameter> comps, Integer relStrength){
@@ -49,7 +49,10 @@ public class MLCA {
             return null;
         ArrayList<Parameter> params = new ArrayList<>();
         for(ModelInput compIter : components){
-            Parameter comp = sut.addParam(compIter.getName());
+            String compName = compIter.getName();
+            String tmpName = compName.replace(".", "_");
+            tmpNames.put(tmpName, compName);
+            Parameter comp = sut.addParam(tmpName);
             compIter.getValues().forEach( val -> comp.addValue(val.toString()));
             switch (compIter.getType()){
                 case ENUM:
@@ -121,8 +124,6 @@ public class MLCA {
                 continue;
             } else if(nameList.isEmpty()){
                 nameList.addAll(Arrays.asList(line.split(",")));
-                for (int i = 0; i < nameList.size(); i++)
-                    nameList.set(i, getOriginalName(nameList.get(i)));
             }else {
                 List<String> test = Arrays.asList(line.split(","));
                 List<Component> rowInput = new ArrayList<>();
@@ -143,37 +144,36 @@ public class MLCA {
         return testSuite;
     }
 
-    // Boilerplate
-    private Integer componentIndexNum(String valueName){
-        if(md.getHealthStates() != null) {
-            for (ModelInput mid : md.getHealthStates()) {
-                if (mid.getValues().contains(valueName))
-                    return mid.getValues().indexOf(valueName) + 1;
+    private void fixNames(String filename) {
+        try {
+            ArrayList<String> nameList = new ArrayList<>();
+            BufferedReader file = new BufferedReader(new FileReader(filename));
+            StringBuffer inputBuffer = new StringBuffer();
+            String line;
+
+            while ((line = file.readLine()) != null) {
+                inputBuffer.append(line);
+                inputBuffer.append('\n');
             }
+            file.close();
+            String inputStr = inputBuffer.toString();
+            for(String name: tmpNames.keySet())
+                inputStr = inputStr.replace(name, tmpNames.get(name));
+
+            FileOutputStream fileOut = new FileOutputStream(filename);
+            fileOut.write(inputStr.getBytes());
+            fileOut.close();
+
+        } catch (Exception e) {
+            System.out.println("Problem reading file.");
         }
-        return null;
     }
-    private String getOriginalName(String name){
-        if(md.getHealthStates() != null) {
-            for (ModelInput mid : md.getHealthStates()) {
-                if (mid.getName().equals(name))
-                    return mid.getOriginalName();
-            }
+    // Boilerplate
+    private Integer componentIndexNum(String valueName) {
+        for (ModelInput mid : md.getHealthStates()) {
+            if (mid.getValues().contains(valueName))
+                return mid.getValues().indexOf(valueName) + 1;
         }
-        if(md.getParam() != null) {
-            for (ModelInput mid : md.getParam()) {
-                if (mid.getName().equals(name))
-                    return mid.getOriginalName();
-            }
-        }
-        if(md.getInputs() != null) {
-            for (ModelInput mid : md.getInputs()) {
-                if (mid.getName().equals(name))
-                    return mid.getOriginalName();
-            }
-        }
-        System.err.println("Name not found in provided model data");
-        System.exit(1);
         return null;
     }
 

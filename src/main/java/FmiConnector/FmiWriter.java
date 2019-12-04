@@ -2,7 +2,6 @@ package FmiConnector;
 
 import lombok.Data;
 import model.Component;
-import model.Type;
 import org.javafmi.wrapper.Simulation;
 
 import java.util.List;
@@ -22,21 +21,29 @@ public class FmiWriter {
 
     public void writeComponent(Component comp){
         Object value = comp.getValue();
-        // TODO REFACTOR IF STRING IT INSANCE
         if(comp.getType() != null){
             switch (comp.getType()) {
                 case STRING:
                     simulation.write(comp.getName()).with((String) value);
                     break;
                 case BOOLEAN:
-                    simulation.write(comp.getName()).with(Boolean.parseBoolean((String) value));
+                    if(value instanceof String)
+                        simulation.write(comp.getName()).with(Boolean.parseBoolean((String) value));
+                    else
+                        simulation.write(comp.getName()).with((Boolean) value);
                     break;
                 case DOUBLE:
-                    simulation.write(comp.getName()).with(Double.parseDouble((String) value));
+                    if(value instanceof String)
+                        simulation.write(comp.getName()).with(Double.parseDouble((String) value));
+                    else
+                        simulation.write(comp.getName()).with((Double) value);
                     break;
                 case INTEGER:
                 case ENUM:
-                    simulation.write(comp.getName()).with((Integer) value);
+                    if(value instanceof String)
+                        simulation.write(comp.getName()).with(Integer.parseInt((String) value));
+                    else
+                        simulation.write(comp.getName()).with((Integer) value);
                     break;
                 }
             }

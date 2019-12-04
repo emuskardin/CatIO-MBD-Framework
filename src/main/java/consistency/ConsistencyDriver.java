@@ -43,14 +43,16 @@ public class ConsistencyDriver {
 
                 List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
                 RcTree rcTree = new RcTree(model, model.observationToInt(obs));
+                String diag = "";
                 for(List<Integer> mhs  : rcTree.getDiagnosis())
-                    System.out.println(fmiMonitor.getSimulation().getCurrentTime() + " " + model.diagnosisToComponentNames(mhs));
+                    diag += model.diagnosisToComponentNames(mhs);
+                System.out.println(fmiMonitor.getSimulation().getCurrentTime() + diag);
                 simulation.doStep(stepSize);
             }
         }else if(type == ConsistencyType.PERSISTENT || type == ConsistencyType.INTERMITTENT){
-            Set<Integer> abPredTmp = new HashSet<>(model.getAbPredicates());
+            Set<Integer> originalAbPred = new HashSet<>(model.getAbPredicates());
             boolean increaseHs = (type == ConsistencyType.INTERMITTENT);
-            int offset = increaseHs ? model.getPredicates().getSize() : (model.getPredicates().getSize() - (model.getAbPredicates().size()/2));
+            int offset = increaseHs ? model.getPredicates().getSize() : (model.getPredicates().getSize() - model.getAbPredicates().size());
             List<Integer> observations = new ArrayList<>();
             int currStep = 0;
 
@@ -68,13 +70,13 @@ public class ConsistencyDriver {
             if(increaseHs)
                 model.setNumOfDistinct(offset * currStep);
             else
-                model.setNumOfDistinct(model.getAbPredicates().size() / 2 + ((offset ) * currStep));
+                model.setNumOfDistinct(model.getAbPredicates().size() + ((offset ) * currStep));
 
             RcTree rcTree = new RcTree(model, observations);
             for(List<Integer> mhs  : rcTree.getDiagnosis())
                 System.out.println(model.getComponentNamesTimed(mhs, increaseHs));
 
-            model.setAbPredicates(abPredTmp);
+            model.setAbPredicates(originalAbPred);
         }
 
         model.clearModel();

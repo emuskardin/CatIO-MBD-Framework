@@ -19,8 +19,9 @@ public class Component implements Serializable {
         this.type = type;
     }
 
-    public Component(String name, Object value){
+    public Component(String name, Type type, Object value){
         this.name = name;
+        this.type = type;
         this.value = value;
     }
 

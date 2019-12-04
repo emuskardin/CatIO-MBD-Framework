@@ -57,9 +57,9 @@ public class AutomaticModelGen {
                 sim.doStep(stepSize);
             }
 
-            String differance = diff.encodeDiff(corrObs, observations);
-            if(!differance.isEmpty())
-                abductiveModel.addRule(formRule(test, differance));
+            String difference = diff.encodeDiff(corrObs, observations);
+            if(!difference.isEmpty())
+                abductiveModel.addRule(formRule(test, difference));
         }
         return abductiveModel;
     }

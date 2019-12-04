@@ -1,5 +1,6 @@
 package runningExamples;
 
+import examples.ExtendedRobotEncoder;
 import model.Component;
 import FmiConnector.FmiMonitor;
 import model.Scenario;
@@ -19,7 +20,6 @@ import java.util.List;
 
 public class DefaultMain {
     public static void main(String [] args) {
-
 
         String[] fmiPath = {"FMIs/ERobot.Experiments.RampInput.fmu", "FMIs/ERobot.Experiments.RampWFault.fmu",
                 "FMIs/ERobot.Experiments.constWFault.fmu", "FMIs/ERobot.Experiments.RampIntermittent.fmu",
@@ -44,6 +44,7 @@ public class DefaultMain {
 
         //abductiveDriver.runSimulation();
 
+        // Simple robot example
         ModelData md = Util.modelDataFromJson("simpleRobot.json");
         ConsistencyDriver consistencyDriver = ConsistencyDriver.builder()
                 .fmiMonitor(fmiMonitor)
@@ -55,11 +56,21 @@ public class DefaultMain {
                 .build();
 
         List<Scenario> scenarios = Util.scenariosFromJson("simpleScen.json");
+        //consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT, scenarios.get(0));
 
-        consistencyDriver.runDiagnosis(ConsistencyType.STEP, scenarios.get(0));
+        FmiMonitor fmiMonitor1 = new FmiMonitor("FMIs/ExtendedRobot.Experminets.Driver.fmu");
+        ModelData modelData = Util.modelDataFromJson("extendedRobot.json");
+        ConsistencyDriver extendedDriver = ConsistencyDriver.builder()
+                .fmiMonitor(fmiMonitor1)
+                .model(new CbModel("src/main/java/examples/extendedRobotModel.txt"))
+                .encoder(new ExtendedRobotEncoder())
+                .modelData(modelData)
+                .simulationRuntime(20)
+                .stepSize(1)
+                .build();
 
-        //consistencyDriver.runDiagnosis(ConsistencyType.PERSISTENT);
-        //consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT);
+        List<Scenario> extendedScenarios = Util.scenariosFromJson("extendedScenarios.json");
+        extendedDriver.runDiagnosis(ConsistencyType.STEP, extendedScenarios.get(1));
 
     }
 

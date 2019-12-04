@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 
 public class PredicateList {
-    private List<String> pmU = new ArrayList<>();
+    private List<String> predicateList = new ArrayList<>();
 
     /**
      * If predicate is not present in list, it will be added to it.
@@ -17,12 +17,12 @@ public class PredicateList {
      * @return unique integer representing predicate
      */
     public Integer get(String predicate){
-        if(!pmU.contains(predicate))
-            pmU.add(predicate);
-        return pmU.indexOf(predicate) + 1;
+        if(!predicateList.contains(predicate))
+            predicateList.add(predicate);
+        return predicateList.indexOf(predicate) + 1;
     }
 
-    public int getSize() { return pmU.size(); }
-    String getPredicateName(int n){ return pmU.get(Math.abs(n) - 1); }
+    public int getSize() { return predicateList.size(); }
+    String getPredicateName(int n){ return predicateList.get(Math.abs(n) - 1); }
 
 }

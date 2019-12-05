@@ -18,7 +18,7 @@ public class MLCA {
     ArrayList<Parameter> inputs;
     ArrayList<Parameter> params;
     ArrayList<Parameter> components;
-    ModelData md;
+    ModelData modelData;
     Map<String, String> tmpNames = new HashMap<>();
 
     public MLCA(ModelData modelData){
@@ -27,7 +27,7 @@ public class MLCA {
         components = addParam(modelData.getHealthStates());
         inputs = addParam(modelData.getInputs());
         params = addParam(modelData.getParam());
-        md = modelData;
+        this.modelData = modelData;
     }
 
     public void createTestSuite(String filename){
@@ -128,9 +128,9 @@ public class MLCA {
                 List<String> test = Arrays.asList(line.split(","));
                 List<Component> rowInput = new ArrayList<>();
                 for(int i = 0; i < test.size(); i++) {
-                    Type type = md.getType(nameList.get(i));
+                    Type type = modelData.getType(nameList.get(i));
                     Component comp = new Component(nameList.get(i), type);
-                    Integer compValue = componentIndexNum(test.get(i));
+                    Integer compValue = modelData.getFaultIndex(test.get(i));
                     if(compValue != null)
                         comp.setValue(compValue);
                     else
@@ -146,9 +146,8 @@ public class MLCA {
 
     private void fixNames(String filename) {
         try {
-            ArrayList<String> nameList = new ArrayList<>();
             BufferedReader file = new BufferedReader(new FileReader(filename));
-            StringBuffer inputBuffer = new StringBuffer();
+            StringBuilder inputBuffer = new StringBuilder();
             String line;
 
             while ((line = file.readLine()) != null) {
@@ -167,14 +166,6 @@ public class MLCA {
         } catch (Exception e) {
             System.out.println("Problem reading file.");
         }
-    }
-    // Boilerplate
-    private Integer componentIndexNum(String valueName) {
-        for (ModelInput mid : md.getHealthStates()) {
-            if (mid.getValues().contains(valueName))
-                return mid.getValues().indexOf(valueName) + 1;
-        }
-        return null;
     }
 
     private List<int[]> generateCombinations(int n, int r) {

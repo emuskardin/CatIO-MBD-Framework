@@ -1,11 +1,10 @@
 package runningExamples;
 
 import abductive.AbductiveModel;
-import abductive.AutomaticModelGen;
+import abductive.AbductiveModelGenerator;
 import examples.SingleBulbDiff;
 import model.Component;
 import model.Type;
-import abductive.MLCA;
 import model.ModelData;
 import model.ModelInput;
 
@@ -22,7 +21,7 @@ public class AbductiveGenMain {
         List<Object> componentFaultTypes = Arrays.asList("ok", "short", "broken");
         ModelData modelData = new ModelData();
         modelData.setComponentsToRead(
-                Arrays.asList(
+                Collections.singletonList(
                         new Component("b1.on", Type.BOOLEAN)
                 )
         );
@@ -35,11 +34,11 @@ public class AbductiveGenMain {
                         new ModelInput("rIntState", Type.ENUM, componentFaultTypes)
                 ));
 
-        AutomaticModelGen automaticModelGen = new AutomaticModelGen(pathToFmi, modelData, new SingleBulbDiff());
-        AbductiveModel ab = automaticModelGen.generateModel(20.0, 1.0);
-        ab.addExplain(Collections.singletonList("kurac"));
+        AbductiveModelGenerator abductiveModelGenerator = new AbductiveModelGenerator(pathToFmi, modelData, new SingleBulbDiff());
+        AbductiveModel ab = abductiveModelGenerator.generateModel(20.0, 1.0);
+        ab.addExplain(Collections.singletonList("noLight"));
         System.out.println(ab.getDiagnosis());
-        automaticModelGen.writeModeltoFile("autModel.txt");
+        abductiveModelGenerator.writeModeltoFile("autModel.txt");
 
     }
 }

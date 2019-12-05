@@ -15,7 +15,6 @@ import consistency.ConsistencyDriver;
 import examples.BookCarEncoder;
 import util.Util;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,7 +39,7 @@ public class DefaultMain {
                 .encoder(new BookAbEncoder())
                 .comps(comps)
                 .stepSize(1)
-                .simulationRuntime(20)
+                .numberOfSteps(20)
                 .build();
 
         //abductiveDriver.runSimulation();
@@ -52,7 +51,7 @@ public class DefaultMain {
                 .model(new CbModel("src/main/java/examples/bookModel.txt"))
                 .encoder(new BookCarEncoder())
                 .modelData(md)
-                .simulationRuntime(20)
+                .numberOfSteps(20)
                 .stepSize(1)
                 .build();
 
@@ -66,7 +65,7 @@ public class DefaultMain {
                 .model(new CbModel("src/main/java/examples/extendedRobotModel.txt"))
                 .encoder(new ExtendedRobotEncoder())
                 .modelData(modelData)
-                .simulationRuntime(20)
+                .numberOfSteps(20)
                 .stepSize(1)
                 .build();
 

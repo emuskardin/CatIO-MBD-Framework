@@ -15,19 +15,21 @@ public class AbductiveDriver {
     FmiMonitor fmiMonitor;
     List<Component> comps;
     double stepSize;
-    double simulationRuntime;
+    Integer numberOfSteps;
     AbductiveModel abductiveModel;
     Encoder encoder;
 
     public void runSimulation() {
         Simulation simulation = fmiMonitor.getSimulation();
         simulation.init(0);
+        Integer currStep = 1;
 
-        while (simulation.getCurrentTime() < simulationRuntime){
-            simulation.doStep(stepSize);
+        while (currStep <= numberOfSteps){
             List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(comps));
             abductiveModel.addExplain(obs);
             System.out.println(simulation.getCurrentTime() + " " + abductiveModel.getDiagnosis());
+            simulation.doStep(stepSize);
+            currStep++;
         }
     }
 }

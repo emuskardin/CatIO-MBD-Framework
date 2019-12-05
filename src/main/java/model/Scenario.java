@@ -10,17 +10,17 @@ import java.util.Map;
 @Data
 public class Scenario {
     private String scenarioId;
-    private Map<Double, List<Component>> timeCompMap = new LinkedHashMap<>();
+    private Map<Integer, List<Component>> timeCompMap = new LinkedHashMap<>();
 
     public Scenario(String scenarioId){
         this.scenarioId = scenarioId;
     }
-    public void addToMap(Double time, List<Component> comps){
+    public void addToMap(Integer time, List<Component> comps){
         timeCompMap.put(time, comps);
     }
 
-    public void injectFault(Double currentTime ,FmiWriter fmiWriter, ModelData modelData){
-        for(Double key : timeCompMap.keySet()){
+    public void injectFault(Integer currentTime ,FmiWriter fmiWriter, ModelData modelData){
+        for(Integer key : timeCompMap.keySet()){
             if(key.equals(currentTime)) {
                 for(Component comp: timeCompMap.get(key)){
                     if(comp.getValue() instanceof String && comp.getType() == Type.ENUM)

@@ -1,14 +1,12 @@
 package consistency;
 
 import FmiConnector.FmiMonitor;
-import model.Component;
 import model.ModelData;
 import consistency.mhsAlgs.RcTree;
 import interfaces.Encoder;
 import lombok.Builder;
 import lombok.Data;
 import model.Scenario;
-import model.Type;
 import org.javafmi.wrapper.Simulation;
 
 import java.util.*;
@@ -19,48 +17,45 @@ public class ConsistencyDriver {
     FmiMonitor fmiMonitor;
     ModelData modelData;
     double stepSize;
-    double simulationRuntime;
+    Integer numberOfSteps;
     CbModel model;
     Encoder encoder;
 
     /**
      * Diagnosis algorithm will be executed after every time step, and diagnosis printed to standard output.
      */
-
     public void runDiagnosis(ConsistencyType type, Scenario scenario){
         Simulation simulation = fmiMonitor.getSimulation();
-        List<Component> db = new ArrayList<>();
-        db.add(new Component("leftFaultType", Type.INTEGER));
-        db.add(new Component("rightFaultType", Type.INTEGER));
+        Integer currStep = 1;
 
         simulation.init(0.0);
         if(type == ConsistencyType.STEP){
             model.setNumOfDistinct(model.getPredicates().getSize());
-            while (simulation.getCurrentTime() <= simulationRuntime){
+            while (currStep <= numberOfSteps){
                 if(scenario != null)
-                    scenario.injectFault(simulation.getCurrentTime(), fmiMonitor.getFmiWriter(), modelData);
-                //System.out.println(fmiMonitor.readMultiple(db));
+                    scenario.injectFault(currStep, fmiMonitor.getFmiWriter(), modelData);
 
                 List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
                 RcTree rcTree = new RcTree(model, model.observationToInt(obs));
                 String diag = "";
                 for(List<Integer> mhs  : rcTree.getDiagnosis())
                     diag += model.diagnosisToComponentNames(mhs);
-                System.out.println(fmiMonitor.getSimulation().getCurrentTime() + diag);
+                System.out.println("Step " + currStep + " : " + diag);
                 simulation.doStep(stepSize);
+                currStep++;
             }
         }else if(type == ConsistencyType.PERSISTENT || type == ConsistencyType.INTERMITTENT){
             Set<Integer> originalAbPred = new HashSet<>(model.getAbPredicates());
             boolean increaseHs = (type == ConsistencyType.INTERMITTENT);
             int offset = increaseHs ? model.getPredicates().getSize() : (model.getPredicates().getSize() - model.getAbPredicates().size());
             List<Integer> observations = new ArrayList<>();
-            int currStep = 0;
 
-            while(simulation.getCurrentTime() <= simulationRuntime){
+            while(currStep <= numberOfSteps){
                 if(scenario != null)
-                    scenario.injectFault(simulation.getCurrentTime(), fmiMonitor.getFmiWriter(), modelData);
+                    scenario.injectFault(currStep, fmiMonitor.getFmiWriter(), modelData);
 
-                List<Integer> encodedObs = model.observationToInt(encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead())));
+                List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
+                List<Integer> encodedObs = model.observationToInt(obs);
                 observations.addAll(increaseObservation(encodedObs, currStep, offset));
                 model.increaseByOffset(increaseHs, currStep);
                 simulation.doStep(stepSize);

@@ -90,8 +90,8 @@ public class FmiDataExtractor {
             simulationFieldsTypes = new ArrayList<>();
             simulationTableHeader.add("Scenario ID");
             simulationFieldsTypes.add(Type.STRING);
-            simulationTableHeader.add("Time");
-            simulationFieldsTypes.add(Type.DOUBLE);
+            simulationTableHeader.add("Time Step");
+            simulationFieldsTypes.add(Type.INTEGER);
             for(ModelInput hs : md.getHealthStates()) {
                 simulationTableHeader.add(hs.getName());
                 simulationFieldsTypes.add(hs.getType());
@@ -124,7 +124,7 @@ public class FmiDataExtractor {
                     scenarios.add(new Scenario(scenarioId));
                 String timeStr = (String) scenarioTableModel.getValueAt(row,1);
                 if(!timeStr.isEmpty()){
-                    Double time = Double.parseDouble(timeStr);
+                    Integer time = Integer.parseInt(timeStr);
                     List<Component> components = new ArrayList<>();
                     for (int i = 2; i < simulationTableHeader.size(); i++) {
                         if(!((String) scenarioTableModel.getValueAt(row,i)).isEmpty()) {

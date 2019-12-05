@@ -16,14 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class AutomaticModelGen {
+public class AbductiveModelGenerator {
     private ModelData modelData;
     private FmiMonitor fmiMonitor;
     private MLCA mlca;
     private AbductiveModel abductiveModel;
     private Diff diff;
 
-    public AutomaticModelGen(String pathToFmi ,ModelData modelData, Diff diff){
+    public AbductiveModelGenerator(String pathToFmi , ModelData modelData, Diff diff){
         abductiveModel = new AbductiveModel();
         this.modelData = modelData;
         mlca = new MLCA(modelData);
@@ -43,7 +43,7 @@ public class AutomaticModelGen {
             List<Map<String, Object>> faultyObs = new ArrayList<>();
             // Setup params and inputs as well as all health states to ok
             fmiMonitor.getFmiWriter().writeMultipleComp(test);
-            fmiMonitor.getFmiWriter().writeMultipleComp(mlca.getMd().getAllOkStates());
+            fmiMonitor.getFmiWriter().writeMultipleComp(mlca.getModelData().getAllOkStates());
             sim.init(0.0);
             while(sim.getCurrentTime() <= runtime){
                 corrObs.add(fmiMonitor.readMultiple(modelData.getComponentsToRead()));

@@ -10,7 +10,6 @@ public class ModelData {
     private List<ModelInput> healthStates = new ArrayList<>();
     private List<ModelInput> inputs = new ArrayList<>();
     private List<ModelInput> param = new ArrayList<>();
-    private List<Scenario> scenarios;
 
     public Integer getEnumValue(String compName, String faultName){
         for(ModelInput comp : healthStates){
@@ -40,14 +39,12 @@ public class ModelData {
         System.err.println(compName + " does not contain state " + faultName);
         return null;
     }
-
     public List<Component> getAllOkStates(){
         List<Component> res = new ArrayList<>();
         for(ModelInput mid : healthStates)
             res.add(new Component(mid.getName(), mid.getType(), mid.getValues().indexOf("ok") + 1));
         return res;
     }
-
     public Type getType(String name){
         for (ModelInput mid : healthStates) {
             if (mid.getName().equals(name))
@@ -85,5 +82,12 @@ public class ModelData {
             if(mi.getValues() == null || !mi.getValues().isEmpty())
                 return false;
         return true;
+    }
+    public Integer getFaultIndex(String valueName) {
+        for (ModelInput mid : healthStates) {
+            if (mid.getValues().contains(valueName))
+                return mid.getValues().indexOf(valueName) + 1;
+        }
+        return null;
     }
 }

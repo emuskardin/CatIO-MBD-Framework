@@ -26,17 +26,6 @@ public class CbModel {
         modelFromFile(filepath);
     }
 
-    public List<int[]> modelToIntArr(){
-        List<int[]> res = new ArrayList<>();
-        for(List<Integer> line: workingModel)
-            res.add(lineToArr(line));
-        return res;
-    }
-
-    private int[] lineToArr(List<Integer> line){
-        return line.stream().mapToInt(Integer::intValue).toArray();
-    }
-
     private void addCnfClause(List<String> params){
         ArrayList<Integer> paramToInt = new ArrayList<>();
         for(String param : params){
@@ -143,7 +132,7 @@ public class CbModel {
             workingModel = model;
 
         CbModel abModel = new CbModel();
-        abModel.predicates = this.predicates;
+        //abModel.predicates = this.predicates;
         abModel.abPredicates = this.abPredicates;
         abModel.numOfDistinct = this.numOfDistinct;
 

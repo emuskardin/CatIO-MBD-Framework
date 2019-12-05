@@ -26,20 +26,23 @@ public class DefaultMain {
                 "FMIs/ERobot.Experiments.ConstBothBreak.fmu", "FMIs/ERobot.SubModel.InputSimpleRobot.fmu"};
         FmiMonitor fmiMonitor = new FmiMonitor(fmiPath[5]);
 
-        List<Component> comps = Arrays.asList(
-                new Component("robot.rightWheel.i", Type.DOUBLE),
-                new Component("robot.rightWheel.o", Type.DOUBLE),
-                new Component("robot.leftWheel.i", Type.DOUBLE),
-                new Component("robot.leftWheel.o", Type.DOUBLE)
+        ModelData abModelData = new ModelData();
+        abModelData.setComponentsToRead(
+                Arrays.asList(
+                        new Component("robot.rightWheel.i", Type.DOUBLE),
+                        new Component("robot.rightWheel.o", Type.DOUBLE),
+                        new Component("robot.leftWheel.i", Type.DOUBLE),
+                        new Component("robot.leftWheel.o", Type.DOUBLE)
+                )
         );
 
         AbductiveDriver abductiveDriver = AbductiveDriver.builder()
                 .fmiMonitor(fmiMonitor)
                 .abductiveModel(new AbductiveModel("src/main/java/examples/abductiveBookModel.txt"))
+                .modelData(abModelData)
                 .encoder(new BookAbEncoder())
-                .comps(comps)
-                .stepSize(1)
                 .numberOfSteps(20)
+                .simulationStepSize(1)
                 .build();
 
         //abductiveDriver.runSimulation();
@@ -52,7 +55,7 @@ public class DefaultMain {
                 .encoder(new BookCarEncoder())
                 .modelData(md)
                 .numberOfSteps(20)
-                .stepSize(1)
+                .simulationStepSize(1)
                 .build();
 
         List<Scenario> scenarios = Util.scenariosFromJson("simpleScen.json");
@@ -66,11 +69,11 @@ public class DefaultMain {
                 .encoder(new ExtendedRobotEncoder())
                 .modelData(modelData)
                 .numberOfSteps(20)
-                .stepSize(1)
+                .simulationStepSize(1)
                 .build();
 
         List<Scenario> extendedScenarios = Util.scenariosFromJson("extendedScenarios.json");
-        extendedDriver.runDiagnosis(ConsistencyType.STEP, extendedScenarios.get(1));
+        extendedDriver.runDiagnosis(ConsistencyType.PERSISTENT, extendedScenarios.get(1));
 
     }
 

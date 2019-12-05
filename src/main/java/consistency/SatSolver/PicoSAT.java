@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -19,9 +20,9 @@ public class PicoSAT {
         fr.newLine();
     }
 
-    private void addClause(int[] clause) throws IOException {
+    private void addClause(List<Integer> clause) throws IOException {
         StringBuilder sb = new StringBuilder();
-        for(int i : clause)
+        for(Integer i : clause)
             sb.append(i).append(" ");
         sb.append(0);
         fr.write(sb.toString());
@@ -37,10 +38,10 @@ public class PicoSAT {
     public void writeModelAndObsToFile(CbModel model, List<Integer> obs) throws IOException {
         this.cbModel = model;
         addProblemLine(model.getWorkingModel().size() + obs.size(), model.getNumOfDistinct());
-        for(int[] clause : model.modelToIntArr())
+        for(List<Integer> clause : model.getWorkingModel())
             addClause(clause);
         for(Integer ob: obs)
-            addClause(new int[]{ob});
+            addClause(Collections.singletonList(ob));
         fr.close();
     }
 

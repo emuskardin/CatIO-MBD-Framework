@@ -16,7 +16,7 @@ import java.util.*;
 public class ConsistencyDriver {
     FmiMonitor fmiMonitor;
     ModelData modelData;
-    double stepSize;
+    double simulationStepSize;
     Integer numberOfSteps;
     CbModel model;
     Encoder encoder;
@@ -26,12 +26,12 @@ public class ConsistencyDriver {
      */
     public void runDiagnosis(ConsistencyType type, Scenario scenario){
         Simulation simulation = fmiMonitor.getSimulation();
-        Integer currStep = 1;
+        Integer currStep = 0;
 
         simulation.init(0.0);
         if(type == ConsistencyType.STEP){
             model.setNumOfDistinct(model.getPredicates().getSize());
-            while (currStep <= numberOfSteps){
+            while (currStep < numberOfSteps){
                 if(scenario != null)
                     scenario.injectFault(currStep, fmiMonitor.getFmiWriter(), modelData);
 
@@ -41,7 +41,7 @@ public class ConsistencyDriver {
                 for(List<Integer> mhs  : rcTree.getDiagnosis())
                     diag += model.diagnosisToComponentNames(mhs);
                 System.out.println("Step " + currStep + " : " + diag);
-                simulation.doStep(stepSize);
+                simulation.doStep(simulationStepSize);
                 currStep++;
             }
         }else if(type == ConsistencyType.PERSISTENT || type == ConsistencyType.INTERMITTENT){
@@ -50,15 +50,15 @@ public class ConsistencyDriver {
             int offset = increaseHs ? model.getPredicates().getSize() : (model.getPredicates().getSize() - model.getAbPredicates().size());
             List<Integer> observations = new ArrayList<>();
 
-            while(currStep <= numberOfSteps){
+            while(currStep < numberOfSteps){
                 if(scenario != null)
-                    scenario.injectFault(currStep, fmiMonitor.getFmiWriter(), modelData);
+                    scenario.injectFault(currStep , fmiMonitor.getFmiWriter(), modelData);
 
                 List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
                 List<Integer> encodedObs = model.observationToInt(obs);
                 observations.addAll(increaseObservation(encodedObs, currStep, offset));
                 model.increaseByOffset(increaseHs, currStep);
-                simulation.doStep(stepSize);
+                simulation.doStep(simulationStepSize);
                 currStep++;
             }
 

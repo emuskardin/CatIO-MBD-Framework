@@ -1,3 +1,9 @@
+# c7552
+# 207 inputs
+# 108 outputs
+# 876 inverters
+# 2636 gates ( 1310 ANDs + 1904 NANDs + 244 ORs + 54 NORs + 534 buffers )
+
 INPUT(1)
 INPUT(5)
 INPUT(9)

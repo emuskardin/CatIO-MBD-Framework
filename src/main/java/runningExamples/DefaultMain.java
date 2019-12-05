@@ -15,6 +15,7 @@ import consistency.ConsistencyDriver;
 import examples.BookCarEncoder;
 import util.Util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

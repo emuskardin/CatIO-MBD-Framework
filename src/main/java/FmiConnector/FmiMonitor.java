@@ -1,12 +1,16 @@
 package FmiConnector;
 
 import lombok.Data;
+import model.Component;
 import org.javafmi.wrapper.Simulation;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class for reading modelica component values
+ */
 @Data
 public class FmiMonitor {
     private Simulation simulation;
@@ -21,6 +25,7 @@ public class FmiMonitor {
     }
 
     public void resetSimulation(){
+        simulation.reset();
         simulation = new Simulation(pathToFmi);
         fmiWriter.setSimulation(simulation);
     }

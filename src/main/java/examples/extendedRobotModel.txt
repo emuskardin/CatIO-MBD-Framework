@@ -1,0 +1,31 @@
+leftWheel & rightWheel.
+battery & leftVoltageReg & rightVoltageReg.
+leftPowerModule & rightPowerModule.
+reservePowerModule.
+
+!AbLeftWheel & !AbRightWheel.
+!AbBattery & !AbLeftVoltageReg & !AbRightVoltageReg.
+!AbLeftPowerModule & !AbRightPowerModule.
+!AbReservePowerModule.
+
+// VoltageRegs and Battery
+battery -> (!AbBattery -> constantBattOutput).
+leftVoltageReg -> (!AbLeftVoltageReg -> (constantBattOutput -> desiredLeftVoltage)).
+rightVoltageReg -> (!AbRightVoltageReg -> (constantBattOutput -> desiredRightVoltage)).
+
+// Power Modules
+leftPowerModule -> (!AbLeftPowerModule -> (desiredLeftVoltage -> eqLeftInAndOut)).
+rightPowerModule -> (!AbRightPowerModule -> (desiredRightVoltage -> eqRightInAndOut)).
+reservePowerModule -> (!AbReservePowerModule -> (leftRes -> (desiredLeftVoltage -> eqResInOut))).
+reservePowerModule -> (!AbReservePowerModule -> (rightRes -> (desiredRightVoltage -> eqResInOut))).
+
+// Wheel Behaviour
+rightWheel -> (!AbRightWheel -> (eqRightInAndOut -> (rightNominal & rightFaster & rightSlower))).
+rightWheel -> (!AbRightWheel -> (eqResInOut -> (rightNominal & rightFaster & rightSlower))).
+leftWheel -> (!AbLeftWheel -> (eqLeftInAndOut -> (leftNominal & leftFaster & leftSlower))).
+leftWheel -> (!AbLeftWheel -> (eqResInOut -> (leftNominal & leftFaster & leftSlower))).
+
+// Direction
+(rightNominal & leftNominal) -> straight & !left & !right.
+(rightFaster & leftSlower) -> left & !straight & !right.
+(rightSlower & leftFaster) -> right & !straight & !left.

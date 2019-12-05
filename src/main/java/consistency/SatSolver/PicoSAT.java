@@ -1,10 +1,11 @@
 package consistency.SatSolver;
 
-import consistency.stepFaultDiag.CbModel;
+import consistency.CbModel;
 import lombok.Data;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -19,9 +20,9 @@ public class PicoSAT {
         fr.newLine();
     }
 
-    private void addClause(int[] clause) throws IOException {
+    private void addClause(List<Integer> clause) throws IOException {
         StringBuilder sb = new StringBuilder();
-        for(int i : clause)
+        for(Integer i : clause)
             sb.append(i).append(" ");
         sb.append(0);
         fr.write(sb.toString());
@@ -37,10 +38,10 @@ public class PicoSAT {
     public void writeModelAndObsToFile(CbModel model, List<Integer> obs) throws IOException {
         this.cbModel = model;
         addProblemLine(model.getWorkingModel().size() + obs.size(), model.getNumOfDistinct());
-        for(int[] clause : model.modelToIntArr())
+        for(List<Integer> clause : model.getWorkingModel())
             addClause(clause);
         for(Integer ob: obs)
-            addClause(new int[]{ob});
+            addClause(Collections.singletonList(ob));
         fr.close();
     }
 
@@ -53,22 +54,26 @@ public class PicoSAT {
         BufferedReader stdInput = new BufferedReader(new
                 InputStreamReader(proc.getInputStream()));
 
-        // Read the output from the command
         String s;
         while ((s = stdInput.readLine()) != null) {
             String[] line = s.split(" ");
             if(line[0].equals("c") || line[1] == null)
                 continue;
-            if(line[0].equals("s") && !line[1].equals("UNSATISFIABLE"))
+            if(line[0].equals("s") && !line[1].equals("UNSATISFIABLE")) {
+                file.deleteOnExit();
                 return mhs;
+            }
             if (line[1].equals("UNSATISFIABLE"))
                 continue;
+            if(line[1].equals("maximum"))
+                System.err.println("Model contains more variables than declared, check if model and encoder use same " +
+                        "propositional variables!");
 
             int var = Integer.parseInt(line[1]);
             if(var > cbModel.getWorkingModel().size() || var == 0)
                 continue;
-            if(cbModel.getAbPredicates().contains(cbModel.getWorkingModel().get(var - 1).get(0)))
-                mhs.add(var - 1);
+            if(cbModel.isHealthStatePredicate(cbModel.getWorkingModel().get(var-1).get(0)))
+                mhs.add(var-1);
         }
         file.deleteOnExit();
         return mhs;

@@ -6,17 +6,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-// In PicoSAT 0 represent end of the line and it is reserved, so index + 1 is used to represent a predicate
-public class PredicateList {
-    private List<String> pmU = new ArrayList<>();
 
+public class PredicateList {
+    private List<String> predicateList = new ArrayList<>();
+
+    /**
+     * If predicate is not present in list, it will be added to it.
+     * Indexes start with 1, as 0 is reserved in DIMACS CNF file format.
+     * @param predicate string of predicate name
+     * @return unique integer representing predicate
+     */
     public Integer get(String predicate){
-        if(!pmU.contains(predicate))
-            pmU.add(predicate);
-        return pmU.indexOf(predicate) + 1;
+        if(!predicateList.contains(predicate))
+            predicateList.add(predicate);
+        return predicateList.indexOf(predicate) + 1;
     }
 
-    public int getSize() { return pmU.size(); }
-    public String getPredicateName(int n){ return pmU.get(Math.abs(n) - 1); }
+    public int getSize() { return predicateList.size(); }
+    String getPredicateName(int n){ return predicateList.get(Math.abs(n) - 1); }
 
 }

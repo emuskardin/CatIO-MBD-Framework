@@ -1,9 +1,11 @@
 package abductive;
 
-import FmiConnector.Component;
 import FmiConnector.FmiMonitor;
+import interfaces.Encoder;
 import lombok.Builder;
 import lombok.Data;
+import model.ModelData;
+import model.Scenario;
 import org.javafmi.wrapper.Simulation;
 
 import java.util.List;
@@ -12,22 +14,29 @@ import java.util.List;
 @Builder
 public class AbductiveDriver {
     FmiMonitor fmiMonitor;
-    List<Component> comps;
-    double stepSize;
-    double simulationRuntime;
-    AbModelEncoderContract abModelEncoderContract;
+    ModelData modelData;
+    double simulationStepSize;
+    Integer numberOfSteps;
+    AbductiveModel abductiveModel;
+    Encoder encoder;
 
-    public void runSimulation() {
-        abModelEncoderContract.constructModel();
+    public void runSimulation(){
+        runSimulation(null);
+    }
+
+    public void runSimulation(Scenario scenario) {
         Simulation simulation = fmiMonitor.getSimulation();
         simulation.init(0);
+        Integer currStep = 0;
 
-        while (simulation.getCurrentTime() < simulationRuntime){
-            AbductiveModel abModel = abModelEncoderContract.getModel();
-            simulation.doStep(stepSize);
-            List<String> obs = abModelEncoderContract.encodeObservations(fmiMonitor.readMultiple(comps));
-            abModel.addExplain(obs);
-            System.out.println(simulation.getCurrentTime() + " " + abModel.getDiagnosis());
+        while (currStep < numberOfSteps){
+            if(scenario != null)
+                scenario.injectFault(currStep, fmiMonitor.getFmiWriter(), modelData);
+            List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
+            abductiveModel.addExplain(obs);
+            System.out.println(simulation.getCurrentTime() + " " + abductiveModel.getDiagnosis());
+            simulation.doStep(simulationStepSize);
+            currStep++;
         }
     }
 }

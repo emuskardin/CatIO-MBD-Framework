@@ -1,12 +1,9 @@
 package abductive;
 
-import model.Component;
-import model.Type;
+import model.*;
 import edu.uta.cse.fireeye.common.*;
 import edu.uta.cse.fireeye.service.engine.IpoEngine;
 import lombok.Data;
-import model.ModelData;
-import model.ModelInput;
 
 import java.io.*;
 import java.util.*;
@@ -17,14 +14,15 @@ public class MLCA {
     IpoEngine engine;
     ArrayList<Parameter> inputs;
     ArrayList<Parameter> params;
-    ArrayList<Parameter> components;
+    ArrayList<Parameter> modeAssigments;
     ModelData modelData;
     Map<String, String> tmpNames = new HashMap<>();
+    String mlcaCSVFile;
 
     public MLCA(ModelData modelData){
         sut = new SUT();
         engine = new IpoEngine(sut);
-        components = addParam(modelData.getHealthStates());
+        modeAssigments = addParam(modelData.getHealthStates());
         inputs = addParam(modelData.getInputs());
         params = addParam(modelData.getParam());
         this.modelData = modelData;
@@ -36,6 +34,7 @@ public class MLCA {
         TestSetWrapper wrapper = new TestSetWrapper(ts, sut);
         wrapper.outputInCSVFormat(filename);
         fixNames(filename);
+        mlcaCSVFile = filename;
     }
 
     public void addRelationToGroup(List<Parameter> comps, Integer relStrength){
@@ -76,7 +75,7 @@ public class MLCA {
     }
 
     public void numberOfCorrectComps(Integer num){
-        sut.addConstraint(new Constraint(correctCompConstraintBuilder(components, num), components));
+        sut.addConstraint(new Constraint(correctCompConstraintBuilder(modeAssigments, num), modeAssigments));
     }
 
     public void numberOfCorrectComps(List<Integer> nums){
@@ -84,9 +83,26 @@ public class MLCA {
         for (int i = 0; i < nums.size(); i++) {
             if(i > 0)
                 sb.append(" || ");
-            sb.append(correctCompConstraintBuilder(components, nums.get(i)));
+            sb.append(correctCompConstraintBuilder(modeAssigments, nums.get(i)));
         }
-        sut.addConstraint(new Constraint(sb.toString(), components));
+        sut.addConstraint(new Constraint(sb.toString(), modeAssigments));
+    }
+
+    public List<Scenario> scenariosFromMLCA(Integer faultInjectionStep){
+        List<Scenario> suite = new ArrayList<>();
+        Integer testCounter = 1;
+        try {
+            for(List<Component> test : suitToSimulationInput(mlcaCSVFile)){
+                Scenario scen = new Scenario("MLCA Row " + testCounter);
+                scen.addToMap(0, modelData.getAllOkStates());
+                scen.addToMap(faultInjectionStep, test);
+                suite.add(scen);
+                testCounter++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return suite;
     }
 
     public void addConstraint(String constraint){

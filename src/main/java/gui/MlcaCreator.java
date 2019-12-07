@@ -39,7 +39,7 @@ public class MlcaCreator {
             if(!paramsTextField.getText().isEmpty())
                 mlca.addRelationToGroup(mlca.getParams(), Integer.parseInt(paramsTextField.getText()));
             if(!hsTextField.getText().isEmpty())
-                mlca.addRelationToGroup(mlca.getComponents(), Integer.parseInt(hsTextField.getText()));
+                mlca.addRelationToGroup(mlca.getModeAssigments(), Integer.parseInt(hsTextField.getText()));
 
             if(!numCorrCompsTextField.getText().isEmpty()){
                 String req = numCorrCompsTextField.getText();

@@ -124,12 +124,14 @@ Simulations can also be created from JSON if form
 MLCA class takes model data as constuctor. Following methods describe its use
 ```
     MLCA mlca = new MLCA(someModelData);
-    \\ optional addition of constraints, relations or minimal number of correct components
+    \\ optional addition of constraints, 
+    \\    relations or minimal number of correct components
     mlca.addRelationToGroup(mlca.get{params,inputs,modeAssigments}, 3);
     mlca.addConstraint("this is come contraint");
     mlca.numberOfCorrectComps(2); \\ or list of numbers 3, 4
     mlca.createTestSuite("testSuite.csv");
-    List<List<Component>> simulationInputs = mlca.suitToSimulationInput("testSuite.csv");
+    List<List<Component>> simulationInputs = 
+            mlca.suitToSimulationInput("testSuite.csv");
 ```
 # Interfaces
 ## Encoder
@@ -146,7 +148,8 @@ At each time step Map<String, Object> is received, which is the same map as foun
 User analyzes the output and returns a propositional variable describing faulty behaviour.
 ```java
 public interface Diff {
-    public String encodeDiff(List<Map<String, Object>> corr, List<Map<String, Object>> faulty);
+    public String encodeDiff(List<Map<String, Object>> corr, 
+            List<Map<String, Object>> faulty);
 }
 ```
 # Consistency Based Diagnosis
@@ -177,10 +180,14 @@ leftWheel -> (!AbLeftWheel -> leftNominal & leftFaster & leftSlower).
 ## Diagnosis Types
 ```java
 public enum ConsistencyType{
-    STEP, // returns diagnosis of observations at every time stpe
-    PERSISTENT, // assumes fault are permanent and returns diagnosis at the end of simulation
-    INTERMITTENT, // assumes fault are intermittent and returns diagnosis at the end of simulation
-    STEP_INTERMITTENT // same as intermittent, but with reduced runtime due to different approach
+// returns diagnosis of observations at every time stpe
+    STEP, 
+// assumes fault are permanent and returns diagnosis at the end of simulation
+    PERSISTENT, 
+// assumes fault are intermittent and returns diagnosis at the end of simulation
+    INTERMITTENT, 
+// same as intermittent, but with reduced runtime due to different approach
+    STEP_INTERMITTENT 
 }
 ```
 ## Consistency Diagnosis Driver
@@ -252,7 +259,7 @@ straight, left_curve -> false.
 ModelData abModelData = Util.modelDataFromJson("Robot.json");
 AbductiveDriver abductiveDriver = AbductiveDriver.builder()
                 .fmiMonitor(fmiMonitor)
-                .abductiveModel(new AbductiveModel("src/main/java/examples/abductiveBookModel.txt"))
+                .abductiveModel(new AbductiveModel("abductiveModel.txt"))
                 .modelData(abModelData)
                 .encoder(new BookAbEncoder())
                 .numberOfSteps(20)
@@ -263,8 +270,10 @@ abductiveDriver.runDiagnosis();
 ```
 ## Automatic generation of Abductive Model
 ```java
-AbductiveModelGenerator abductiveModelGenerator = new AbductiveModelGenerator(pathToFmi, modelData, <Diff> new SingleBulbDiff());
-AbductiveModel ab = abductiveModelGenerator.generateModel(<simulation time>20.0,<step size> 1.0);
+AbductiveModelGenerator abductiveModelGenerator = 
+    new AbductiveModelGenerator(pathToFmi, modelData, <Diff> new SingleBulbDiff());
+AbductiveModel ab = 
+    abductiveModelGenerator.generateModel(<simulation time>20.0,<step size> 1.0);
 abductiveModelGenerator.writeModeltoFile("autModel.txt");
 
 //Example of finding explenation
@@ -275,6 +284,10 @@ System.out.println(ab.getDiagnosis());
 # Graphical User Interface
 GUI consist of four forms
 * **FmiDataExtractor** - eases creating model data, as well as simulations for input oriented model
-    * MLCA Creator- simple form in which parameters and constraints for MLCA can be entered
+![](src/main/resources/fmiExtractor.png)
+* **MLCA Creator** - simple form in which parameters and constraints for MLCA can be entered
+<!-- ![](src/main/resources/mlca.png) -->
 * **ConsistencyModeling** - eases modeling for consistency oriented diagnosis, and simple diagnosis can be run
+![](src/main/resources/constModeling.png)
 * **AbductiveModeling** - eases modeling for abductive diagnosis with possibility of creating explenations
+![](src/main/resources/abModeling.png)

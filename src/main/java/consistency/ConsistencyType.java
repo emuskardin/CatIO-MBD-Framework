@@ -4,5 +4,5 @@ public enum ConsistencyType{
     STEP,
     PERSISTENT,
     INTERMITTENT,
-    REPAIR
+    STEP_INTERMITTENT
 }

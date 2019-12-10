@@ -45,8 +45,13 @@ public class CbModel {
             e.getLocalizedMessage();
             System.exit(1);
         }
-        if(content.contains("->") || content.contains("&") || content.contains("<->") || content.contains("|"))
-            modelToCNF(content);
+        if(content.contains("->") || content.contains("&") || content.contains("<->") || content.contains("|")) {
+            try {
+                modelToCNF(content);
+            } catch (ParserException e) {
+                e.printStackTrace();
+            }
+        }
         else {
             content = Util.removeComments(content);
             String[] clauses = content.split("\\r?\\n");
@@ -60,7 +65,7 @@ public class CbModel {
         }
     }
 
-    public void modelToCNF(String propModel) {
+    public void modelToCNF(String propModel) throws ParserException {
         propModel = Util.removeComments(propModel);
         propModel = propModel.replace("\n", "").replace("\r", "");
         String[] lines = propModel.split("\\.");
@@ -70,14 +75,8 @@ public class CbModel {
         formula = formula.replace('-', '=');
         formula = formula.replace('!', '~');
         final FormulaFactory f = new FormulaFactory();
-        Formula cnf;
-        try {
-            final PropositionalParser p = new PropositionalParser(f);
-            cnf = p.parse(formula).cnf();
-        }catch (ParserException pe){
-            System.out.println(pe.getLocalizedMessage());
-            return;
-        }
+        final PropositionalParser p = new PropositionalParser(f);
+        final Formula cnf = p.parse(formula).cnf();
         String trimedCnf = cnf.toString().replaceAll("\\s+","");
         String[] clauses= trimedCnf.split("&");
         List<List<String>> clauseLiterals = new ArrayList<>();

@@ -40,14 +40,7 @@ to class FmiMonitor, which will read defined values from the running simulation.
 If test bench with no inputs is given, diagnosis can be run directly on it, as test bench creates a simulation on the SUT.
 If input oriented model is given, simulations need to be created in the framework and passed to diagnosis drivers. 
 
-##ModelData
-Model is described in data class ModelData.
-Each model consist of 
-* Components which are going to be read during simulation
-* Mode Assigment Variables
-* Parameters of the model
-* Inputs of the model
-
+##Component
 Component is a data class representing each component in modelica model, and it consist of name, type and value.
 ```java
 public class Component {
@@ -65,8 +58,16 @@ public enum Type {
     INTEGER,
     ENUM
 }
-
 ```
+
+##ModelData
+Model is described in data class ModelData.
+Each model consist of 
+* Components which are going to be read during simulation
+* Mode Assigment Variables
+* Parameters of the model
+* Inputs of the model
+
 GUI form FmiDataExtractor can be used for easier extraction of data.
 If values are provided to mode assigment variables, parameters and inputs mixed level covering array can be created for the model and used for automatic generation of abductive model.
 
@@ -130,8 +131,40 @@ MLCA class takes model data as constuctor. Following methods describe its use
     mlca.createTestSuite("testSuite.csv");
     List<List<Component>> simulationInputs = mlca.suitToSimulationInput("testSuite.csv");
 ```
+#Interfaces
+##Encoder
+Encode values received from simulation at each time step with respect to the models propositional variables.
+Values are in a Map<String, Object>, where key is name of the component value in Modelica simulation.
+```java
+public interface Encoder {
+    List<String> encodeObservation(Map<String, Object> obs);
+}
+```
+##Diff
+Diff function is used in automatic generation of abductive model.
+At each time step Map<String, Object> is received, which is the same map as found in Encoder interface.
+User analyzes the output and returns a propositional variable describing faulty behaviour.
+```java
+public interface Diff {
+    public String encodeDiff(List<Map<String, Object>> corr, List<Map<String, Object>> faulty);
+}
+```
 #Consistency Based Diagnosis
-Model
+##Grammar for Consistency Based Models
+```
+Health State : [A-Z][A-Za-z0-9_]*
+Variable : [a-z0-9_@][A-Za-z0-9_]* 
+True : '$true' 
+False : '\$false' 
+Negation : '!' 
+Operation : '&' | '|' | '->' | '<->' 
+Literal  : Variable | HealthState | True | False
+Formula : Literal | '(' Formula ')'  | Formula OP Formula 
+Clause : Literal (',' Literal)* '.'
+ConsistencyModel : (Formula '.')+ | (Clause '.')+
+Model example - Differential Drive Robot
+```
+Example of a model
 ```
 rightWheel & leftWheel.
 !AbRightWheel & !AbLeftWheel.
@@ -141,17 +174,7 @@ leftWheel -> (!AbLeftWheel -> leftNominal & leftFaster & leftSlower).
 (rightFaster & leftSlower) -> left.
 (rightSlower & leftFaster) -> right.
 ```
-Encoder
-```java
-public class BookCarEncoder implements Encoder {
-    @Override
-    public List<String> encodeObservation(Map<String, Object> obs){
-        //...
-        return obsrvationsInPropVars;
-    }
-}
-```
-Diagnosis TYPES
+##Diagnosis Types
 ```java
 public enum ConsistencyType{
     STEP, // returns diagnosis of observations at every time stpe
@@ -160,7 +183,7 @@ public enum ConsistencyType{
     STEP_INTERMITTENT // same as intermittent, but with reduced runtime due to different approach
 }
 ```
-Diagnosis Driver
+##Consistency Diagnosis Driver
 ```
 FmiMonotor fmiMonitor = new FmiMonitor("pathToTestBench.fmi");
 CbModel model = new CbModel("modelFile.txt");
@@ -174,5 +197,77 @@ ConsistencyDriver consistencyDriver = ConsistencyDriver.builder()
                 .build();
 
 consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT);
+or
+consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT, simulationScenatio);
 ```
+#Abductive Diagnosis
+##Grammar for Abductive Modeling
+```
+Assumption and hypothesis start with capitilized letter.
 
+atom ::= id opt_args
+opt_args ::= ’(’ args ’)’ | epsilon
+args ::= term args_rest | epsilon 
+term ::= id opt_args
+args_rest ::= ’,’ term args_rest | epsilon̨
+rules ::= rule rules | epsilon 
+rule ::= atom rule_rest ’.’
+rule_rest ::= ’:-’ atom_list | atom_list_rest ’->’ atom
+atom_list ::= atom atom_list_rest | epsilon
+atom_list_rest ::= ’,’ atom atom_list_rest | epsilon
+```
+Example abductive model 
+```
+wheel(left).
+wheel(right).
+
+wheel(left), Expected(left) -> nominal(left).
+wheel(left), Reduced(left) -> slower(left).
+wheel(left), Increased(left) -> faster(left).
+wheel(right), Expected(right) -> nominal(right).
+wheel(right), Reduced(right) -> slower(right).
+wheel(right), Increased(right) -> faster(right).
+
+nominal(left), nominal(right) -> straight.
+nominal(left), faster(right) -> left_curve.
+slower(left), nominal(right) -> left_curve.
+slower(left), faster(right) -> left_curve.
+faster(left), nominal(right) -> right_curve.
+nominal(left), slower(right) -> right_curve.
+faster(left), slower(right) -> right_curve.
+
+nominal(left), faster(left) -> false.
+nominal(left), slower(left) -> false.
+faster(left), slower(left) -> false.
+nominal(right), faster(right) -> false.
+nominal(right), slower(right) -> false.
+faster(right), slower(right) -> false.
+
+right_curve, left_curve -> false.
+right_curve, straight -> false.
+straight, left_curve -> false.
+```
+##Abductive Driver
+```java
+ModelData abModelData = Util.modelDataFromJson("Robot.json");
+AbductiveDriver abductiveDriver = AbductiveDriver.builder()
+                .fmiMonitor(fmiMonitor)
+                .abductiveModel(new AbductiveModel("src/main/java/examples/abductiveBookModel.txt"))
+                .modelData(abModelData)
+                .encoder(new BookAbEncoder())
+                .numberOfSteps(20)
+                .simulationStepSize(1)
+                .build();
+
+abductiveDriver.runDiagnosis();
+```
+##Automatic generation of Abductive Model
+```java
+AbductiveModelGenerator abductiveModelGenerator = new AbductiveModelGenerator(pathToFmi, modelData, <Diff> new SingleBulbDiff());
+AbductiveModel ab = abductiveModelGenerator.generateModel(<simulation time>20.0,<step size> 1.0);
+abductiveModelGenerator.writeModeltoFile("autModel.txt");
+
+//Example of finding explenation
+ab.addExplain(Collections.singletonList("noLight"));
+System.out.println(ab.getDiagnosis());
+```

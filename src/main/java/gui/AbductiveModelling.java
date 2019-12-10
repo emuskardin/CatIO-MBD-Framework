@@ -39,7 +39,12 @@ public class AbductiveModelling {
             abductiveModel.setRules(Util.removeComments(abductiveModelArea.getText()));
             String obs = observationField.getText().replaceAll("\\s+", "");
             abductiveModel.addExplain(Arrays.asList(obs.split(",")));
-            diagnosisArea.setText(abductiveModel.getDiagnosis());
+            String exp = abductiveModel.getDiagnosis();
+            if (exp.equals("Parsing Error")) {
+                Util.errorMsg(exp, JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            diagnosisArea.setText(exp);
         });
 
         exportModelButton.addActionListener(e -> {
@@ -114,4 +119,5 @@ public class AbductiveModelling {
     public JComponent $$$getRootComponent$$$() {
         return panel;
     }
+
 }

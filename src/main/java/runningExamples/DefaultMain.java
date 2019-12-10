@@ -74,7 +74,6 @@ public class DefaultMain {
 
         List<Scenario> extendedScenarios = Util.scenariosFromJson("extendedScenarios.json");
         extendedDriver.runDiagnosis(ConsistencyType.PERSISTENT, extendedScenarios.get(1));
-
     }
 
 }

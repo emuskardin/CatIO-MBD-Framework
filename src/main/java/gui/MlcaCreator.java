@@ -3,6 +3,7 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import jdk.nashorn.internal.scripts.JO;
 import model.Component;
 import abductive.MLCA;
 import model.ModelData;
@@ -38,12 +39,17 @@ public class MlcaCreator {
     public MlcaCreator(ModelData md) {
         mlca = new MLCA(md);
         generateMLCAButton.addActionListener(e -> {
-            if (!inputsTextField.getText().isEmpty())
-                mlca.addRelationToGroup(mlca.getInputs(), Integer.parseInt(inputsTextField.getText()));
-            if (!paramsTextField.getText().isEmpty())
-                mlca.addRelationToGroup(mlca.getParams(), Integer.parseInt(paramsTextField.getText()));
-            if (!hsTextField.getText().isEmpty())
-                mlca.addRelationToGroup(mlca.getModeAssigments(), Integer.parseInt(hsTextField.getText()));
+            try {
+                if (!inputsTextField.getText().isEmpty())
+                    mlca.addRelationToGroup(mlca.getInputs(), Integer.parseInt(inputsTextField.getText()));
+                if (!paramsTextField.getText().isEmpty())
+                    mlca.addRelationToGroup(mlca.getParams(), Integer.parseInt(paramsTextField.getText()));
+                if (!hsTextField.getText().isEmpty())
+                    mlca.addRelationToGroup(mlca.getModeAssigments(), Integer.parseInt(hsTextField.getText()));
+            } catch (NumberFormatException ex) {
+                Util.errorMsg("Relation values are integers in range [1,6]", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
 
             if (!numCorrCompsTextField.getText().isEmpty()) {
                 String req = numCorrCompsTextField.getText();
@@ -66,6 +72,7 @@ public class MlcaCreator {
                 try {
                     scenarios = mlca.suitToSimulationInput(file.getName());
                 } catch (IOException ex) {
+                    Util.errorMsg("Error in creating MLCA.", JOptionPane.ERROR_MESSAGE);
                     ex.printStackTrace();
                 }
             }
@@ -137,4 +144,5 @@ public class MlcaCreator {
     public JComponent $$$getRootComponent$$$() {
         return panel;
     }
+
 }

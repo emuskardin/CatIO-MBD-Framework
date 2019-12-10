@@ -4,6 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import consistency.mhsAlgs.RcTree;
 import consistency.CbModel;
+import org.logicng.io.parsers.ParserException;
 import util.Util;
 
 import javax.swing.*;
@@ -104,7 +105,12 @@ public class ConsistencyModelling {
         if (model.isEmpty())
             return;
         cbModel = new CbModel();
-        cbModel.modelToCNF(model);
+        try {
+            cbModel.modelToCNF(model);
+        } catch (ParserException e) {
+            Util.errorMsg("Parsing error!", JOptionPane.ERROR_MESSAGE);
+            //e.printStackTrace();
+        }
         cbModel.setNumOfDistinct(cbModel.getPredicates().getSize());
         for (List<String> line : cbModel.modelToString())
             cnfModelArea.append(String.join(", ", line) + "\n");
@@ -217,4 +223,5 @@ public class ConsistencyModelling {
     public JComponent $$$getRootComponent$$$() {
         return panel;
     }
+
 }

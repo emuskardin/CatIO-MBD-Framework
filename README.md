@@ -1,8 +1,8 @@
 # Framework for model based diagnosis
 Framework for creating models for diagnosis, as well as testing their quality using co-simulation. 
-Consisteny based and abductive diagnosis are possible.<br>
+Basic documentation with use examples is shown in this readme.
 
-#Interaction with FMIs
+# Interaction with FMIs
 FMI can either be standard test benches of form
 ```
 model Testbench
@@ -40,7 +40,7 @@ to class FmiMonitor, which will read defined values from the running simulation.
 If test bench with no inputs is given, diagnosis can be run directly on it, as test bench creates a simulation on the SUT.
 If input oriented model is given, simulations need to be created in the framework and passed to diagnosis drivers. 
 
-##Component
+## Component
 Component is a data class representing each component in modelica model, and it consist of name, type and value.
 ```java
 public class Component {
@@ -60,7 +60,7 @@ public enum Type {
 }
 ```
 
-##ModelData
+## ModelData
 Model is described in data class ModelData.
 Each model consist of 
 * Components which are going to be read during simulation
@@ -71,7 +71,7 @@ Each model consist of
 GUI form FmiDataExtractor can be used for easier extraction of data.
 If values are provided to mode assigment variables, parameters and inputs mixed level covering array can be created for the model and used for automatic generation of abductive model.
 
-##Simulation form
+## Simulation form
 Simulation scenario is a Map<Integer, List<Component>>, where Integer is time step at which List<Component> values will be written to the simulation.
 Scenario has to have key value 0, representing values which will be written at initial step to avoid undefined behaviour.
 
@@ -120,7 +120,7 @@ Simulations can also be created from JSON if form
   }
 ```
 
-##MLCA
+## MLCA
 MLCA class takes model data as constuctor. Following methods describe its use
 ```
     MLCA mlca = new MLCA(someModelData);
@@ -131,8 +131,8 @@ MLCA class takes model data as constuctor. Following methods describe its use
     mlca.createTestSuite("testSuite.csv");
     List<List<Component>> simulationInputs = mlca.suitToSimulationInput("testSuite.csv");
 ```
-#Interfaces
-##Encoder
+# Interfaces
+## Encoder
 Encode values received from simulation at each time step with respect to the models propositional variables.
 Values are in a Map<String, Object>, where key is name of the component value in Modelica simulation.
 ```java
@@ -140,7 +140,7 @@ public interface Encoder {
     List<String> encodeObservation(Map<String, Object> obs);
 }
 ```
-##Diff
+## Diff
 Diff function is used in automatic generation of abductive model.
 At each time step Map<String, Object> is received, which is the same map as found in Encoder interface.
 User analyzes the output and returns a propositional variable describing faulty behaviour.
@@ -149,8 +149,8 @@ public interface Diff {
     public String encodeDiff(List<Map<String, Object>> corr, List<Map<String, Object>> faulty);
 }
 ```
-#Consistency Based Diagnosis
-##Grammar for Consistency Based Models
+# Consistency Based Diagnosis
+## Grammar for Consistency Based Models
 ```
 Health State : [A-Z][A-Za-z0-9_]*
 Variable : [a-z0-9_@][A-Za-z0-9_]* 
@@ -174,7 +174,7 @@ leftWheel -> (!AbLeftWheel -> leftNominal & leftFaster & leftSlower).
 (rightFaster & leftSlower) -> left.
 (rightSlower & leftFaster) -> right.
 ```
-##Diagnosis Types
+## Diagnosis Types
 ```java
 public enum ConsistencyType{
     STEP, // returns diagnosis of observations at every time stpe
@@ -183,7 +183,7 @@ public enum ConsistencyType{
     STEP_INTERMITTENT // same as intermittent, but with reduced runtime due to different approach
 }
 ```
-##Consistency Diagnosis Driver
+## Consistency Diagnosis Driver
 ```
 FmiMonotor fmiMonitor = new FmiMonitor("pathToTestBench.fmi");
 CbModel model = new CbModel("modelFile.txt");
@@ -200,8 +200,8 @@ consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT);
 or
 consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT, simulationScenatio);
 ```
-#Abductive Diagnosis
-##Grammar for Abductive Modeling
+# Abductive Diagnosis
+## Grammar for Abductive Modeling
 ```
 Assumption and hypothesis start with capitilized letter.
 
@@ -247,7 +247,7 @@ right_curve, left_curve -> false.
 right_curve, straight -> false.
 straight, left_curve -> false.
 ```
-##Abductive Driver
+## Abductive Driver
 ```java
 ModelData abModelData = Util.modelDataFromJson("Robot.json");
 AbductiveDriver abductiveDriver = AbductiveDriver.builder()
@@ -261,7 +261,7 @@ AbductiveDriver abductiveDriver = AbductiveDriver.builder()
 
 abductiveDriver.runDiagnosis();
 ```
-##Automatic generation of Abductive Model
+## Automatic generation of Abductive Model
 ```java
 AbductiveModelGenerator abductiveModelGenerator = new AbductiveModelGenerator(pathToFmi, modelData, <Diff> new SingleBulbDiff());
 AbductiveModel ab = abductiveModelGenerator.generateModel(<simulation time>20.0,<step size> 1.0);
@@ -271,3 +271,10 @@ abductiveModelGenerator.writeModeltoFile("autModel.txt");
 ab.addExplain(Collections.singletonList("noLight"));
 System.out.println(ab.getDiagnosis());
 ```
+
+# Graphical User Interface
+GUI consist of four forms
+* **FmiDataExtractor** - eases creating model data, as well as simulations for input oriented model
+    * MLCA Creator- simple form in which parameters and constraints for MLCA can be entered
+* **ConsistencyModeling** - eases modeling for consistency oriented diagnosis, and simple diagnosis can be run
+* **AbductiveModeling** - eases modeling for abductive diagnosis with possibility of creating explenations

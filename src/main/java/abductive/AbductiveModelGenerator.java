@@ -1,6 +1,7 @@
 package abductive;
 
 import interfaces.Diff;
+import interfaces.Encoder;
 import model.Component;
 import FmiConnector.FmiMonitor;
 import model.ModelData;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Data
 public class AbductiveModelGenerator {
@@ -22,31 +24,36 @@ public class AbductiveModelGenerator {
     private MLCA mlca;
     private AbductiveModel abductiveModel;
     private Diff diff;
+    private Encoder enc;
 
-    public AbductiveModelGenerator(String pathToFmi , ModelData modelData, Diff diff){
+    public AbductiveModelGenerator(String pathToFmi , ModelData modelData){
         abductiveModel = new AbductiveModel();
         this.modelData = modelData;
         mlca = new MLCA(modelData);
         fmiMonitor = new FmiMonitor(pathToFmi);
+    }
+
+    public void setEncoderAndDiff(Encoder enc, Diff diff){
+        this.enc = enc;
         this.diff = diff;
     }
 
 
     public AbductiveModel generateModel(Double runtime, Double stepSize) throws IOException {
-        Simulation sim = fmiMonitor.getSimulation();
-
         mlca.createTestSuite("automaticModelGen.csv");
         List<List<Component>> simulationInputs = mlca.suitToSimulationInput("automaticModelGen.csv");
 
         for(List<Component> test : simulationInputs){
-            List<Map<String, Object>> corrObs = new ArrayList<>();
-            List<Map<String, Object>> faultyObs = new ArrayList<>();
+            fmiMonitor.resetSimulation();
+            Simulation sim = fmiMonitor.getSimulation();
+            List<List<String>> corrObs = new ArrayList<>();
+            List<List<String>> faultyObs = new ArrayList<>();
             // Setup params and inputs as well as all health states to ok
             fmiMonitor.getFmiWriter().writeMultipleComp(test);
             fmiMonitor.getFmiWriter().writeMultipleComp(mlca.getModelData().getAllOkStates());
             sim.init(0.0);
             while(sim.getCurrentTime() <= runtime){
-                corrObs.add(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
+                corrObs.add(enc.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead())));
                 sim.doStep(stepSize);
             }
 
@@ -55,37 +62,45 @@ public class AbductiveModelGenerator {
             fmiMonitor.getFmiWriter().writeMultipleComp(test);
             sim.init(0.0);
             while (sim.getCurrentTime() <= runtime){
-                faultyObs.add(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
+                faultyObs.add(enc.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead())));
                 sim.doStep(stepSize);
             }
 
-            String difference = diff.encodeDiff(corrObs, faultyObs);
-            if(difference != null && !difference.isEmpty())
-                abductiveModel.addRule(formRule(test, difference));
+            Set<String> difference = diff.encodeDiff(corrObs, faultyObs);
+            if(difference != null && !difference.isEmpty()){
+                for(String rule : formRule(test, difference))
+                    abductiveModel.addRule(rule);
+            }
         }
         return abductiveModel;
     }
 
-    private String formRule(List<Component> test, String diff){
-        StringBuilder sb = new StringBuilder();
+    private List<String> formRule(List<Component> test, Set<String> diff){
+        List<String> rules = new ArrayList<>();
+
         List<String> faultModes = new ArrayList<>();
-        for(Component comp: test){
-            if(modelData.isHS(comp.getName())) {
+        for (Component comp : test) {
+            if (modelData.isHS(comp.getName())) {
                 String compAss = comp.getName();
                 String faultState = getFaultMode(comp);
-                if(faultState.equals("ok"))
+                if (faultState.equals("ok"))
                     continue;
-                if(!faultState.isEmpty()) {
+                if (!faultState.isEmpty()) {
                     compAss = compAss.substring(0, 1).toUpperCase() + compAss.substring(1);
                     faultModes.add(compAss + "_" + faultState);
                 }
             }
         }
-        if(faultModes.isEmpty())
-            return "";
-        sb.append(String.join(",", faultModes));
-        sb.append(" -> ").append(diff).append(".");
-        return sb.toString();
+
+        for(String difference : diff) {
+            StringBuilder sb = new StringBuilder();
+            if (faultModes.isEmpty())
+                continue;
+            sb.append(String.join(",", faultModes));
+            sb.append(" -> ").append(difference).append(".");
+            rules.add(sb.toString());
+        }
+        return rules;
     }
 
     private String getFaultMode(Component component){

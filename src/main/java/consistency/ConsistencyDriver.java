@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import model.Scenario;
 import org.javafmi.wrapper.Simulation;
+import util.Util;
 
 import java.util.*;
 
@@ -25,6 +26,9 @@ public class ConsistencyDriver {
      * Diagnosis algorithm will be executed after every time step, and diagnosis printed to standard output.
      */
     public void runDiagnosis(ConsistencyType type, Scenario scenario){
+        ArrayList<Double> xCoor = new ArrayList<>();
+        ArrayList<Double> yCoor = new ArrayList<>();
+
         Simulation simulation = fmiMonitor.getSimulation();
         Integer currStep = 0;
 
@@ -34,6 +38,11 @@ public class ConsistencyDriver {
             while (currStep < numberOfSteps){
                 if(scenario != null)
                     scenario.injectFault(currStep, fmiMonitor.getFmiWriter(), modelData);
+
+                if(modelData.getPlot() != null){
+                    xCoor.add((Double) fmiMonitor.read(modelData.getToReadByName(modelData.getPlot().left)).getValue());
+                    yCoor.add((Double) fmiMonitor.read(modelData.getToReadByName(modelData.getPlot().right)).getValue());
+                }
 
                 List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
                 RcTree rcTree = new RcTree(model, model.observationToInt(obs));
@@ -54,6 +63,11 @@ public class ConsistencyDriver {
                 if(scenario != null)
                     scenario.injectFault(currStep , fmiMonitor.getFmiWriter(), modelData);
 
+                if(modelData.getPlot() != null){
+                    xCoor.add((Double) fmiMonitor.read(modelData.getToReadByName(modelData.getPlot().left)).getValue());
+                    yCoor.add((Double) fmiMonitor.read(modelData.getToReadByName(modelData.getPlot().right)).getValue());
+                }
+
                 List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
                 List<Integer> encodedObs = model.observationToInt(obs);
                 observations.addAll(increaseObservation(encodedObs, currStep, offset));
@@ -67,13 +81,15 @@ public class ConsistencyDriver {
             else
                 model.setNumOfDistinct(model.getAbPredicates().size() + ((offset ) * currStep));
 
+
             RcTree rcTree = new RcTree(model, observations);
             for(List<Integer> mhs  : rcTree.getDiagnosis())
                 System.out.println(model.getComponentNamesTimed(mhs, increaseHs));
 
             model.setAbPredicates(originalAbPred);
         }
-
+        if(modelData.getPlot() != null)
+            Util.plot(xCoor, yCoor, "plot");
         model.clearModel();
         fmiMonitor.resetSimulation();
     }

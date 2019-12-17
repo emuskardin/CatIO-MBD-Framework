@@ -85,8 +85,8 @@ public class DAG {
         }
 
         getInputs();
-        //parseLine();
-        //constructTree();
+        parseLine();
+        constructTree();
         getOutputs();
     }
 

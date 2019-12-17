@@ -55,8 +55,9 @@ public class MlcaCreator {
                 String req = numCorrCompsTextField.getText();
                 if (req.contains(",")) {
                     String[] nums = req.replaceAll("\\s+", "").split(",");
-                    List<Integer> reqs = new ArrayList<>();
-                    for (String num : nums) reqs.add(Integer.parseInt(num));
+                    Integer[] reqs = new Integer[nums.length];
+                    for (int i = 0; i < nums.length; i++)
+                        reqs[i] = Integer.parseInt(nums[i]);
                     mlca.numberOfCorrectComps(reqs);
                 } else
                     mlca.numberOfCorrectComps(Integer.parseInt(req));

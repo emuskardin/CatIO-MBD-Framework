@@ -1,6 +1,7 @@
 package model;
 
 import lombok.Data;
+import org.apache.commons.lang3.Pair;
 
 import java.util.*;
 
@@ -10,6 +11,7 @@ public class ModelData {
     private List<ModelInput> healthStates = new ArrayList<>();
     private List<ModelInput> inputs = new ArrayList<>();
     private List<ModelInput> param = new ArrayList<>();
+    private Pair<String , String> plot;
 
     public Integer getEnumValue(String compName, String faultName){
         for(ModelInput comp : healthStates){
@@ -87,6 +89,13 @@ public class ModelData {
         for (ModelInput mid : healthStates) {
             if (mid.getValues().contains(valueName))
                 return mid.getValues().indexOf(valueName) + 1;
+        }
+        return null;
+    }
+    public Component getToReadByName(String name){
+        for(Component comp: componentsToRead){
+            if(comp.getName().equals(name))
+                return comp;
         }
         return null;
     }

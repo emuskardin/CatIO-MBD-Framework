@@ -2,25 +2,29 @@ package examples;
 
 import interfaces.Diff;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class SingleBulbDiff implements Diff {
     @Override
-    public String encodeDiff(List<Map<String, Object>> corr, List<Map<String, Object>> faulty) {
-        String compName = "b1.on";
+    public Set<String> encodeDiff(List<List<String>> corr, List<List<String>> faulty) {
+        Set<String> ret = new HashSet<>();
         //check if stuck at close
         boolean noLight = true;
-        for(Map<String, Object> step: faulty){
-            if(((Boolean) step.get(compName)))
-                noLight = !noLight;
+        for(List<String> faultyStep : faulty){
+            if(faultyStep.get(0).equals("light")) {
+                noLight = false;
+                break;
+            }
         }
-        if(noLight)
-            return "noLight";
-        List<String> givenList = Arrays.asList("something", "somethingElse", "thirdObs", "");
-        Random rand = new Random();
-        return givenList.get(rand.nextInt(givenList.size()));
+        if(noLight) {
+            ret.add("noLight");
+            return ret;
+        }
+
+        for (int i = 0; i < corr.size(); i++) {
+            if(!corr.get(i).get(0).equals(faulty.get(i).get(0)))
+                ret.add("inverted");
+        }
+        return ret;
     }
 }

@@ -13,6 +13,7 @@ import examples.BookAbEncoder;
 import consistency.CbModel;
 import consistency.ConsistencyDriver;
 import examples.BookCarEncoder;
+import org.apache.commons.lang3.Pair;
 import util.Util;
 
 import java.util.Arrays;
@@ -36,8 +37,9 @@ public class DefaultMain {
                 )
         );
 
+        FmiMonitor abFmiMonitor = new FmiMonitor(fmiPath[4]);
         AbductiveDriver abductiveDriver = AbductiveDriver.builder()
-                .fmiMonitor(fmiMonitor)
+                .fmiMonitor(abFmiMonitor)
                 .abductiveModel(new AbductiveModel("src/main/java/examples/abductiveBookModel.txt"))
                 .modelData(abModelData)
                 .encoder(new BookAbEncoder())
@@ -45,7 +47,7 @@ public class DefaultMain {
                 .simulationStepSize(1)
                 .build();
 
-        //abductiveDriver.runSimulation();
+        abductiveDriver.runSimulation();
 
         // Simple robot example
         ModelData md = Util.modelDataFromJson("simpleRobot.json");
@@ -63,6 +65,7 @@ public class DefaultMain {
 
         FmiMonitor fmiMonitor1 = new FmiMonitor("FMIs/ExtendedRobot.Experminets.Driver.fmu");
         ModelData modelData = Util.modelDataFromJson("extendedRobot.json");
+        //modelData.setPlot(new Pair<>("robot.diffDrive.x", "robot.diffDrive.y"));
         ConsistencyDriver extendedDriver = ConsistencyDriver.builder()
                 .fmiMonitor(fmiMonitor1)
                 .model(new CbModel("src/main/java/examples/extendedRobotModel.txt"))
@@ -73,7 +76,7 @@ public class DefaultMain {
                 .build();
 
         List<Scenario> extendedScenarios = Util.scenariosFromJson("extendedScenarios.json");
-        extendedDriver.runDiagnosis(ConsistencyType.PERSISTENT, extendedScenarios.get(1));
+        extendedDriver.runDiagnosis(ConsistencyType.STEP, extendedScenarios.get(2));
     }
 
 }

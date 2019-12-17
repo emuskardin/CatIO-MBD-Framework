@@ -78,12 +78,12 @@ public class MLCA {
         sut.addConstraint(new Constraint(correctCompConstraintBuilder(modeAssigments, num), modeAssigments));
     }
 
-    public void numberOfCorrectComps(List<Integer> nums){
+    public void numberOfCorrectComps(Integer... nums){
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < nums.size(); i++) {
+        for (int i = 0; i < nums.length; i++) {
             if(i > 0)
                 sb.append(" || ");
-            sb.append(correctCompConstraintBuilder(modeAssigments, nums.get(i)));
+            sb.append(correctCompConstraintBuilder(modeAssigments, nums[i]));
         }
         sut.addConstraint(new Constraint(sb.toString(), modeAssigments));
     }

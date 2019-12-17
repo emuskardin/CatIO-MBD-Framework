@@ -14,10 +14,12 @@ leftVoltageReg -> (!AbLeftVoltageReg -> (constantBattOutput -> desiredLeftVoltag
 rightVoltageReg -> (!AbRightVoltageReg -> (constantBattOutput -> desiredRightVoltage)).
 
 // Power Modules
-leftPowerModule -> (!AbLeftPowerModule -> (desiredLeftVoltage -> eqLeftInAndOut)).
-rightPowerModule -> (!AbRightPowerModule -> (desiredRightVoltage -> eqRightInAndOut)).
+leftPowerModule -> (!AbLeftPowerModule -> (noRes -> desiredLeftVoltage -> eqLeftInAndOut)).
+rightPowerModule -> (!AbRightPowerModule -> (noRes -> desiredRightVoltage -> eqRightInAndOut)).
 reservePowerModule -> (!AbReservePowerModule -> (leftRes -> (desiredLeftVoltage -> eqResInOut))).
 reservePowerModule -> (!AbReservePowerModule -> (rightRes -> (desiredRightVoltage -> eqResInOut))).
+
+(noRes & !leftRes) | (!noRes &leftRes) | (noRes & !rightRes) | (!noRes &rightRes).
 
 // Wheel Behaviour
 rightWheel -> (!AbRightWheel -> (eqRightInAndOut -> (rightNominal & rightFaster & rightSlower))).

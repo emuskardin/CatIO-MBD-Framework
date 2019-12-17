@@ -38,6 +38,7 @@ public class RcTree {
     private List<RcNode> mhs = new ArrayList<>();
     private CbModel model;
     private List<Integer> observation;
+    private List<List<Integer>> conflicts = new ArrayList<>();
 
     public RcTree(CbModel cbModel, List<Integer> obs) {
         this.model = cbModel;
@@ -65,6 +66,7 @@ public class RcTree {
             mhs.add(node);
             return;
         }
+        conflicts.add(label);
 
         node.label = label;
         node.label.forEach( edge -> createChild(node, edge));
@@ -121,6 +123,10 @@ public class RcTree {
 
     private boolean isSuperset(Collection<Integer> x, Collection<Integer> y){
         return x.size() > y.size() && x.containsAll(y);
+    }
+
+    public List<List<Integer>> getConflicts(){
+        return conflicts;
     }
 
 }

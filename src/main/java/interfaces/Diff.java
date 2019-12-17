@@ -2,6 +2,7 @@ package interfaces;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @FunctionalInterface
 public interface Diff {
@@ -11,5 +12,5 @@ public interface Diff {
      * In both lists, each index i corresponds to i-th time step in the simulation and it's corresponding values
      * @return encoding of diff function with respect to the model
      */
-    public String encodeDiff(List<Map<String, Object>> corr, List<Map<String, Object>> faulty);
+    public Set<String> encodeDiff(List<List<String>> corr, List<List<String>> faulty);
 }

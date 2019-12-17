@@ -23,26 +23,26 @@ public class Robot {
             if(!insance) {
                 fmiMonitor.getFmiWriter().writeVar("rightWheelInput", 3.0);
                 fmiMonitor.getFmiWriter().writeVar("leftWheelInput", 3.0);
-                leftOk();
-                rightOk();
                 insance = true;
             }
+        leftOk();
+        rightOk();
     }
 
-    public String driveStraight(){
+    public void driveStraight(){
         fmiMonitor.getFmiWriter().writeVar("rightWheelInput", 3.0);
         fmiMonitor.getFmiWriter().writeVar("leftWheelInput", 3.0);
-        return doStep();
+        //return doStep();
     }
-    public String driveLeft(){
+    public void driveLeft(){
         fmiMonitor.getFmiWriter().writeVar("rightWheelInput", 5.0);
         fmiMonitor.getFmiWriter().writeVar("leftWheelInput", 3.0);
-        return doStep();
+        //return doStep();
     }
-    public String driveRight(){
+    public void driveRight(){
         fmiMonitor.getFmiWriter().writeVar("rightWheelInput", 3.0);
         fmiMonitor.getFmiWriter().writeVar("leftWheelInput", 5.0);
-        return doStep();
+        //return doStep();
     }
     public String leftOk(){
         fmiMonitor.getFmiWriter().writeVar("leftFaultType", 1);

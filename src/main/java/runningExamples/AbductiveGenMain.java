@@ -2,7 +2,9 @@ package runningExamples;
 
 import abductive.AbductiveModel;
 import abductive.AbductiveModelGenerator;
+import abductive.MLCA;
 import examples.SingleBulbDiff;
+import examples.SingleBulbEncoder;
 import model.Component;
 import model.Type;
 import model.ModelData;
@@ -28,17 +30,22 @@ public class AbductiveGenMain {
         modelData.setHealthStates(
                 Arrays.asList(
                         new ModelInput("r1State", Type.ENUM, bateryFaultTypes),
-                        new ModelInput("bat1State", Type.ENUM, componentFaultTypes),
                         new ModelInput("b1State", Type.ENUM, componentFaultTypes),
                         new ModelInput("rLoadState", Type.ENUM, componentFaultTypes),
+                        new ModelInput("bat1State", Type.ENUM, componentFaultTypes),
                         new ModelInput("rIntState", Type.ENUM, componentFaultTypes)
                 ));
 
-        AbductiveModelGenerator abductiveModelGenerator = new AbductiveModelGenerator(pathToFmi, modelData, new SingleBulbDiff());
-        AbductiveModel ab = abductiveModelGenerator.generateModel(20.0, 1.0);
+        AbductiveModelGenerator abductiveModelGenerator = new AbductiveModelGenerator(pathToFmi, modelData);
+        abductiveModelGenerator.setEncoderAndDiff(new SingleBulbEncoder(),new SingleBulbDiff());
+        MLCA mlca = abductiveModelGenerator.getMlca();
+        mlca.addRelationToGroup(mlca.getModeAssigments(), 2);
+        mlca.numberOfCorrectComps(4,3);
+        AbductiveModel ab = abductiveModelGenerator.generateModel(20.0, 0.5);
         ab.addExplain(Collections.singletonList("noLight"));
         System.out.println(ab.getDiagnosis());
         abductiveModelGenerator.writeModeltoFile("autModel.txt");
+
 
     }
 }

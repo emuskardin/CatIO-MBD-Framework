@@ -145,10 +145,11 @@ public interface Encoder {
 ## Diff
 Diff function is used in automatic generation of abductive model.
 At each time step Map<String, Object> is received, which is the same map as found in Encoder interface.
-User analyzes the output and returns a propositional variable describing faulty behaviour.
+User analyzes the output and returns a propositional variables describing faulty behaviours.
+Each element of resulting list is added as rule.
 ```java
 public interface Diff {
-    public String encodeDiff(List<Map<String, Object>> corr, 
+    public List<String> encodeDiff(List<Map<String, Object>> corr, 
             List<Map<String, Object>> faulty);
 }
 ```

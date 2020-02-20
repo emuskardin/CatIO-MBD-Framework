@@ -2,7 +2,7 @@ package runningExamples;
 
 import abductive.AbductiveModel;
 import abductive.AbductiveModelGenerator;
-import abductive.MLCA;
+import abductive.MCA;
 import examples.SingleBulbDiff;
 import examples.SingleBulbEncoder;
 import model.Component;
@@ -27,7 +27,7 @@ public class AbductiveGenMain {
                         new Component("b1.on", Type.BOOLEAN)
                 )
         );
-        modelData.setHealthStates(
+        modelData.setModeAssigmentVars(
                 Arrays.asList(
                         new ModelInput("r1State", Type.ENUM, bateryFaultTypes),
                         new ModelInput("b1State", Type.ENUM, componentFaultTypes),
@@ -38,9 +38,9 @@ public class AbductiveGenMain {
 
         AbductiveModelGenerator abductiveModelGenerator = new AbductiveModelGenerator(pathToFmi, modelData);
         abductiveModelGenerator.setEncoderAndDiff(new SingleBulbEncoder(),new SingleBulbDiff());
-        MLCA mlca = abductiveModelGenerator.getMlca();
-        mlca.addRelationToGroup(mlca.getModeAssigments(), 2);
-        mlca.numberOfCorrectComps(4,3);
+        MCA MCA = abductiveModelGenerator.getMCA();
+        MCA.addRelationToGroup(MCA.getModeAssigments(), 2);
+        MCA.numberOfCorrectComps(4);
         AbductiveModel ab = abductiveModelGenerator.generateModel(20.0, 0.5);
         ab.addExplain(Collections.singletonList("noLight"));
         System.out.println(ab.getDiagnosis());

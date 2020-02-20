@@ -9,7 +9,7 @@ import java.io.*;
 import java.util.*;
 
 @Data
-public class MLCA {
+public class MCA {
     SUT sut;
     IpoEngine engine;
     ArrayList<Parameter> inputs;
@@ -19,10 +19,10 @@ public class MLCA {
     Map<String, String> tmpNames = new HashMap<>();
     String mlcaCSVFile;
 
-    public MLCA(ModelData modelData){
+    public MCA(ModelData modelData){
         sut = new SUT();
         engine = new IpoEngine(sut);
-        modeAssigments = addParam(modelData.getHealthStates());
+        modeAssigments = addParam(modelData.getModeAssigmentVars());
         inputs = addParam(modelData.getInputs());
         params = addParam(modelData.getParam());
         this.modelData = modelData;

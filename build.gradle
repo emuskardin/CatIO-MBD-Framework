@@ -26,7 +26,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.5'
     compile 'com.intellij:forms_rt:7.0.3'
 
-    compile 'de.learnlib.distribution:learnlib-distribution:0.14.0'
+    //compile 'de.learnlib.distribution:learnlib-distribution:0.14.0'
 }
 
 

@@ -123,15 +123,15 @@ Simulations can also be created from JSON if form
 ## MLCA
 MLCA class takes model data as constuctor. Following methods describe its use
 ```
-    MLCA mlca = new MLCA(someModelData);
+    MLCA MCA = new MLCA(someModelData);
     \\ optional addition of constraints, 
     \\    relations or minimal number of correct components
-    mlca.addRelationToGroup(mlca.get{params,inputs,modeAssigments}, 3);
-    mlca.addConstraint("this is come contraint");
-    mlca.numberOfCorrectComps(2); \\ or list of numbers 3, 4
-    mlca.createTestSuite("testSuite.csv");
+    MCA.addRelationToGroup(MCA.get{params,inputs,modeAssigments}, 3);
+    MCA.addConstraint("this is come contraint");
+    MCA.numberOfCorrectComps(2); \\ or list of numbers 3, 4
+    MCA.createTestSuite("testSuite.csv");
     List<List<Component>> simulationInputs = 
-            mlca.suitToSimulationInput("testSuite.csv");
+            MCA.suitToSimulationInput("testSuite.csv");
 ```
 # Interfaces
 ## Encoder
@@ -287,7 +287,7 @@ GUI consist of four forms
 * **FmiDataExtractor** - eases creating model data, as well as simulations for input oriented model
 ![](src/main/resources/fmiExtractor.png)
 * **MLCA Creator** - simple form in which parameters and constraints for MLCA can be entered
-<!-- ![](src/main/resources/mlca.png) -->
+<!-- ![](src/main/resources/MCA.png) -->
 * **ConsistencyModeling** - eases modeling for consistency oriented diagnosis, and simple diagnosis can be run
 ![](src/main/resources/constModeling.png)
 * **AbductiveModeling** - eases modeling for abductive diagnosis with possibility of creating explenations

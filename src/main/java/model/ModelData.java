@@ -8,13 +8,13 @@ import java.util.*;
 @Data
 public class ModelData {
     private List<Component> componentsToRead = new ArrayList<>();
-    private List<ModelInput> healthStates = new ArrayList<>();
+    private List<ModelInput> modeAssigmentVars = new ArrayList<>();
     private List<ModelInput> inputs = new ArrayList<>();
     private List<ModelInput> param = new ArrayList<>();
     private Pair<String , String> plot;
 
     public Integer getEnumValue(String compName, String faultName){
-        for(ModelInput comp : healthStates){
+        for(ModelInput comp : modeAssigmentVars){
             if(comp.getName().equals(compName)){
                 for(Object fault : comp.getValues()){
                     if(fault.equals(faultName))
@@ -43,12 +43,12 @@ public class ModelData {
     }
     public List<Component> getAllOkStates(){
         List<Component> res = new ArrayList<>();
-        for(ModelInput mid : healthStates)
+        for(ModelInput mid : modeAssigmentVars)
             res.add(new Component(mid.getName(), mid.getType(), mid.getValues().indexOf("ok") + 1));
         return res;
     }
     public Type getType(String name){
-        for (ModelInput mid : healthStates) {
+        for (ModelInput mid : modeAssigmentVars) {
             if (mid.getName().equals(name))
                 return mid.getType();
         }
@@ -66,15 +66,15 @@ public class ModelData {
         System.exit(1);
         return null;
     }
-    public boolean isHS(String name){
-        for(ModelInput comp : healthStates) {
+    public boolean isModeAssigmentVar(String name){
+        for(ModelInput comp : modeAssigmentVars) {
             if (comp.getName().equals(name))
                 return true;
         }
         return false;
     }
     public boolean eachTypeHasValue(){
-        for(ModelInput mi : healthStates)
+        for(ModelInput mi : modeAssigmentVars)
             if(mi.getValues() == null || !mi.getValues().isEmpty())
                 return false;
         for(ModelInput mi : inputs)
@@ -86,7 +86,7 @@ public class ModelData {
         return true;
     }
     public Integer getFaultIndex(String valueName) {
-        for (ModelInput mid : healthStates) {
+        for (ModelInput mid : modeAssigmentVars) {
             if (mid.getValues().contains(valueName))
                 return mid.getValues().indexOf(valueName) + 1;
         }

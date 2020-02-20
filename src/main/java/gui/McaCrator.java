@@ -3,9 +3,8 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import jdk.nashorn.internal.scripts.JO;
 import model.Component;
-import abductive.MLCA;
+import abductive.MCA;
 import model.ModelData;
 import util.Util;
 
@@ -13,10 +12,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-public class MlcaCreator {
+public class McaCrator {
     private JPanel panel;
     private JTextField numCorrCompsTextField;
     private JTextArea constraintTextArea;
@@ -24,7 +22,7 @@ public class MlcaCreator {
     private JTextField inputsTextField;
     private JTextField paramsTextField;
     private JTextField hsTextField;
-    private MLCA mlca;
+    private MCA MCA;
     public List<List<Component>> scenarios;
 
     public void createPopup() {
@@ -36,16 +34,16 @@ public class MlcaCreator {
         frame.setVisible(true);
     }
 
-    public MlcaCreator(ModelData md) {
-        mlca = new MLCA(md);
+    public McaCrator(ModelData md) {
+        MCA = new MCA(md);
         generateMLCAButton.addActionListener(e -> {
             try {
                 if (!inputsTextField.getText().isEmpty())
-                    mlca.addRelationToGroup(mlca.getInputs(), Integer.parseInt(inputsTextField.getText()));
+                    MCA.addRelationToGroup(MCA.getInputs(), Integer.parseInt(inputsTextField.getText()));
                 if (!paramsTextField.getText().isEmpty())
-                    mlca.addRelationToGroup(mlca.getParams(), Integer.parseInt(paramsTextField.getText()));
+                    MCA.addRelationToGroup(MCA.getParams(), Integer.parseInt(paramsTextField.getText()));
                 if (!hsTextField.getText().isEmpty())
-                    mlca.addRelationToGroup(mlca.getModeAssigments(), Integer.parseInt(hsTextField.getText()));
+                    MCA.addRelationToGroup(MCA.getModeAssigments(), Integer.parseInt(hsTextField.getText()));
             } catch (NumberFormatException ex) {
                 Util.errorMsg("Relation values are integers in range [1,6]", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
@@ -58,20 +56,20 @@ public class MlcaCreator {
                     Integer[] reqs = new Integer[nums.length];
                     for (int i = 0; i < nums.length; i++)
                         reqs[i] = Integer.parseInt(nums[i]);
-                    mlca.numberOfCorrectComps(reqs);
+                    MCA.numberOfCorrectComps(reqs);
                 } else
-                    mlca.numberOfCorrectComps(Integer.parseInt(req));
+                    MCA.numberOfCorrectComps(Integer.parseInt(req));
             }
 
             if (!constraintTextArea.getText().isEmpty())
-                mlca.addConstraint(constraintTextArea.getText());
+                MCA.addConstraint(constraintTextArea.getText());
 
             JFileChooser fileChooser = new JFileChooser(Util.getCurrentDir());
             if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
-                mlca.createTestSuite(file.getName());
+                MCA.createTestSuite(file.getName());
                 try {
-                    scenarios = mlca.suitToSimulationInput(file.getName());
+                    scenarios = MCA.suitToSimulationInput(file.getName());
                 } catch (IOException ex) {
                     Util.errorMsg("Error in creating MLCA.", JOptionPane.ERROR_MESSAGE);
                     ex.printStackTrace();
@@ -115,7 +113,7 @@ public class MlcaCreator {
         constraintTextArea = new JTextArea();
         panel1.add(constraintTextArea, new GridConstraints(6, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 106), null, 0, false));
         generateMLCAButton = new JButton();
-        generateMLCAButton.setText("Generate MLCA");
+        generateMLCAButton.setText("Generate MCA");
         panel1.add(generateMLCAButton, new GridConstraints(8, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label4 = new JLabel();
         label4.setText("Inputs");

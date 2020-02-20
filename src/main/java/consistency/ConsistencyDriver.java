@@ -15,7 +15,7 @@ import java.util.*;
 @Data
 @Builder
 public class ConsistencyDriver {
-    FmiMonitor fmiMonitor;
+    String pathToFmi;
     ModelData modelData;
     double simulationStepSize;
     Integer numberOfSteps;
@@ -26,6 +26,7 @@ public class ConsistencyDriver {
      * Diagnosis algorithm will be executed after every time step, and diagnosis printed to standard output.
      */
     public void runDiagnosis(ConsistencyType type, Scenario scenario){
+        FmiMonitor fmiMonitor = new FmiMonitor(pathToFmi);
         ArrayList<Double> xCoor = new ArrayList<>();
         ArrayList<Double> yCoor = new ArrayList<>();
 

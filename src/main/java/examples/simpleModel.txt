@@ -6,3 +6,18 @@ leftWheel -> (!AbLeftWheel -> leftNominal & leftFaster).
 (rightNominal & leftNominal) -> straight.
 (rightNominal & leftFaster) -> right.
 (rightFaster & leftNominal) -> left.
+
+/*
+leftWheel & rightWheel.
+!LeftNominal & !LeftFaster.
+!RightNominal & !RightFaster.
+
+leftWheel -> !LeftNominal -> leftNominal.
+rightWheel -> !RightNominal -> rightNominal.
+leftWheel -> !LeftFaster -> leftFaster.
+rightWheel -> !RightFaster -> leftFaster.
+
+(rightNominal & leftNominal) -> straight.
+(rightNominal & leftFaster) -> right.
+(rightFaster & leftNominal) -> left.
+*/

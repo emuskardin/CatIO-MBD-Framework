@@ -14,14 +14,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Data
 public class AbductiveModelGenerator {
     private ModelData modelData;
     private FmiMonitor fmiMonitor;
-    private MLCA mlca;
+    private MCA MCA;
     private AbductiveModel abductiveModel;
     private Diff diff;
     private Encoder enc;
@@ -29,7 +28,7 @@ public class AbductiveModelGenerator {
     public AbductiveModelGenerator(String pathToFmi , ModelData modelData){
         abductiveModel = new AbductiveModel();
         this.modelData = modelData;
-        mlca = new MLCA(modelData);
+        MCA = new MCA(modelData);
         fmiMonitor = new FmiMonitor(pathToFmi);
     }
 
@@ -40,8 +39,8 @@ public class AbductiveModelGenerator {
 
 
     public AbductiveModel generateModel(Double runtime, Double stepSize) throws IOException {
-        mlca.createTestSuite("automaticModelGen.csv");
-        List<List<Component>> simulationInputs = mlca.suitToSimulationInput("automaticModelGen.csv");
+        MCA.createTestSuite("automaticModelGen.csv");
+        List<List<Component>> simulationInputs = MCA.suitToSimulationInput("automaticModelGen.csv");
 
         for(List<Component> test : simulationInputs){
             fmiMonitor.resetSimulation();
@@ -50,7 +49,7 @@ public class AbductiveModelGenerator {
             List<List<String>> faultyObs = new ArrayList<>();
             // Setup params and inputs as well as all health states to ok
             fmiMonitor.getFmiWriter().writeMultipleComp(test);
-            fmiMonitor.getFmiWriter().writeMultipleComp(mlca.getModelData().getAllOkStates());
+            fmiMonitor.getFmiWriter().writeMultipleComp(MCA.getModelData().getAllOkStates());
             sim.init(0.0);
             while(sim.getCurrentTime() <= runtime){
                 corrObs.add(enc.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead())));
@@ -80,7 +79,7 @@ public class AbductiveModelGenerator {
 
         List<String> faultModes = new ArrayList<>();
         for (Component comp : test) {
-            if (modelData.isHS(comp.getName())) {
+            if (modelData.isModeAssigmentVar(comp.getName())) {
                 String compAss = comp.getName();
                 String faultState = getFaultMode(comp);
                 if (faultState.equals("ok"))
@@ -105,7 +104,7 @@ public class AbductiveModelGenerator {
 
     private String getFaultMode(Component component){
         String res = "";
-        for(ModelInput mi : modelData.getHealthStates())
+        for(ModelInput mi : modelData.getModeAssigmentVars())
             if(mi.getName().equals(component.getName()))
                 return (String) mi.getValues().get(((Integer)component.getValue()) - 1);
         return res;

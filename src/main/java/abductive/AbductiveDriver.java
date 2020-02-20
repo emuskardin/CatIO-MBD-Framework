@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @Builder
 public class AbductiveDriver {
-    FmiMonitor fmiMonitor;
+    String pathToFmi;
     ModelData modelData;
     double simulationStepSize;
     Integer numberOfSteps;
@@ -25,6 +25,7 @@ public class AbductiveDriver {
     }
 
     public void runSimulation(Scenario scenario) {
+        FmiMonitor fmiMonitor = new FmiMonitor(pathToFmi);
         Simulation simulation = fmiMonitor.getSimulation();
         simulation.init(0);
         Integer currStep = 0;

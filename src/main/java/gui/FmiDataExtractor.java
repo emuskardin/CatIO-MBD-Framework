@@ -32,7 +32,7 @@ public class FmiDataExtractor {
     private JButton exportScenariosButton;
     private String pathToFile;
     private DefaultTableModel tableModel;
-    private MlcaCreator mlcaCreator;
+    private McaCrator mcaCrator;
     private DefaultTableModel scenarioTableModel;
     private List<String> simulationTableHeader;
     private List<Type> simulationFieldsTypes;
@@ -84,8 +84,8 @@ public class FmiDataExtractor {
             if (data.eachTypeHasValue())
                 Util.errorMsg("No data to create MLCA is provided", JOptionPane.ERROR_MESSAGE);
             else {
-                mlcaCreator = new MlcaCreator(data);
-                mlcaCreator.createPopup();
+                mcaCrator = new McaCrator(data);
+                mcaCrator.createPopup();
             }
         });
 
@@ -98,7 +98,7 @@ public class FmiDataExtractor {
             simulationFieldsTypes.add(Type.STRING);
             simulationTableHeader.add("Time Step");
             simulationFieldsTypes.add(Type.INTEGER);
-            for (ModelInput hs : md.getHealthStates()) {
+            for (ModelInput hs : md.getModeAssigmentVars()) {
                 simulationTableHeader.add(hs.getName());
                 simulationFieldsTypes.add(hs.getType());
             }
@@ -199,7 +199,7 @@ public class FmiDataExtractor {
                         modelData.getParam().add(mi);
                         break;
                     case "Health State":
-                        modelData.getHealthStates().add(mi);
+                        modelData.getModeAssigmentVars().add(mi);
                         break;
                 }
             }
@@ -242,7 +242,7 @@ public class FmiDataExtractor {
         exportModelData.setText("Export Model Data");
         exportPanel.add(exportModelData, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         generateMLCAButton = new JButton();
-        generateMLCAButton.setText("Generate MLCA");
+        generateMLCAButton.setText("Generate MCA");
         exportPanel.add(generateMLCAButton, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         exportPanel.add(spacer1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));

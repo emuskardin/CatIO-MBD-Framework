@@ -12,5 +12,4 @@ public class ModelInput implements Serializable {
     private String name;
     private Type type;
     private List<Object> values;
-
 }

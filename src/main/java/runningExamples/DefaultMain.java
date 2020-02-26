@@ -1,6 +1,7 @@
 package runningExamples;
 
 import examples.ExtendedRobotEncoder;
+import examples.SimplerCarEncoder;
 import model.Component;
 import FmiConnector.FmiMonitor;
 import model.Scenario;
@@ -50,17 +51,17 @@ public class DefaultMain {
         ModelData md = Util.modelDataFromJson("simpleRobot.json");
         ConsistencyDriver consistencyDriver = ConsistencyDriver.builder()
                 .pathToFmi("FMIs/ERobot.SubModel.InputSimpleRobot.fmu")
-                .model(new CbModel("src/main/java/examples/bookModel.txt"))
-                .encoder(new BookCarEncoder())
+                .model(new CbModel("src/main/java/examples/simpleModel.txt"))
+                .encoder(new SimplerCarEncoder())
                 .modelData(md)
                 .numberOfSteps(20)
                 .simulationStepSize(1)
                 .build();
 
         List<Scenario> scenarios = Util.scenariosFromJson("simpleScen.json");
-        consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT, scenarios.get(0));
+        //consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT, scenarios.get(0));
         consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT, scenarios.get(1));
-        consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT, scenarios.get(2));
+        //consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT, scenarios.get(2));
 
         FmiMonitor fmiMonitor1 = new FmiMonitor("FMIs/ExtendedRobot.Experminets.Driver.fmu");
         ModelData modelData = Util.modelDataFromJson("extendedRobot.json");

@@ -86,10 +86,34 @@ public class ConsistencyModelling {
                         InputStreamReader(proc.getInputStream()));
 
                 String s;
+                boolean unsat = false;
+                String[] modelCnfNames = cnfModelArea.getText().split("\n");
+
                 while ((s = stdInput.readLine()) != null) {
-                    if (s.charAt(0) == 'c')
+                    String[] line = s.split(" ");
+                    if (line[0].equals("c") || line[1] == null)
                         continue;
-                    picosatOutput.append(s + "\n");
+                    if (line[0].equals("s") && line[1].equals("UNSATISFIABLE")) {
+                        unsat = true;
+                        picosatOutput.append("UNSATISFIABLE\nConjunction of following clauses is still unsatisfiable\n");
+                        continue;
+                    } else if (line[0].equals("s") && line[1].equals("SATISFIABLE")) {
+                        picosatOutput.append("SATISFIABLE\n");
+                        picosatOutput.append("Example assigment of variables\n");
+                        unsat = false;
+                        continue;
+                    }
+                    if (unsat) {
+                        int lineIndex = Integer.parseInt(line[1]) - 1;
+                        picosatOutput.append(modelCnfNames[lineIndex] + "\n");
+                    } else {
+                        int varIndex;
+                        varIndex = Integer.parseInt(line[1]);
+                        if (varIndex < 0)
+                            picosatOutput.append(cbModel.getPredicates().getPredicateList().get(varIndex * -1) + " - FALSE\n");
+                        else
+                            picosatOutput.append(cbModel.getPredicates().getPredicateList().get(varIndex) + " - TRUE\n");
+                    }
                 }
                 tmpFile.deleteOnExit();
             } catch (IOException ex) {

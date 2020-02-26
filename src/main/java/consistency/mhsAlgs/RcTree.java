@@ -122,7 +122,7 @@ public class RcTree {
     }
 
     private boolean isSuperset(Collection<Integer> x, Collection<Integer> y){
-        return x.size() > y.size() && x.containsAll(y);
+        return x.size() >= y.size() && x.containsAll(y);
     }
 
     public List<List<Integer>> getConflicts(){

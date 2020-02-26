@@ -6,7 +6,6 @@ import atms.ATMSystem;
 import atms_gui.Converter4ATMS;
 import compiler.LSentence;
 import compiler.LogicParser;
-import consistency.mhsAlgs.GDE;
 import lombok.Data;
 import util.Util;
 
@@ -73,8 +72,7 @@ public class AbductiveModel {
         Set<Set<String>> explenation = getExplanation();
         if(explenation.isEmpty()){
             System.out.println("No explenation");
-            GDE gde = new GDE(atms.nogood.label.toSet());
-            expl = "Diag " + gde.getMUS();
+            expl = "No explenation";
         }else
             expl = explenation.toString();
         observations.clear();

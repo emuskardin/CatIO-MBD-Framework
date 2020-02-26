@@ -1,3 +1,34 @@
+leftWheel & rightWheel.
+!AbLeftWheel.
+!AbRightWheel.
+
+leftWheel -> !AbLeftWheel -> lEqInOut.
+rightWheel -> !AbRightWheel -> rEqInOut.
+
+leftWheel & lEqInOut -> leftFaster | leftSlower | leftEq.
+rightWheel & rEqInOut -> rightFaster | rightSlower | rightEq.
+
+leftFaster & rightSlower -> right.
+leftEq & rightEq -> straight.
+leftSlower & leftFaster -> left.
+
+leftFaster <-> rightSlower.
+leftEq <-> rightEq.
+leftSlower <-> rightFaster.
+
+leftFaster & leftSlower -> $false.
+leftFaster & leftEq -> $false.
+leftSlower & leftEq -> $false.
+
+rightFaster & rightSlower -> $false.
+rightFaster & rightEq -> $false.
+rightSlower & rightEq -> $false.
+
+straight & left -> $false.
+straight & right -> $false.
+right & left -> $false.
+
+/*
 rightWheel & leftWheel.
 !AbRightWheel.
 !AbLeftWheel.
@@ -7,11 +38,10 @@ leftWheel -> (!AbLeftWheel -> leftNominal & leftFaster).
 (rightNominal & leftFaster) -> right.
 (rightFaster & leftNominal) -> left.
 
-/*
 leftWheel & rightWheel.
 !LeftNominal & !LeftFaster.
 !RightNominal & !RightFaster.
-
+----
 leftWheel -> !LeftNominal -> leftNominal.
 rightWheel -> !RightNominal -> rightNominal.
 leftWheel -> !LeftFaster -> leftFaster.

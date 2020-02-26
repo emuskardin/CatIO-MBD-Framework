@@ -1,0 +1,32 @@
+leftWheel & rightWheel.
+
+!AbFasterLeft & !AbSlowerLeft & !AbStuckLeft.
+!AbFasterRight & !AbSlowerRight & !AbStuckRight.
+
+leftWheel -> normalLeft -> lEqInOut.
+leftWheel -> !AbFasterLeft -> fasterLeft.
+leftWheel -> !AbSlowerLeft -> slowerLeft.
+leftWheel -> !AbStuckLeft -> stuckLeft.
+
+rightWheel -> normalRight -> rEqInOut.
+rightWheel -> !AbFasterRight-> fasterRight.
+rightWheel -> !AbSlowerRight -> slowerRight.
+rightWheel -> !AbStuckRight -> stuckRight.
+
+straight | left | right | stop <-> lEqInOut & rEqInOut.
+
+!normalLeft -> fasterLeft | slowerLeft | stuckLeft.
+!normalRight -> fasterRight | slowerRight | stuckRight.
+
+dirLeft <->  (straight & fasterRight) | (straight & slowerLeft) | (left & fasterRight).
+dirRight <-> (straight & fasterLeft) | (straight & slowerRight) | (right & fasterLeft).
+(left & fasterLeft) | (right & fasterRight) -> dirStraight.
+
+
+straight & left -> $false.
+straight & right -> $false.
+right & left -> $false.
+
+dirStraight & dirLeft -> $false.
+dirStraight & dirRight -> $false.
+dirRight & dirLeft -> $false.

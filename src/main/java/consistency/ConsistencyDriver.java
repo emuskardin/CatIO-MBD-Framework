@@ -27,6 +27,7 @@ public class ConsistencyDriver {
      */
     public void runDiagnosis(ConsistencyType type, Scenario scenario){
         FmiMonitor fmiMonitor = new FmiMonitor(pathToFmi);
+
         ArrayList<Double> xCoor = new ArrayList<>();
         ArrayList<Double> yCoor = new ArrayList<>();
 
@@ -56,6 +57,7 @@ public class ConsistencyDriver {
             }
         }else if(type == ConsistencyType.PERSISTENT || type == ConsistencyType.INTERMITTENT){
             Set<Integer> originalAbPred = new HashSet<>(model.getAbPredicates());
+            int obsCounter = 0;
             boolean increaseHs = (type == ConsistencyType.INTERMITTENT);
             int offset = increaseHs ? model.getPredicates().getSize() : (model.getPredicates().getSize() - model.getAbPredicates().size());
             List<Integer> observations = new ArrayList<>();
@@ -70,6 +72,7 @@ public class ConsistencyDriver {
                 }
 
                 List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
+                obsCounter = obs.size();
                 List<Integer> encodedObs = model.observationToInt(obs);
                 observations.addAll(increaseObservation(encodedObs, currStep, offset));
                 model.increaseByOffset(increaseHs, currStep);
@@ -84,13 +87,20 @@ public class ConsistencyDriver {
 
 
             RcTree rcTree = new RcTree(model, observations);
-            for(List<Integer> mhs  : rcTree.getDiagnosis())
-                System.out.println(model.getComponentNamesTimed(mhs, increaseHs));
+            List<List<Integer>> mhs = rcTree.getDiagnosis();
+            for (List<Integer> hs : mhs)
+                System.out.println(model.getComponentNamesTimed(hs, type, obsCounter));
 
+
+            // abPredicates were updated, so revert them back to original to enable reuse
             model.setAbPredicates(originalAbPred);
         }
+
+        // if plot values are specified
         if(modelData.getPlot() != null)
             Util.plot(xCoor, yCoor, "plot");
+
+        // for reuse, clear and reset members of this class
         model.clearModel();
         fmiMonitor.resetSimulation();
     }

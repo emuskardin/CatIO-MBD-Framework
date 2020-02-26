@@ -1,6 +1,7 @@
 package consistency;
 
 import lombok.Data;
+import model.Type;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -179,13 +180,14 @@ public class CbModel {
         return res;
     }
 
-    public List<String> getComponentNamesTimed(List<Integer> mhs ,boolean increaseHS){
+    public List<String> getComponentNamesTimed(List<Integer> mhs , ConsistencyType type, int obsSize){
         List<String> res = new ArrayList<>();
-        int offset = increaseHS ? predicates.getSize() : (predicates.getSize() - abPredicates.size());
+        int offset = predicates.getSize() + obsSize;
+
         mhs.forEach( it -> {
-            int timeStep = it / offset;
+            int timeStep = (it / offset);
             int index = it % model.size();
-            if(increaseHS)
+            if(type == ConsistencyType.INTERMITTENT)
                 res.add(predicates.getPredicateName(model.get(index).get(0)) + "_" + timeStep);
             else
                 res.add(predicates.getPredicateName(model.get(index).get(0)));

@@ -1,9 +1,9 @@
 package interfaces;
 
-import FmiConnector.FmiWriter;
+import FmiConnector.FmiConnector;
 
 import java.util.List;
 
 public interface Controller {
-    public void performAction(FmiWriter fmiWriter, List<String> diagnosis);
+    void performAction(FmiConnector fmiConnector, List<String> diagnosis);
 }

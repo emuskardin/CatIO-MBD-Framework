@@ -24,7 +24,7 @@ public class AbductiveMain {
 //        List<List<Component>> suite = mca.suitToSimulationInput("robotMCA.csv");
         AbductiveModelGenerator abductiveModelGenerator = new AbductiveModelGenerator(inputModelRobot, robotData);
         abductiveModelGenerator.setEncoderAndDiff(new StrongFaultAbEncoder(), new RobotDiff());
-        abductiveModelGenerator.generateModel(5.0, 1.0);
+        abductiveModelGenerator.generateModel(5, 1.0, 2);
         AbductiveModel learnedModel = abductiveModelGenerator.getAbductiveModel();
         System.out.println(learnedModel.getRules());
         learnedModel.modelToFile("test.txt");

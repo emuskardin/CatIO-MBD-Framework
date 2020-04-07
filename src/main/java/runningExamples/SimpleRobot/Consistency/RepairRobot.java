@@ -1,18 +1,18 @@
 package runningExamples.SimpleRobot.Consistency;
 
-import FmiConnector.FmiWriter;
+import FmiConnector.FmiConnector;
 import interfaces.Controller;
 
 import java.util.List;
 import java.util.function.Function;
 
 public class RepairRobot implements Controller {
-    private FmiWriter fmiWriter;
     private int step = 0;
+    private FmiConnector fmiConnector;
 
     @Override
-    public void performAction(FmiWriter fmiWriter, List<String> diagnosis) {
-        this.fmiWriter = fmiWriter;
+    public void performAction(FmiConnector fmiConnector, List<String> diagnosis) {
+        this.fmiConnector = fmiConnector;
         for(String diag : diagnosis) {
             if (diag.equals("AbLeftWheel"))
                 repairLeftWheel();
@@ -23,17 +23,17 @@ public class RepairRobot implements Controller {
     }
 
     private void repairLeftWheel(){
-        fmiWriter.writeVar("leftFaultType", 1);
+        fmiConnector.writeVar("leftFaultType", 1);
     }
 
     private void repairRightWheel(){
-        fmiWriter.writeVar("rightFaultType", 1);
+        fmiConnector.writeVar("rightFaultType", 1);
     }
 
     private void compensateLeftFaster(){
         if(step == 0) {
-            fmiWriter.writeVar("leftFaultType", 1);
-            fmiWriter.writeVar("rightFaultType", 2);
+            fmiConnector.writeVar("leftFaultType", 1);
+            fmiConnector.writeVar("rightFaultType", 2);
 //        }else if(step == 1) {
 //            fmiWriter.writeVar("leftFaultType", 1);
 //            fmiWriter.writeVar("rightFaultType", 1);

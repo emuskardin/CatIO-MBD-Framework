@@ -1,7 +1,6 @@
 package consistency;
 
 import lombok.Data;
-import model.Type;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;

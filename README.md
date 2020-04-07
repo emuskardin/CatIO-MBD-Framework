@@ -193,10 +193,10 @@ public enum ConsistencyType{
 ```
 ## Consistency Diagnosis Driver
 ```
-FmiMonotor fmiMonitor = new FmiMonitor("pathToTestBench.fmi");
+FmiMonotor FMIConnector = new FmiMonitor("pathToTestBench.fmi");
 CbModel model = new CbModel("modelFile.txt");
 ConsistencyDriver consistencyDriver = ConsistencyDriver.builder()
-                .fmiMonitor(fmiMonitor)
+                .FMIConnector(FMIConnector)
                 .model(model)
                 .encoder(new BookCarEncoder())
                 .modelData(md)
@@ -259,7 +259,7 @@ straight, left_curve -> false.
 ```java
 ModelData abModelData = Util.modelDataFromJson("Robot.json");
 AbductiveDriver abductiveDriver = AbductiveDriver.builder()
-                .fmiMonitor(fmiMonitor)
+                .FMIConnector(FMIConnector)
                 .abductiveModel(new AbductiveModel("abductiveModel.txt"))
                 .modelData(abModelData)
                 .encoder(new BookAbEncoder())

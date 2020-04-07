@@ -4,6 +4,7 @@ import model.*;
 import edu.uta.cse.fireeye.common.*;
 import edu.uta.cse.fireeye.service.engine.IpoEngine;
 import lombok.Data;
+import org.javafmi.wrapper.Simulation;
 
 import java.io.*;
 import java.util.*;
@@ -88,23 +89,6 @@ public class MCA {
         sut.addConstraint(new Constraint(sb.toString(), modeAssigments));
     }
 
-    public List<Scenario> scenariosFromMLCA(Integer faultInjectionStep){
-        List<Scenario> suite = new ArrayList<>();
-        Integer testCounter = 1;
-        try {
-            for(List<Component> test : suitToSimulationInput(mlcaCSVFile)){
-                Scenario scen = new Scenario("MLCA Row " + testCounter);
-                scen.addToMap(0, modelData.getAllOkStates());
-                scen.addToMap(faultInjectionStep, test);
-                suite.add(scen);
-                testCounter++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return suite;
-    }
-
     public void addConstraint(String constraint){
         sut.addConstraint(new Constraint(constraint, sut.getParameters()));
     }
@@ -128,9 +112,9 @@ public class MCA {
         return sb.toString();
     }
 
-    public List<List<Component>> suitToSimulationInput(String filepath) throws IOException {
+    public List<Scenario> suitToSimulationInput(String filepath, Integer faultInjectionTime) throws IOException {
         BufferedReader fileReader = new BufferedReader(new FileReader(filepath));
-        List<List<Component>> testSuite = new ArrayList<>();
+        List<Scenario> testSuite = new ArrayList<>();
         ArrayList<String> nameList = new ArrayList<>();
 
         String line = fileReader.readLine();
@@ -142,7 +126,8 @@ public class MCA {
                 nameList.addAll(Arrays.asList(line.split(",")));
             }else {
                 List<String> test = Arrays.asList(line.split(","));
-                List<Component> rowInput = new ArrayList<>();
+                Scenario scenario = new Scenario("");
+                List<Component> componentList = new ArrayList<>();
                 for(int i = 0; i < test.size(); i++) {
                     Type type = modelData.getType(nameList.get(i));
                     Component comp = new Component(nameList.get(i), type);
@@ -151,9 +136,10 @@ public class MCA {
                         comp.setValue(compValue);
                     else
                         comp.setValue(test.get(i));
-                    rowInput.add(comp);
+                    componentList.add(comp);
                 }
-                testSuite.add(rowInput);
+                scenario.addToMap(faultInjectionTime, componentList);
+                testSuite.add(scenario);
             }
             line = fileReader.readLine();
         }

@@ -12,22 +12,19 @@ import java.util.Map;
  * Class for reading modelica component values
  */
 @Data
-public class FmiMonitor {
+public class FmiConnector {
     private Simulation simulation;
     private List<Component> components;
     private String pathToFmi;
-    private FmiWriter fmiWriter;
 
-    public FmiMonitor(String pathToFmi){
+    public FmiConnector(String pathToFmi){
         this.pathToFmi = pathToFmi;
         simulation = new Simulation(pathToFmi);
-        fmiWriter = new FmiWriter(simulation);
     }
 
     public void resetSimulation(){
         simulation.reset();
         simulation = new Simulation(pathToFmi);
-        fmiWriter.setSimulation(simulation);
     }
 
     public Component read(Component comp){

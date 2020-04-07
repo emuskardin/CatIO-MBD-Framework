@@ -1,6 +1,6 @@
 package model;
 
-import FmiConnector.FmiWriter;
+import FmiConnector.FmiConnector;
 import lombok.Data;
 
 import java.util.LinkedHashMap;
@@ -19,16 +19,15 @@ public class Scenario {
         timeCompMap.put(time, comps);
     }
 
-    public void injectFault(Integer currentTime ,FmiWriter fmiWriter, ModelData modelData){
+    public void injectFault(Integer currentTime , FmiConnector fmiConnector, ModelData modelData){
         for(Integer key : timeCompMap.keySet()){
             if(key.equals(currentTime)) {
                 for(Component comp: timeCompMap.get(key)){
                     if(comp.getValue() instanceof String && comp.getType() == Type.ENUM)
                         comp.setValue(modelData.getEnumValue(comp.getName(), (String) comp.getValue()));
                 }
-                fmiWriter.writeMultipleComp(timeCompMap.get(key));
+                fmiConnector.writeMultipleComp(timeCompMap.get(key));
             }
         }
     }
-
 }

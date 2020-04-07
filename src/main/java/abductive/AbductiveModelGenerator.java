@@ -1,16 +1,15 @@
 package abductive;
 
+import FmiConnector.FmiConnector;
 import interfaces.Diff;
 import interfaces.Encoder;
 import model.Component;
-import FmiConnector.FmiMonitor;
 import model.ModelData;
 import lombok.Data;
 import model.ModelInput;
+import model.Scenario;
 import org.javafmi.wrapper.Simulation;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.Set;
 @Data
 public class AbductiveModelGenerator {
     private ModelData modelData;
-    private FmiMonitor fmiMonitor;
+    private FmiConnector fmiConnector;
     private MCA MCA;
     private AbductiveModel abductiveModel;
     private Diff diff;
@@ -29,7 +28,7 @@ public class AbductiveModelGenerator {
         abductiveModel = new AbductiveModel();
         this.modelData = modelData;
         MCA = new MCA(modelData);
-        fmiMonitor = new FmiMonitor(pathToFmi);
+        fmiConnector = new FmiConnector(pathToFmi);
     }
 
     public void setEncoderAndDiff(Encoder enc, Diff diff){
@@ -37,37 +36,43 @@ public class AbductiveModelGenerator {
         this.diff = diff;
     }
 
-
-    public AbductiveModel generateModel(Double runtime, Double stepSize) throws IOException {
+    public AbductiveModel generateModel(Integer numberOfSteps, Double stepSize, Integer faultInjectionStep) throws IOException {
         MCA.createTestSuite("automaticModelGen.csv");
-        List<List<Component>> simulationInputs = MCA.suitToSimulationInput("automaticModelGen.csv");
+        List<Scenario> simulationInputs = MCA.suitToSimulationInput("automaticModelGen.csv", faultInjectionStep);
 
-        for(List<Component> test : simulationInputs){
-            fmiMonitor.resetSimulation();
-            Simulation sim = fmiMonitor.getSimulation();
+        for(Scenario scenario : simulationInputs){
+            fmiConnector.resetSimulation();
+            Simulation sim = fmiConnector.getSimulation();
             List<List<String>> corrObs = new ArrayList<>();
             List<List<String>> faultyObs = new ArrayList<>();
             // Setup params and inputs as well as all health states to ok
-            fmiMonitor.getFmiWriter().writeMultipleComp(test);
-            fmiMonitor.getFmiWriter().writeMultipleComp(MCA.getModelData().getAllOkStates());
+            fmiConnector.writeMultipleComp(scenario.getTimeCompMap().values().iterator().next());
+            fmiConnector.writeMultipleComp(modelData.getAllOkStates());
             sim.init(0.0);
-            while(sim.getCurrentTime() <= runtime){
-                corrObs.add(enc.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead())));
+            int stepCounter = 0;
+            while(stepCounter <= numberOfSteps){
+                corrObs.add(enc.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead())));
                 sim.doStep(stepSize);
+                stepCounter++;
             }
 
-            fmiMonitor.resetSimulation();
-            sim = fmiMonitor.getSimulation();
-            fmiMonitor.getFmiWriter().writeMultipleComp(test);
+            fmiConnector.resetSimulation();
+            sim = fmiConnector.getSimulation();
+            fmiConnector.writeMultipleComp(scenario.getTimeCompMap().values().iterator().next());
+            fmiConnector.writeMultipleComp(modelData.getAllOkStates());
             sim.init(0.0);
-            while (sim.getCurrentTime() <= runtime){
-                faultyObs.add(enc.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead())));
+            stepCounter = 0;
+            while (stepCounter <= numberOfSteps){
+                scenario.injectFault(stepCounter, fmiConnector, modelData);
+                faultyObs.add(enc.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead())));
                 sim.doStep(stepSize);
+                stepCounter++;
             }
 
             Set<String> difference = diff.encodeDiff(corrObs, faultyObs);
             if(difference != null && !difference.isEmpty()){
-                for(String rule : formRule(test, difference))
+                List<Component> comps = scenario.getTimeCompMap().values().iterator().next();
+                for(String rule : formRule(comps, difference))
                     abductiveModel.addRule(rule);
             }
         }

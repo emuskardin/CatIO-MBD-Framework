@@ -61,7 +61,6 @@ public class RcTree {
             return;
 
         List<Integer> label = getLabel(node);
-        // TODO PRUNING
         if(label.isEmpty()) {
             mhs.add(node);
             return;
@@ -111,14 +110,6 @@ public class RcTree {
         List<List<Integer>> diagnosis = new ArrayList<>();
         mhs.forEach( node -> diagnosis.add(new ArrayList<>(node.pathFromRoot)));
         return diagnosis;
-    }
-
-    private void attemptPruning(){
-        // TODO
-    }
-
-    private void updateFilters(){
-        // TODO
     }
 
     private boolean isSuperset(Collection<Integer> x, Collection<Integer> y){

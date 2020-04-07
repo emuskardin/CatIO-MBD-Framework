@@ -105,14 +105,15 @@ public class ConsistencyModelling {
                     }
                     if (unsat) {
                         int lineIndex = Integer.parseInt(line[1]) - 1;
-                        picosatOutput.append(modelCnfNames[lineIndex] + "\n");
+                        if (lineIndex >= 0)
+                            picosatOutput.append(modelCnfNames[lineIndex] + "\n");
                     } else {
                         int varIndex;
                         varIndex = Integer.parseInt(line[1]);
-                        if (varIndex < 0)
-                            picosatOutput.append(cbModel.getPredicates().getPredicateList().get(varIndex * -1) + " - FALSE\n");
-                        else
-                            picosatOutput.append(cbModel.getPredicates().getPredicateList().get(varIndex) + " - TRUE\n");
+                        if (varIndex < 0) {
+                            picosatOutput.append(cbModel.getPredicates().getPredicateList().get((varIndex + 1) * -1) + " - FALSE\n");
+                        } else if (varIndex > 0)
+                            picosatOutput.append(cbModel.getPredicates().getPredicateList().get(varIndex - 1) + " - TRUE\n");
                     }
                 }
                 tmpFile.deleteOnExit();

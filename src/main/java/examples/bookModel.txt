@@ -1,7 +1,0 @@
-rightWheel & leftWheel.
-!AbRightWheel & !AbLeftWheel.
-rightWheel -> (!AbRightWheel -> rightNominal & rightFaster & rightSlower).
-leftWheel -> (!AbLeftWheel -> leftNominal & leftFaster & leftSlower).
-(rightNominal & leftNominal) -> straight.
-(rightFaster & leftSlower) -> left.
-(rightSlower & leftFaster) -> right.

@@ -43,7 +43,7 @@ public class CbModel {
         try {
             content = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            e.getLocalizedMessage();
+            e.printStackTrace();
             System.exit(1);
         }
         if(content.contains("->") || content.contains("&") || content.contains("<->") || content.contains("|")) {

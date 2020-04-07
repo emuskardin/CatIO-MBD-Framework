@@ -40,11 +40,10 @@ public class AbductiveGenMain {
         abductiveModelGenerator.setEncoderAndDiff(new SingleBulbEncoder(),new SingleBulbDiff());
         MCA MCA = abductiveModelGenerator.getMCA();
         MCA.addRelationToGroup(MCA.getModeAssigments(), 2);
-        MCA.numberOfCorrectComps(4);
+               MCA.numberOfCorrectComps(4);
         AbductiveModel ab = abductiveModelGenerator.generateModel(20.0, 0.5);
         ab.addExplain(Collections.singletonList("noLight"));
         System.out.println(ab.getDiagnosis());
-        abductiveModelGenerator.writeModeltoFile("autModel.txt");
 
 
     }

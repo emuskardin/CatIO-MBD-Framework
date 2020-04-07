@@ -1,0 +1,18 @@
+!FasterLeft & !SlowerLeft & !StuckLeft.
+!FasterRight & !SlowerRight & !StuckRight.
+
+wantedStraight & actualLeft -> SlowerLeft | FasterRight.
+wantedStraight & actualRight -> FasterLeft | SlowerRight.
+wantedLeft & actualStraight -> FasterLeft | SlowerRight.
+wantedLeft & actualRight -> FasterLeft | SlowerRight.
+wantedRight & actualLeft -> SlowerLeft | FasterRight.
+wantedRight & actualStraight -> FasterLeft | SlowerRight.
+actualStuck -> StuckLeft | StuckRight.
+
+wantedStraight & wantedLeft -> $false.
+wantedStraight & wantedRight -> $false.
+wantedRight & wantedLeft -> $false.
+
+actualStraight & actualLeft -> $false.
+actualStraight & actualRight -> $false.
+actualRight & actualLeft -> $false.

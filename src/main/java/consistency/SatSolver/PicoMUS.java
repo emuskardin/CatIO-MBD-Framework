@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Data
-public class PicoSAT {
+public class PicoMUS {
     private String filename;
     BufferedWriter fr;
     CbModel cbModel;
@@ -29,7 +29,7 @@ public class PicoSAT {
         fr.newLine();
     }
 
-    public PicoSAT(String pathToFile) throws IOException {
+    public PicoMUS(String pathToFile) throws IOException {
         filename = pathToFile;
         file = new File(filename);
         fr = new BufferedWriter(new FileWriter(file));
@@ -72,7 +72,7 @@ public class PicoSAT {
             int var = Integer.parseInt(line[1]);
             if(var > cbModel.getWorkingModel().size() || var == 0)
                 continue;
-            if(cbModel.isHealthStatePredicate(cbModel.getWorkingModel().get(var-1).get(0)))
+            if(cbModel.isHealthStatePredicate(cbModel.getWorkingModel().get(var-1).get(0)) && cbModel.getWorkingModel().get(var - 1).size() == 1)
                 mhs.add(var-1);
         }
         file.deleteOnExit();

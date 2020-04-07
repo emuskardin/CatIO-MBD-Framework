@@ -1,6 +1,6 @@
 package consistency.mhsAlgs;
 
-import consistency.SatSolver.PicoSAT;
+import consistency.SatSolver.PicoMUS;
 import consistency.CbModel;
 
 import java.io.IOException;
@@ -90,9 +90,9 @@ public class RcTree {
 
     private List<Integer> getLabel(RcNode node) {
         try {
-            PicoSAT picoSAT = new PicoSAT("formula.txt");
-            picoSAT.writeModelAndObsToFile(model.modelWithAb(node.pathFromRoot), observation);
-            return picoSAT.getMUS();
+            PicoMUS picoMUS = new PicoMUS("formula.txt");
+            picoMUS.writeModelAndObsToFile(model.modelWithAb(node.pathFromRoot), observation);
+            return picoMUS.getMUS();
         }catch (IOException e){
             e.printStackTrace();
         }

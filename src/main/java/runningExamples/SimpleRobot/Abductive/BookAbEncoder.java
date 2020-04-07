@@ -1,4 +1,4 @@
-package examples;
+package runningExamples.SimpleRobot.Abductive;
 
 import interfaces.Encoder;
 

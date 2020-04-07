@@ -1,0 +1,65 @@
+{
+  "componentsToRead": [
+    {
+      "name": "leftWheel.i",
+      "type": "DOUBLE"
+    },
+    {
+      "name": "leftWheel.o",
+      "type": "DOUBLE"
+    },
+    {
+      "name": "rightWheel.i",
+      "type": "DOUBLE"
+    },
+    {
+      "name": "rightWheel.o",
+      "type": "DOUBLE"
+    }
+  ],
+  "modeAssigmentVars": [
+    {
+      "name": "leftFaultType",
+      "values": [
+        "ok",
+        "faster",
+        "slower"
+      ],
+      "type": "ENUM",
+      "originalName": "leftFaultType"
+    },
+    {
+      "name": "rightFaultType",
+      "values": [
+        "ok",
+        "faster",
+        "slower"
+      ],
+      "type": "ENUM",
+      "originalName": "rightFaultType"
+    }
+  ],
+  "inputs": [
+    {
+      "name": "leftWheelInput",
+      "values": [
+        "2",
+        "4",
+        "8"
+      ],
+      "type": "DOUBLE",
+      "originalName": "leftWheelInput"
+    },
+    {
+      "name": "rightWheelInput",
+      "values": [
+        "2",
+        "4",
+        "8"
+      ],
+      "type": "DOUBLE",
+      "originalName": "rightWheelInput"
+    }
+  ],
+  "param": []
+}

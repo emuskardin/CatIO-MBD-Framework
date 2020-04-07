@@ -26,9 +26,31 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.5'
     compile 'com.intellij:forms_rt:7.0.3'
 
-    //compile 'de.learnlib.distribution:learnlib-distribution:0.14.0'
 }
 
+task runGui(type: JavaExec) {
+    group = 'Run' // <-- change the name as per your need
+    description = 'Run gui'
+
+    classpath sourceSets.main.runtimeClasspath
+    main = "gui.MainGui"
+}
+
+task runDefaultMain(type: JavaExec) {
+    group = 'Run' // <-- change the name as per your need
+    description = 'Run default main used for experiments'
+
+    classpath sourceSets.main.runtimeClasspath
+    main = "runningExamples.DefaultMain"
+}
+
+task runAbductiveGen(type: JavaExec) {
+    group = 'Run' // <-- change the name as per your need
+    description = 'Run default main used for experiments'
+
+    classpath sourceSets.main.runtimeClasspath
+    main = "runningExamples.AbductiveGenMain"
+}
 
 jar {
     manifest {

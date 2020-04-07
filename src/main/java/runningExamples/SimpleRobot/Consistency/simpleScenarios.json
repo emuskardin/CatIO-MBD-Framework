@@ -1,0 +1,181 @@
+[
+  {
+    "scenarioId": "first",
+    "timeCompMap": {
+      "0": [
+        {
+          "name": "leftFaultType",
+          "type": "ENUM",
+          "value": "ok"
+        },
+        {
+          "name": "rightFaultType",
+          "type": "ENUM",
+          "value": "ok"
+        },
+        {
+          "name": "rightWheelInput",
+          "type": "DOUBLE",
+          "value": "3"
+        },
+        {
+          "name": "leftWheelInput",
+          "type": "DOUBLE",
+          "value": "3"
+        }
+      ],
+      "5": [
+        {
+          "name": "leftFaultType",
+          "type": "ENUM",
+          "value": "faster"
+        }
+      ],
+      "15": [
+        {
+          "name": "leftFaultType",
+          "type": "ENUM",
+          "value": "ok"
+        }
+      ]
+    }
+  },
+  {
+    "scenarioId": "second",
+    "timeCompMap": {
+      "0": [
+        {
+          "name": "leftFaultType",
+          "type": "ENUM",
+          "value": "ok"
+        },
+        {
+          "name": "rightFaultType",
+          "type": "ENUM",
+          "value": "faster"
+        },
+        {
+          "name": "rightWheelInput",
+          "type": "DOUBLE",
+          "value": "4.0"
+        },
+        {
+          "name": "leftWheelInput",
+          "type": "DOUBLE",
+          "value": "4.0"
+        }
+      ],
+      "5": [
+        {
+          "name": "leftFaultType",
+          "type": "ENUM",
+          "value": "slower"
+        }
+      ],
+      "10": [
+        {
+          "name": "leftFaultType",
+          "type": "ENUM",
+          "value": "ok"
+        }
+      ]
+    }
+  },
+  {
+    "scenarioId": "third",
+    "timeCompMap": {
+      "0": [
+        {
+          "name": "leftFaultType",
+          "type": "ENUM",
+          "value": "ok"
+        },
+        {
+          "name": "rightFaultType",
+          "type": "ENUM",
+          "value": "ok"
+        },
+        {
+          "name": "rightWheelInput",
+          "type": "DOUBLE",
+          "value": "3.4"
+        },
+        {
+          "name": "leftWheelInput",
+          "type": "DOUBLE",
+          "value": "4.5"
+        }
+      ],
+      "2": [
+        {
+          "name": "leftFaultType",
+          "type": "ENUM",
+          "value": "faster"
+        },
+        {
+          "name": "rightFaultType",
+          "type": "ENUM",
+          "value": "slower"
+        }
+      ],
+      "7": [
+        {
+          "name": "leftFaultType",
+          "type": "ENUM",
+          "value": "ok"
+        },
+        {
+          "name": "rightFaultType",
+          "type": "ENUM",
+          "value": "ok"
+        }
+      ],
+      "15": [
+        {
+          "name": "leftFaultType",
+          "type": "ENUM",
+          "value": "faster"
+        },
+        {
+          "name": "rightWheelInput",
+          "type": "DOUBLE",
+          "value": "4.0"
+        }
+      ]
+    }
+  },
+  {
+    "scenarioId": "fourth",
+    "timeCompMap": {
+      "0": [
+        {
+          "name": "leftFaultType",
+          "type": "ENUM",
+          "value": "ok"
+        },
+        {
+          "name": "rightFaultType",
+          "type": "ENUM",
+          "value": "ok"
+        },
+        {
+          "name": "rightWheelInput",
+          "type": "DOUBLE",
+          "value": "3.2"
+        },
+        {
+          "name": "leftWheelInput",
+          "type": "DOUBLE",
+          "value": "2.4"
+        }
+      ],
+      "7": [
+        {
+          "name": "leftFaultType",
+          "type": "ENUM",
+          "value": "faster"
+        }
+      ]
+    }
+  }
+]

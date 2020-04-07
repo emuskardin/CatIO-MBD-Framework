@@ -86,7 +86,7 @@ public class AbductiveModelGenerator {
                     continue;
                 if (!faultState.isEmpty()) {
                     compAss = compAss.substring(0, 1).toUpperCase() + compAss.substring(1);
-                    faultModes.add(compAss + "_" + faultState);
+                    faultModes.add(compAss + "(" + faultState + ")");
                 }
             }
         }
@@ -99,6 +99,7 @@ public class AbductiveModelGenerator {
             sb.append(" -> ").append(difference).append(".");
             rules.add(sb.toString());
         }
+
         return rules;
     }
 
@@ -109,19 +110,4 @@ public class AbductiveModelGenerator {
                 return (String) mi.getValues().get(((Integer)component.getValue()) - 1);
         return res;
     }
-
-    public void writeModeltoFile(String filename){
-        String[] rules = abductiveModel.getRules().split("\\.");
-        FileWriter fileWriter;
-        try {
-            fileWriter = new FileWriter(new File(filename));
-            for(String rule: rules)
-                fileWriter.write(rule + ".\n");
-            fileWriter.flush();
-            fileWriter.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 }

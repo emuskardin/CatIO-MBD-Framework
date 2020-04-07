@@ -9,6 +9,8 @@ import compiler.LogicParser;
 import lombok.Data;
 import util.Util;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,7 +23,8 @@ public class AbductiveModel {
     private List<String> observations = new ArrayList<>();
     private ATMSystem atms = null;
 
-    public AbductiveModel(){ };
+    public AbductiveModel(){ }
+
     public AbductiveModel(String filePath){
         String content = null;
         try {
@@ -48,7 +51,7 @@ public class AbductiveModel {
         return sb.toString();
     }
 
-    public Set<Set<String>> getExplanation(){
+    private Set<Set<String>> getExplanation(){
         Set<Set<String>> res = Collections.emptySet();
         for(ATMSNode node : atms.nodes){
             if(node.identifier.equals("explain")){
@@ -71,11 +74,22 @@ public class AbductiveModel {
         atms = ATMSTextInterface.create(list).atms;
         Set<Set<String>> explenation = getExplanation();
         if(explenation.isEmpty()){
-            System.out.println("No explenation");
-            expl = "No explenation";
+            System.out.println("No explanation");
+            expl = "No explanation";
         }else
             expl = explenation.toString();
         observations.clear();
         return expl;
+    }
+
+    public void modelToFile(String filename){
+        String model = rules.replaceAll("\\.", "\\.\n");
+        try {
+            FileWriter fw = new FileWriter(filename);
+            fw.write(model);
+            fw.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 }

@@ -149,7 +149,7 @@ User analyzes the output and returns a propositional variables describing faulty
 Each element of resulting list is added as rule.
 ```java
 public interface Diff {
-    public List<String> encodeDiff(List<Map<String, Object>> corr, 
+    List<String> encodeDiff(List<Map<String, Object>> corr, 
             List<Map<String, Object>> faulty);
 }
 ```

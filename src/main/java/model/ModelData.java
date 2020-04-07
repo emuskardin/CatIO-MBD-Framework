@@ -1,5 +1,6 @@
 package model;
 
+import interfaces.Controller;
 import lombok.Data;
 import org.apache.commons.lang3.Pair;
 
@@ -11,7 +12,8 @@ public class ModelData {
     private List<ModelInput> modeAssigmentVars = new ArrayList<>();
     private List<ModelInput> inputs = new ArrayList<>();
     private List<ModelInput> param = new ArrayList<>();
-    private Pair<String , String> plot;
+    private Pair<Component, Component> plot;
+    private Controller controller;
 
     public Integer getEnumValue(String compName, String faultName){
         for(ModelInput comp : modeAssigmentVars){
@@ -98,5 +100,10 @@ public class ModelData {
                 return comp;
         }
         return null;
+    }
+    public void setPlotVariables(String xVar, String yVar){
+        Component x = new Component(xVar, Type.DOUBLE);
+        Component y = new Component(yVar, Type.DOUBLE);
+        plot = new Pair<>(x,y);
     }
 }

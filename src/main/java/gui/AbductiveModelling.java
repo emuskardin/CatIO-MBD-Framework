@@ -8,8 +8,6 @@ import util.Util;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,9 +34,10 @@ public class AbductiveModelling {
             if (abductiveModelArea.getText().isEmpty())
                 return;
             AbductiveModel abductiveModel = new AbductiveModel();
-            abductiveModel.setRules(Util.removeComments(abductiveModelArea.getText()));
+            String woComments = Util.removeComments(abductiveModelArea.getText());
+            Arrays.asList(woComments.split("\\.")).forEach(it -> abductiveModel.addRule(it + "."));
             String obs = observationField.getText().replaceAll("\\s+", "");
-            abductiveModel.addExplain(Arrays.asList(obs.split(",")));
+            abductiveModel.tryToExplain(Arrays.asList(obs.split(",")));
             String exp = abductiveModel.getDiagnosis();
             if (exp.equals("Parsing Error")) {
                 Util.errorMsg(exp, JOptionPane.ERROR_MESSAGE);

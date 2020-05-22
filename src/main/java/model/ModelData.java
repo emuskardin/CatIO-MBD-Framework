@@ -12,8 +12,9 @@ public class ModelData {
     private List<ModelInput> modeAssigmentVars = new ArrayList<>();
     private List<ModelInput> inputs = new ArrayList<>();
     private List<ModelInput> param = new ArrayList<>();
-    private Pair<Component, Component> plot;
+
     private Controller controller;
+    private Pair<Component, Component> plotData;
 
     public Integer getEnumValue(String compName, String faultName){
         for(ModelInput comp : modeAssigmentVars){
@@ -94,16 +95,10 @@ public class ModelData {
         }
         return null;
     }
-    public Component getToReadByName(String name){
-        for(Component comp: componentsToRead){
-            if(comp.getName().equals(name))
-                return comp;
-        }
-        return null;
-    }
+
     public void setPlotVariables(String xVar, String yVar){
         Component x = new Component(xVar, Type.DOUBLE);
         Component y = new Component(yVar, Type.DOUBLE);
-        plot = new Pair<>(x,y);
+        plotData = new Pair<>(x,y);
     }
 }

@@ -14,28 +14,30 @@ public class ConsistencyMain {
     public static void main(String[] args) {
         String inputModelRobot = "FMIs/ERobot.SubModel.InputSimpleRobot.fmu";
         String pathToSimpleModel = "src/main/java/runningExamples/SimpleRobot/Consistency/simpleModel.txt";
-        String pathToStongFaultModel = "src/main/java/runningExamples/SimpleRobot/Consistency/strongFaultDiffModel.txt";
         String pathToScenarios = "src/main/java/runningExamples/SimpleRobot/Consistency/simpleScenarios.json";
         String pathToModelData = "src/main/java/runningExamples/SimpleRobot/Consistency/simpleRobot.json";
 
-        // Simple robot example
+        // Robot data extracted from JSON
         ModelData modelData = Util.modelDataFromJson(pathToModelData);
         // Set values to be plotted
         modelData.setPlotVariables("diffDrive.x", "diffDrive.y");
-        modelData.setController(new RepairRobot());
+        // Set controller which will perform repair actions
+        //modelData.setController(new RepairRobot());
+        // Connect everything together
         ConsistencyDriver consistencyDriver = ConsistencyDriver.builder()
                 .pathToFmi(inputModelRobot)
                 .model(new CbModel(pathToSimpleModel))
                 .encoder(new SimpleCarEncoder())
                 .modelData(modelData)
-                .numberOfSteps(20)
+                .numberOfSteps(5)
                 .simulationStepSize(1)
                 .build();
 
-        List<Scenario> scenarios = Util.scenariosFromJson(pathToScenarios);
-        //consistencyDriver.runDiagnosis(ConsistencyType.INTERMITTENT, scenarios.get(0));
-        consistencyDriver.runDiagnosis(ConsistencyType.STEP, scenarios.get(0));
-
+        // Load simulations from file
+        List<Scenario> scenarios = Util.scenariosFromJson(pathToScenarios, modelData);
+        // Run diagnosis and if possible repair from scenario 0
+        consistencyDriver.runDiagnosis(ConsistencyType.STEP, scenarios.get(3));
+/*
         System.out.println("Strong fault model diagnosis");
         ConsistencyDriver strongFaultDriver = ConsistencyDriver.builder()
                 .pathToFmi(inputModelRobot)
@@ -47,5 +49,7 @@ public class ConsistencyMain {
                 .build();
 
         //strongFaultDriver.runDiagnosis(ConsistencyType.STEP, scenarios.get(2));
+*/
     }
 }
+

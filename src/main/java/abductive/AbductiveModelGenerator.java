@@ -10,6 +10,8 @@ import model.ModelInput;
 import model.Scenario;
 import org.javafmi.wrapper.Simulation;
 
+import javax.swing.plaf.IconUIResource;
+import javax.xml.bind.SchemaOutputResolver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +39,11 @@ public class AbductiveModelGenerator {
     }
 
     public AbductiveModel generateModel(Integer numberOfSteps, Double stepSize, Integer faultInjectionStep) throws IOException {
+        MCA.numberOfCorrectComps(3,4);
         MCA.createTestSuite("automaticModelGen.csv");
         List<Scenario> simulationInputs = MCA.suitToSimulationInput("automaticModelGen.csv", faultInjectionStep);
 
+        int e = 0;
         for(Scenario scenario : simulationInputs){
             fmiConnector.resetSimulation();
             Simulation sim = fmiConnector.getSimulation();
@@ -63,7 +67,7 @@ public class AbductiveModelGenerator {
             sim.init(0.0);
             stepCounter = 0;
             while (stepCounter <= numberOfSteps){
-                scenario.injectFault(stepCounter, fmiConnector, modelData);
+                scenario.injectFault(stepCounter, fmiConnector);
                 faultyObs.add(enc.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead())));
                 sim.doStep(stepSize);
                 stepCounter++;
@@ -76,6 +80,7 @@ public class AbductiveModelGenerator {
                     abductiveModel.addRule(rule);
             }
         }
+
         return abductiveModel;
     }
 

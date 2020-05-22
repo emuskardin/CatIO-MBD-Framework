@@ -3,6 +3,7 @@ package util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import model.Component;
 import model.ModelData;
 import model.Scenario;
 
@@ -50,8 +51,18 @@ public class Util {
         }
     }
 
-    public static List<Scenario> scenariosFromJson(String filename){
-        return (List<Scenario>) jsonToObject(filename, new TypeToken<List<Scenario>>(){}.getType());
+    public static List<Scenario> scenariosFromJson(String filename, ModelData modelData){
+        List<Scenario> scenariosFromJson = (List<Scenario>) jsonToObject(filename, new TypeToken<List<Scenario>>(){}.getType());
+        assert scenariosFromJson != null;
+        for(Scenario scenario : scenariosFromJson){
+            scenario.getTimeCompMap().values().forEach(it -> {
+                for(Component comp : it){
+                    if(comp.getValue() instanceof String && comp.getType() == model.Type.ENUM)
+                        comp.setValue(modelData.getEnumValue(comp.getName(), (String) comp.getValue()));
+                }
+            });
+        }
+        return scenariosFromJson;
     }
 
     public static ModelData modelDataFromJson(String filename){

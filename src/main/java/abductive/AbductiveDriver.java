@@ -32,9 +32,9 @@ public class AbductiveDriver {
 
         while (currStep < numberOfSteps){
             if(scenario != null)
-                scenario.injectFault(currStep, fmiMonitor, modelData);
+                scenario.injectFault(currStep, fmiMonitor);
             List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
-            abductiveModel.addExplain(obs);
+            abductiveModel.tryToExplain(obs);
             System.out.println(simulation.getCurrentTime() + " " + abductiveModel.getDiagnosis());
             simulation.doStep(simulationStepSize);
             currStep++;

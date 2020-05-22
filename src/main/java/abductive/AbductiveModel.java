@@ -19,7 +19,7 @@ import java.util.*;
 
 @Data
 public class AbductiveModel {
-    private String rules = "";
+    private Set<String> rules = new HashSet<>();
     private List<String> observations = new ArrayList<>();
     private ATMSystem atms = null;
 
@@ -34,19 +34,20 @@ public class AbductiveModel {
             e.printStackTrace();
             System.exit(1);
         }
-        rules = content;
+        rules = new HashSet<>(Arrays.asList(content.split("\\.")));
     }
 
     public void addRule(String rule){
-        rules += rule;
+        rules.add(rule);
     }
 
-    public void addExplain(List<String> symptoms){
+    public void tryToExplain(List<String> symptoms){
         observations.add(String.join(",", symptoms) + " -> explain.");
     }
 
     private String getModelAndObs(){
-        StringBuilder sb = new StringBuilder(rules);
+        StringBuilder sb = new StringBuilder();
+        rules.forEach(sb::append);
         observations.forEach(sb::append);
         return sb.toString();
     }
@@ -83,10 +84,15 @@ public class AbductiveModel {
     }
 
     public void modelToFile(String filename){
-        String model = rules.replaceAll("\\.", "\\.\n");
         try {
             FileWriter fw = new FileWriter(filename);
-            fw.write(model);
+            rules.forEach(it -> {
+                try {
+                    fw.write(it + "\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
             fw.close();
         } catch (IOException ex) {
             ex.printStackTrace();

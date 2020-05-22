@@ -33,7 +33,7 @@ public class ConsistencyDriver {
 
         ArrayList<Double> xPlot = new ArrayList<>();
         ArrayList<Double> yPlot = new ArrayList<>();
-        Pair<Component, Component> plotData = modelData.getPlot();
+        Pair<Component, Component> plotData = modelData.getPlotData();
         Simulation simulation = fmiConnector.getSimulation();
         Integer currStep = 0;
 
@@ -42,10 +42,11 @@ public class ConsistencyDriver {
         simulation.init(0.0);
         if(type == ConsistencyType.STEP){
             model.setNumOfDistinct(model.getPredicates().getSize());
+            int repairActionLen;
             while (currStep < numberOfSteps) {
                 // If there is scenario and step injection is defined at current step, it will be injected at this point
                 if (scenario != null)
-                    scenario.injectFault(currStep, fmiConnector, modelData);
+                    scenario.injectFault(currStep, fmiConnector);
 
                 // Save data which is going to be plotted, if plot variables are defined
                 if (plotData != null) {
@@ -70,7 +71,18 @@ public class ConsistencyDriver {
 
                 // If controller is defined, perform action
                 if(controller != null && !diag.get(0).isEmpty()){
-                    controller.performAction(fmiConnector, diag.get(0));
+                    repairActionLen = controller.performAction(fmiConnector, diag.get(0));
+                    simulation.doStep(simulationStepSize);
+                    while(repairActionLen >= 0){
+                        if (plotData != null) {
+                            xPlot.add((Double) fmiConnector.read(plotData.left).getValue());
+                            yPlot.add((Double) fmiConnector.read(plotData.right).getValue());
+                        }
+                        // Save data which is going to be plotted, if plot variables are defined
+                        repairActionLen = controller.performAction(fmiConnector, diag.get(0));
+                        simulation.doStep(simulationStepSize);
+
+                    }
                 }
             }
             }else if(type == ConsistencyType.PERSISTENT || type == ConsistencyType.INTERMITTENT){
@@ -82,11 +94,11 @@ public class ConsistencyDriver {
 
             while(currStep < numberOfSteps){
                 if(scenario != null)
-                    scenario.injectFault(currStep , fmiConnector, modelData);
+                    scenario.injectFault(currStep , fmiConnector);
 
-                if(modelData.getPlot() != null){
-                    xPlot.add((Double) fmiConnector.read(modelData.getPlot().left).getValue());
-                    yPlot.add((Double) fmiConnector.read(modelData.getPlot().right).getValue());
+                if(modelData.getPlotData() != null){
+                    xPlot.add((Double) fmiConnector.read(modelData.getPlotData().left).getValue());
+                    yPlot.add((Double) fmiConnector.read(modelData.getPlotData().right).getValue());
                 }
 
                 List<String> obs = encoder.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead()));
@@ -115,7 +127,7 @@ public class ConsistencyDriver {
         }
 
         // if plot values are specified
-        if(modelData.getPlot() != null)
+        if(modelData.getPlotData() != null)
             Util.plot(xPlot, yPlot, "plot");
 
         // for reuse, clear and reset members of this class
@@ -126,7 +138,6 @@ public class ConsistencyDriver {
     public void runDiagnosis(ConsistencyType type){
         runDiagnosis(type, null);
     }
-
 
     private List<Integer> increaseObservation(List<Integer> obs, int currStep, int offset){
         for (int i = 0; i < obs.size(); i++) {

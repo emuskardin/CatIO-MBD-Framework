@@ -19,15 +19,10 @@ public class Scenario {
         timeCompMap.put(time, comps);
     }
 
-    public void injectFault(Integer currentTime , FmiConnector fmiConnector, ModelData modelData){
+    public void injectFault(Integer currentTime , FmiConnector fmiConnector){
         for(Integer key : timeCompMap.keySet()){
-            if(key.equals(currentTime)) {
-                for(Component comp: timeCompMap.get(key)){
-                    if(comp.getValue() instanceof String && comp.getType() == Type.ENUM)
-                        comp.setValue(modelData.getEnumValue(comp.getName(), (String) comp.getValue()));
-                }
+            if(key.equals(currentTime))
                 fmiConnector.writeMultipleComp(timeCompMap.get(key));
-            }
         }
     }
 }

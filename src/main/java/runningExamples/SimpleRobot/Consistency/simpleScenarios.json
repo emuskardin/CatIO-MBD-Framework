@@ -169,11 +169,18 @@
           "value": "2.4"
         }
       ],
-      "7": [
+      "3": [
         {
           "name": "leftFaultType",
           "type": "ENUM",
           "value": "faster"
+        }
+      ],
+      "4": [
+        {
+          "name": "leftFaultType",
+          "type": "ENUM",
+          "value": "ok"
         }
       ]
     }

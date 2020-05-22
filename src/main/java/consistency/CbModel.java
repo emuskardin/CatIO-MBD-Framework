@@ -146,7 +146,7 @@ public class CbModel {
         return abModel;
     }
 
-    public void increaseByOffset(Boolean increaseHS, Integer currStep){
+    void increaseByOffset(Boolean increaseHS, Integer currStep){
         // abPredicates size / 2 as we initially save both ab and -ab values
         int offset = increaseHS ? predicates.getSize() * currStep : (predicates.getSize() - abPredicates.size()) * currStep;
         // Increase each integer by offset
@@ -179,7 +179,7 @@ public class CbModel {
         return res;
     }
 
-    public List<String> getComponentNamesTimed(List<Integer> mhs , ConsistencyType type, int obsSize){
+    List<String> getComponentNamesTimed(List<Integer> mhs , ConsistencyType type, int obsSize){
         List<String> res = new ArrayList<>();
         int offset = predicates.getSize() + obsSize;
 

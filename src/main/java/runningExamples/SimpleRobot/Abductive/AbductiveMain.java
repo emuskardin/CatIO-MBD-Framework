@@ -17,9 +17,9 @@ public class AbductiveMain {
         String pathToModelData = "src/main/java/runningExamples/SimpleRobot/Consistency/simpleRobot.json";
         ModelData robotData = Util.modelDataFromJson(pathToModelData);
 
-        AbductiveModelGenerator abductiveModelGenerator = new AbductiveModelGenerator(pathToRobotFmi, robotData);
-        abductiveModelGenerator.setEncoderAndDiff(new StrongFaultAbEncoder(), new RobotDiff());
-        abductiveModelGenerator.generateModel(5, 1.0, 2);
+        AbductiveModelGenerator abductiveModelGenerator = new AbductiveModelGenerator(pathToRobotFmi, robotData, new RobotDiff());
+        abductiveModelGenerator.setEnc(new StrongFaultAbEncoder());
+        abductiveModelGenerator.generateModel(10, 1.0, 3);
         AbductiveModel learnedModel = abductiveModelGenerator.getAbductiveModel();
         System.out.println(learnedModel.getRules());
         learnedModel.modelToFile("test.txt");

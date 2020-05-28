@@ -13,8 +13,8 @@ public class CircuitsMain {
         String pathToModelData = "singleCircuit.json";
         ModelData circuitData = Util.modelDataFromJson(pathToModelData);
 
-        AbductiveModelGenerator abductiveModelGenerator = new AbductiveModelGenerator(pathToCircuitFmi, circuitData);
-        abductiveModelGenerator.setEncoderAndDiff(new CircuitEncoder(), new CircuitDiff());
+        AbductiveModelGenerator abductiveModelGenerator = new AbductiveModelGenerator(pathToCircuitFmi, circuitData, new CircuitDiff());
+        abductiveModelGenerator.setEnc(new CircuitEncoder());
 
         // mixed level covering array will be automatically generated without any constraints
         // params for generate model are number of steps, step size and fault injection step

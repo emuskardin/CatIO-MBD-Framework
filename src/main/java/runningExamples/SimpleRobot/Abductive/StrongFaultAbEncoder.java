@@ -18,26 +18,26 @@ public class StrongFaultAbEncoder implements Encoder {
         int wantedDir = Double.compare(rightWheelInput, leftWheelInput);
         int actualDir = Double.compare(rightWheelOutput, leftWheelOutput);
 
-        if(wantedDir == 0)
+        if (wantedDir == 0)
             encodedObservation.add("wantedDirection(straight)");
-        else if(wantedDir == 1)
+        else if (wantedDir == 1)
             encodedObservation.add("wantedDirection(right)");
         else
             encodedObservation.add("wantedDirection(left)");
 
-        if(actualDir == 0)
+        if (actualDir == 0)
             encodedObservation.add("actualDirection(straight)");
-        else if(actualDir == 1)
+        else if (actualDir == 1)
             encodedObservation.add("actualDirection(right)");
         else
             encodedObservation.add("actualDirection(left)");
 
-        if(!rightWheelInput.equals(rightWheelOutput))
+        if (!rightWheelInput.equals(rightWheelOutput))
             encodedObservation.add("notEqualInOut(right)");
         else
             encodedObservation.add("EqualInOut(right)");
 
-        if(!leftWheelInput.equals(leftWheelOutput))
+        if (!leftWheelInput.equals(leftWheelOutput))
             encodedObservation.add("notEqualInOut(left)");
         else
             encodedObservation.add("EqualInOut(left)");

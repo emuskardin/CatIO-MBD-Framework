@@ -9,6 +9,7 @@ import lombok.Data;
 import model.ModelInput;
 import model.Scenario;
 import org.javafmi.wrapper.Simulation;
+import runningExamples.SimpleRobot.Abductive.SimulationRunData;
 
 import javax.swing.plaf.IconUIResource;
 import javax.xml.bind.SchemaOutputResolver;
@@ -26,36 +27,40 @@ public class AbductiveModelGenerator {
     private Diff diff;
     private Encoder enc;
 
-    public AbductiveModelGenerator(String pathToFmi , ModelData modelData){
+    public AbductiveModelGenerator(String pathToFmi , ModelData modelData, Diff diff){
         abductiveModel = new AbductiveModel();
         this.modelData = modelData;
         MCA = new MCA(modelData);
         fmiConnector = new FmiConnector(pathToFmi);
+        this.diff = diff;
+
     }
 
-    public void setEncoderAndDiff(Encoder enc, Diff diff){
+    public void setEncoder(Encoder enc){
         this.enc = enc;
-        this.diff = diff;
     }
 
     public AbductiveModel generateModel(Integer numberOfSteps, Double stepSize, Integer faultInjectionStep) throws IOException {
-        MCA.numberOfCorrectComps(3,4);
         MCA.createTestSuite("automaticModelGen.csv");
         List<Scenario> simulationInputs = MCA.suitToSimulationInput("automaticModelGen.csv", faultInjectionStep);
 
-        int e = 0;
         for(Scenario scenario : simulationInputs){
             fmiConnector.resetSimulation();
             Simulation sim = fmiConnector.getSimulation();
-            List<List<String>> corrObs = new ArrayList<>();
-            List<List<String>> faultyObs = new ArrayList<>();
+
+            SimulationRunData corrSimulationRunData = new SimulationRunData();
+            SimulationRunData faultySimulationRunData = new SimulationRunData();
             // Setup params and inputs as well as all health states to ok
             fmiConnector.writeMultipleComp(scenario.getTimeCompMap().values().iterator().next());
             fmiConnector.writeMultipleComp(modelData.getAllOkStates());
             sim.init(0.0);
             int stepCounter = 0;
             while(stepCounter <= numberOfSteps){
-                corrObs.add(enc.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead())));
+                if(enc == null)
+                    corrSimulationRunData.addValues(fmiConnector.readMultiple(modelData.getComponentsToRead()));
+                else
+                    corrSimulationRunData.addPredicates(enc.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead())));
+
                 sim.doStep(stepSize);
                 stepCounter++;
             }
@@ -64,16 +69,20 @@ public class AbductiveModelGenerator {
             sim = fmiConnector.getSimulation();
             fmiConnector.writeMultipleComp(scenario.getTimeCompMap().values().iterator().next());
             fmiConnector.writeMultipleComp(modelData.getAllOkStates());
+
             sim.init(0.0);
             stepCounter = 0;
             while (stepCounter <= numberOfSteps){
                 scenario.injectFault(stepCounter, fmiConnector);
-                faultyObs.add(enc.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead())));
+                if(enc == null)
+                    faultySimulationRunData.addValues(fmiConnector.readMultiple(modelData.getComponentsToRead()));
+                else
+                    faultySimulationRunData.addPredicates(enc.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead())));
                 sim.doStep(stepSize);
                 stepCounter++;
             }
 
-            Set<String> difference = diff.encodeDiff(corrObs, faultyObs);
+            Set<String> difference = diff.encodeDiff(corrSimulationRunData, faultySimulationRunData);
             if(difference != null && !difference.isEmpty()){
                 List<Component> comps = scenario.getTimeCompMap().values().iterator().next();
                 for(String rule : formRule(comps, difference))

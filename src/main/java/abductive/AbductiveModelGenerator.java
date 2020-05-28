@@ -9,10 +9,8 @@ import lombok.Data;
 import model.ModelInput;
 import model.Scenario;
 import org.javafmi.wrapper.Simulation;
-import runningExamples.SimpleRobot.Abductive.SimulationRunData;
+import model.SimulationRunData;
 
-import javax.swing.plaf.IconUIResource;
-import javax.xml.bind.SchemaOutputResolver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +24,7 @@ public class AbductiveModelGenerator {
     private AbductiveModel abductiveModel;
     private Diff diff;
     private Encoder enc;
+    private String pathToMCA;
 
     public AbductiveModelGenerator(String pathToFmi , ModelData modelData, Diff diff){
         abductiveModel = new AbductiveModel();
@@ -38,6 +37,10 @@ public class AbductiveModelGenerator {
 
     public void setEncoder(Encoder enc){
         this.enc = enc;
+    }
+
+    public void setMCASuite(String pathToMCA){
+        this.pathToMCA = pathToMCA;
     }
 
     public AbductiveModel generateModel(Integer numberOfSteps, Double stepSize, Integer faultInjectionStep) throws IOException {

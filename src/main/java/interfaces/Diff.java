@@ -1,9 +1,7 @@
 package interfaces;
 
-import runningExamples.SimpleRobot.Abductive.SimulationRunData;
+import model.SimulationRunData;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public interface Diff {

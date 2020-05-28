@@ -1,6 +1,7 @@
 package runningExamples.SimpleRobot.Abductive;
 
 import interfaces.Diff;
+import model.SimulationRunData;
 
 import java.util.HashSet;
 import java.util.Set;

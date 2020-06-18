@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class AbductiveModelling {
     public JPanel panel;
@@ -37,7 +38,7 @@ public class AbductiveModelling {
             String woComments = Util.removeComments(abductiveModelArea.getText());
             Arrays.asList(woComments.split("\\.")).forEach(it -> abductiveModel.addRule(it + "."));
             String obs = observationField.getText().replaceAll("\\s+", "");
-            abductiveModel.tryToExplain(Arrays.asList(obs.split(",")));
+            abductiveModel.tryToExplain(new HashSet<>(Arrays.asList(obs.split(","))));
             String exp = abductiveModel.getDiagnosis();
             if (exp.equals("Parsing Error")) {
                 Util.errorMsg(exp, JOptionPane.ERROR_MESSAGE);

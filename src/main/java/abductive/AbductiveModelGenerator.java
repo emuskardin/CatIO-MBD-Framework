@@ -62,7 +62,7 @@ public class AbductiveModelGenerator {
                 if(enc == null)
                     corrSimulationRunData.addValues(fmiConnector.readMultiple(modelData.getComponentsToRead()));
                 else
-                    corrSimulationRunData.addPredicates(enc.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead())));
+                    corrSimulationRunData.addPredicates(new ArrayList<>((enc.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead())))));
 
                 sim.doStep(stepSize);
                 stepCounter++;
@@ -80,7 +80,7 @@ public class AbductiveModelGenerator {
                 if(enc == null)
                     faultySimulationRunData.addValues(fmiConnector.readMultiple(modelData.getComponentsToRead()));
                 else
-                    faultySimulationRunData.addPredicates(enc.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead())));
+                    faultySimulationRunData.addPredicates(new ArrayList<>((enc.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead())))));
                 sim.doStep(stepSize);
                 stepCounter++;
             }

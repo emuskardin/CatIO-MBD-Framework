@@ -55,7 +55,7 @@ public class ConsistencyDriver {
                 }
 
                 // Read data and encode it
-                List<String> obs = encoder.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead()));
+                Set<String> obs = encoder.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead()));
                 // Run diagnosis
                 RcTree rcTree = new RcTree(model, model.observationToInt(obs));
 
@@ -71,7 +71,7 @@ public class ConsistencyDriver {
 
                 // If controller is defined, perform action
                 if(controller != null && !diag.get(0).isEmpty()){
-                    repairActionLen = controller.performAction(fmiConnector, diag.get(0));
+                    repairActionLen = controller.performAction(fmiConnector, diag);
                     simulation.doStep(simulationStepSize);
                     while(repairActionLen >= 0){
                         if (plotData != null) {
@@ -79,7 +79,7 @@ public class ConsistencyDriver {
                             yPlot.add((Double) fmiConnector.read(plotData.right).getValue());
                         }
                         // Save data which is going to be plotted, if plot variables are defined
-                        repairActionLen = controller.performAction(fmiConnector, diag.get(0));
+                        repairActionLen = controller.performAction(fmiConnector, diag);
                         simulation.doStep(simulationStepSize);
 
                     }
@@ -101,7 +101,7 @@ public class ConsistencyDriver {
                     yPlot.add((Double) fmiConnector.read(modelData.getPlotData().right).getValue());
                 }
 
-                List<String> obs = encoder.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead()));
+                Set<String> obs = encoder.encodeObservation(fmiConnector.readMultiple(modelData.getComponentsToRead()));
                 obsCounter = obs.size();
                 List<Integer> encodedObs = model.observationToInt(obs);
                 observations.addAll(increaseObservation(encodedObs, currStep, offset));

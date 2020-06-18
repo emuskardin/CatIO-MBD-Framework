@@ -114,7 +114,7 @@ public class CbModel {
         return abPredicates.contains(Math.abs(ab));
     }
 
-    public List<Integer> observationToInt(List<String> observations){
+    public List<Integer> observationToInt(Set<String> observations){
         List<Integer> res = new ArrayList<>();
         observations.forEach(obs -> {
             if(obs.charAt(0) == '!')

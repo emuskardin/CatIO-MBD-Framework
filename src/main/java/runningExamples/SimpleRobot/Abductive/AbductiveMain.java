@@ -10,6 +10,7 @@ import util.Util;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class AbductiveMain {
     public static void main(String[] args) throws IOException {
@@ -23,7 +24,7 @@ public class AbductiveMain {
         AbductiveModel learnedModel = abductiveModelGenerator.getAbductiveModel();
         System.out.println(learnedModel.getRules());
         learnedModel.modelToFile("test.txt");
-        learnedModel.tryToExplain(Arrays.asList("wantedDirection(straight)", "actualDirection(left)"));
+        learnedModel.tryToExplain(new HashSet<>(Arrays.asList("wantedDirection(straight)", "actualDirection(left)")));
 
         System.out.println(learnedModel.getDiagnosis());
         String[] fmiPath = {"FMIs/ERobot.Experiments.RampInput.fmu", "FMIs/ERobot.Experiments.RampWFault.fmu",

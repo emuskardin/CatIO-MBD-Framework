@@ -41,7 +41,7 @@ public class AbductiveModel {
         rules.add(rule);
     }
 
-    public void tryToExplain(List<String> symptoms){
+    public void tryToExplain(Set<String> symptoms){
         observations.add(String.join(",", symptoms) + " -> explain.");
     }
 

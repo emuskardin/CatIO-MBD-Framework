@@ -2,15 +2,13 @@ package runningExamples.SimpleRobot.Consistency;
 
 import interfaces.Encoder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class StrongFaultDiffEncoder implements Encoder {
 
     @Override
-    public List<String> encodeObservation(Map<String, Object> obs) {
-        List<String> encodedObservation = new ArrayList<>();
+    public Set<String> encodeObservation(Map<String, Object> obs) {
+        Set<String> encodedObservation = new HashSet<>();
         Double rightWheelInput = (Double) obs.get("rightWheel.i");
         Double rightWheelOutput = (Double) obs.get("rightWheel.o");
         Double leftWheelInput = (Double) obs.get("leftWheel.i");

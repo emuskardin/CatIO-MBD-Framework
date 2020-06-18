@@ -10,5 +10,5 @@ public interface Controller {
      * @param diagnosis single diagnosis or signal used to determine which action to take
      * @return remaining time steps of the action
      */
-    int performAction(FmiConnector fmiConnector, List<String> diagnosis);
+    int performAction(FmiConnector fmiConnector, List<List<String>> diagnosis);
 }

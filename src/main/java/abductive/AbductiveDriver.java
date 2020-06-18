@@ -9,6 +9,7 @@ import model.Scenario;
 import org.javafmi.wrapper.Simulation;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -33,7 +34,7 @@ public class AbductiveDriver {
         while (currStep < numberOfSteps){
             if(scenario != null)
                 scenario.injectFault(currStep, fmiMonitor);
-            List<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
+            Set<String> obs = encoder.encodeObservation(fmiMonitor.readMultiple(modelData.getComponentsToRead()));
             abductiveModel.tryToExplain(obs);
             System.out.println(simulation.getCurrentTime() + " " + abductiveModel.getDiagnosis());
             simulation.doStep(simulationStepSize);

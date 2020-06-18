@@ -11,7 +11,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ConsistencyModelling {
     public JPanel panel;
@@ -44,7 +46,7 @@ public class ConsistencyModelling {
             if (obsStr.isEmpty() || cbModel == null)
                 return;
             obsStr = obsStr.replaceAll("\\s+", "");
-            List<String> obs = Arrays.asList(obsStr.split(","));
+            Set<String> obs = new HashSet<>(Arrays.asList(obsStr.split(",")));
             RcTree rcTree = new RcTree(cbModel, cbModel.observationToInt(obs));
             for (List<Integer> mhs : rcTree.getDiagnosis()) {
                 List<String> diag = cbModel.diagnosisToComponentNames(mhs);

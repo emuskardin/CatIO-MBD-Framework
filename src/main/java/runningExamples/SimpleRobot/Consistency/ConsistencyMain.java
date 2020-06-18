@@ -22,21 +22,21 @@ public class ConsistencyMain {
         // Set values to be plotted
         modelData.setPlotVariables("diffDrive.x", "diffDrive.y");
         // Set controller which will perform repair actions
-        //modelData.setController(new RepairRobot());
+        modelData.setController(new RepairRobot());
         // Connect everything together
         ConsistencyDriver consistencyDriver = ConsistencyDriver.builder()
                 .pathToFmi(inputModelRobot)
                 .model(new CbModel(pathToSimpleModel))
                 .encoder(new SimpleCarEncoder())
                 .modelData(modelData)
-                .numberOfSteps(5)
+                .numberOfSteps(20)
                 .simulationStepSize(1)
                 .build();
 
         // Load simulations from file
         List<Scenario> scenarios = Util.scenariosFromJson(pathToScenarios, modelData);
         // Run diagnosis and if possible repair from scenario 0
-        consistencyDriver.runDiagnosis(ConsistencyType.STEP, scenarios.get(3));
+        consistencyDriver.runDiagnosis(ConsistencyType.STEP, scenarios.get(0));
 /*
         System.out.println("Strong fault model diagnosis");
         ConsistencyDriver strongFaultDriver = ConsistencyDriver.builder()

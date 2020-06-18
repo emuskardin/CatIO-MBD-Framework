@@ -8,8 +8,6 @@ import interfaces.Diff;
 import interfaces.Encoder;
 import runningExamples.SimpleRobot.Abductive.RobotDiff;
 import runningExamples.SimpleRobot.Abductive.StrongFaultAbEncoder;
-import util.HelperDiff;
-import util.HelperEncoder;
 import util.Util;
 
 import javax.swing.*;

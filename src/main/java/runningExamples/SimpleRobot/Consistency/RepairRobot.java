@@ -10,13 +10,15 @@ public class RepairRobot implements Controller {
     private int leftFasterStep = 4;
 
     @Override
-    public int performAction(FmiConnector fmiConnector, List<String> diagnosis) {
+    public int performAction(FmiConnector fmiConnector, List<List<String>> diagnosis) {
         this.fmiConnector = fmiConnector;
-        for(String diag : diagnosis) {
+        List<String> singleDiag = diagnosis.get(0);
+
+        for(String diag : singleDiag) {
             if (diag.equals("AbLeftWheel"))
-                return repairLeftWheel();
+                return compensateLeftFaster();
             if (diag.equals("AbRightWheel"))
-                return repairRightWheel();
+                return repairLeftWheel();
             if (diag.equals("faster(leftWheel)")){
                 return compensateLeftFaster();
             }

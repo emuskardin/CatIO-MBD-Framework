@@ -35,6 +35,12 @@ public class PicoMUS {
         fr = new BufferedWriter(new FileWriter(file));
     }
 
+    /**
+     * Writes to file in DIMCAS format used in SAT solvers
+     * @param model Consistency based model
+     * @param obs Observations mapped to integers with respect to the propositions found in model
+     * @throws IOException
+     */
     public void writeModelAndObsToFile(CbModel model, List<Integer> obs) throws IOException {
         this.cbModel = model;
         addProblemLine(model.getWorkingModel().size() + obs.size(), model.getNumOfDistinct());
@@ -45,6 +51,10 @@ public class PicoMUS {
         fr.close();
     }
 
+    /**
+     * @return List of integers (which correspond to propositions) which forms minimal unsatisfiable core
+     * @throws IOException
+     */
     public List<Integer> getMUS() throws IOException {
         List<Integer> mhs = new ArrayList<>();
         Runtime rt = Runtime.getRuntime();

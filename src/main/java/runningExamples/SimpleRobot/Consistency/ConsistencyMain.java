@@ -20,9 +20,9 @@ public class ConsistencyMain {
         // Robot data extracted from JSON
         ModelData modelData = Util.modelDataFromJson(pathToModelData);
         // Set values to be plotted
-        modelData.setPlotVariables("diffDrive.x", "diffDrive.y");
+        //modelData.setPlotVariables("diffDrive.x", "diffDrive.y");
         // Set controller which will perform repair actions
-        modelData.setController(new RepairRobot());
+        //modelData.setController(new RepairRobot());
         // Connect everything together
         ConsistencyDriver consistencyDriver = ConsistencyDriver.builder()
                 .pathToFmi(inputModelRobot)

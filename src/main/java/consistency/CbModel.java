@@ -91,23 +91,29 @@ public class CbModel {
     }
 
     private void processAndAddClauses(List<List<String>> clauses){
-        List<List<String>> hsToFront = new ArrayList<>(clauses);
-        for(List<String> clause : clauses) {
-            if(clause.size() == 1) {
-                String lit = clause.get(0);
-                boolean neg = (lit.charAt(0) == '~' || lit.charAt(0) == '!');
-                if ((neg && Character.isUpperCase(lit.charAt(1))) || Character.isUpperCase(lit.charAt(0))){
-                    addHealthStatePredicate(neg ? lit.substring(1) : lit);
-                    addCnfClause(Collections.singletonList(lit));
-                    hsToFront.remove(clause);
-                }
-            }
-        }
-        hsToFront.forEach(this::addCnfClause);
+        Set<String> hs = extractHealthStates(clauses);
+
+        hs.forEach(this::addHealthStatePredicate);
+        hs.forEach(it -> addCnfClause(Collections.singletonList("!" + it)));
+        clauses.forEach(this::addCnfClause);
+
     }
 
     private void addHealthStatePredicate(String ab){
         abPredicates.add(Math.abs(predicates.get(ab)));
+    }
+
+    private Set<String> extractHealthStates(List<List<String>> clauses){
+        Set<String> healthStates = new HashSet<>();
+        for(List<String> clause : clauses){
+            for(String literal : clause){
+                if (Character.isUpperCase(literal.charAt(0)))
+                    healthStates.add(literal);
+                else if(literal.charAt(0) == '~' && Character.isUpperCase(literal.charAt(1)))
+                    healthStates.add(literal.substring(1));
+            }
+        }
+        return healthStates;
     }
 
     public boolean isHealthStatePredicate(Integer ab){

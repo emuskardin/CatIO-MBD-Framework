@@ -2,6 +2,9 @@
 Framework for creating models for diagnosis, as well as testing their quality using co-simulation. 
 Basic documentation with use examples is shown in this readme.
 
+## Instalation
+Ensurea that you have necessary libraries set up in the lib/ folder. Those are picomus, acts, and atms.
+
 # Interaction with FMIs
 FMI can either be standard test benches of form
 ```

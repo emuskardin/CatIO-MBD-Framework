@@ -3,7 +3,7 @@ Framework for creating models for diagnosis, as well as testing their quality us
 Basic documentation with use examples is shown in this readme.
 
 ## Instalation
-Ensurea that you have necessary libraries set up in the lib/ folder. Those are picomus, acts, and atms.
+Ensurea that you have necessary libraries set up in the lib/ folder. Those are picomus, acts, and atms. Contact me if you need more details and help.
 
 # Interaction with FMIs
 FMI can either be standard test benches of form
